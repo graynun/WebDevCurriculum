@@ -3,30 +3,131 @@
 	<head>
 		<meta charset="UTF-8">
 		<!-- TODO: 또 무엇이 필요할까요? -->
+		<meta><!-- keywords, description, (author) name, http-equiv(content-type, default-style, refresh), viewport -->
+		<title></title>
+		<style></style> <!-- 별도의 cascade stylesheet 없이 할 경우-->
+		<link> <!-- css, js파일 등 외부파일 연결 -->
 	</head>
 	<body>
 		<header>
 			<!-- TODO: 상단의 회색 부분은 어떻게 처리하면 좋을까요? -->
+			<img class="header" id="github-logo" alt="Github logo" />
+			<form class="header">
+				This repository<input type="text" placeholder="Search" />
+			</form>
+			<nav class="header">
+				<ul>
+					<li>Explore</li>
+					<li>Features</li>
+					<li>Enterprise</li>
+					<li>Pricing</li>
+				</ul>
+			</nav>
+			<button class="header" id="sign-up">Sign up</button>
+			<button class="header" id="sign-in">Sign in</button>
 		</header>
 
 		<section class="main">
 			<header class="main-header">
 				<!-- TODO: 메인의 헤더 부분 -->
+				<img alt="book icon" /> KnowRe / WebDeCurriculum
+				<button>Watch</button>20
+				<button>Star</button>47
+				<button>Fork</button>6
 			</header>
 
 			<section class="main-detail">
 				<div>
 					<!-- TODO: 메인의 왼쪽 부분 -->
+					KnowRe web development curriculum for noobs
+
+					<button>pull request</button>
+					<select>
+						<option value="2016">Branch:2016</option>
+					</select>
+					WebDevCurriculum / +
+					<button>menu</button>
+
+					<table id="directory-view">
+						<tbody>
+							<tr>
+								<th>This branch is 5 commits ahead of master.
+								<span>Pull request</span>
+								<span>Compare</span>
+								</th>
+							</tr>
+								
+							<tr>
+								<td>...</td>
+							</tr>
+							<tr>
+								Kivol authored 19 hours ago
+								<span>lastest commit 5ead7a7a36</span>
+							</tr>
+							<tr>
+								<td>FolderNames</td>
+								<td>Commit comment</td>
+								<td>last modified</td>
+							</tr>
+						<tbody>
+					</table>
+
+					<table id="readme">
+						<tbody>
+							<tr>
+								<th>README.md</th>
+							</tr>
+							<tr>
+								<td>KnowRe web development curriculum 2016</td>
+							</tr>
+						</tbody>
+					</table>
+
 				</div>
 
 				<aside>
 					<!-- TODO: 메인의 오른쪽 메뉴 부분 -->
+					<nav>
+					</nav>
+					<div>
+						HTTPS clone URL
+						<input type="text" placeholder="https://github.com" disabled>
+						<button id="cloneURL">copy image</button>
+						You can clone with HTTPS or Subversion.
+						<button id="clone-in-desktop">Clone in Desktop</button>
+						<button id="download-zip">Download ZIP</button>
+					</div>
 				</aside>
 			</section>
 		</section>
 
 		<footer>
 			<!-- TODO: 하단의 Copyright, Terms, Privacy 등은 어떻게 처리하면 좋을까요? -->
+			©2015 Github, Inc.
+			<nav>
+				<ul>
+					<li>Terms</li>
+					<li>Privacy</li>
+					<li>Security</li>
+					<li>Contact</li>
+					<li>Help</li>
+				</ul>
+			</nav>
+
+			<img alt="octocat image"/>
+
+			<nav>
+				<ul>
+					<li>Status</li>
+					<li>API</li>
+					<li>Training</li>
+					<li>Shop</li>
+					<li>Blog</li>
+					<li>About</li>
+					<li>Pricing</li>
+				</ul>
+			</nav>
+
 		</footer>
 	</body>
 </html>
