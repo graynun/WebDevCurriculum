@@ -23,8 +23,18 @@
 
 ## Checklist
 * 버전 관리 시스템은 왜 필요한가요?
+	* 대부분의 소프트웨어는 앉은자리에서 한 번에 짜는 것이 아니라 구조를 만들고, 그것을 구성하는 작은 단위들을 만들거나 수정하는 방식으로 만들어지는데 이 변경사항에 대해서 효율적으로 저장 / 잘못되는 경우 되돌리기가 가능해야됨 / 여러사람이 일하는 경우 같은 것을 기반으로 개개인이 작업하는 부분이 다른 부분과 잘 호환되게 해야 할 수도 있음 / 여러 사람이 같은 부분을 다시 만드는 일도 없어야 됨 등등의 이유로...
 * git 외의 버전관리 시스템에는 무엇이 있나요? git은 그 시스템과 어떤 점이 다르며, 어떤 장점을 가지고 있나요?
+	* Central vs Distributed: 중앙의 서버에 하나의 '진리'인 code base가 있는가 vs 분산형으로 각각의 작업자에 동일한 내역을 보관하고 있는가(SVN, Perforce / git, Mercury)
+	* 변경 내역 저장 방식: Snapshot vs delta
 * git의 `clone`/`add`/`commit`/`push`/`pull`/`branch`/`stash` 명령은 무엇이며 어떨 때 이용하나요? 그리고 어떻게 사용하나요?
+	* clone: (Remote) repository를 복사할 때
+	* add: 작업한 내역(특정 파일 혹은 파일 전체, working space)을 local git의 index에 내용 추가하기
+	* commit: index에 있는 내용을 git HEAD(현재 branch)에 추가하기. 작업 내용에 대한 간단한 설명도 붙인다.
+	* push: local git에 추가된 commit을 remote repository에 저장하기
+	* pull: remote repository에 있는 내용을 받아오기
+	* branch: 새로운 branch 만들기
+	* stash: 특정 branch에서 작업한 내용을 commit하지 않고(하지만 작업내용도 잃지 않고) branch를 바꾸고 싶을 때 작업 내용을 임시로 저장. 하기 전에 add는 해줘야 한다.
 
 ## Quest
 * github에 가입한 뒤, [이 커리큘럼의 github 저장소](https://github.com/KnowRe/WebDevCurriculum)의 우상단의 Fork 버튼을 눌러 자신의 저장소에 복사해 둡니다.
