@@ -28,7 +28,24 @@
 
 ## Checklist
 * CSS를 HTML에 적용하는 세 가지 방법의 장단점은 무엇인가요?
+  * inline
+    * 장점: 빠르게 적용/수정 가능. 세 가지 중 가장 우선순위가 높게 적용됨. 규모가 작은 사이트의 경우 파일을 별도로 분리할 필요 없이 한파일에 적용가능.
+    * 단점: 재사용 불가능. 같은 속성을 적용하는 다양한 element가 있는 경우 매번 선언해줘야하며, 유지보수도 까다로워짐. pseudo-elements/class의 경우 적용 불가능.
+  * internal
+    * 장점: 페이지를 그릴 때 html 이외의 파일을 받지 않아도 됨. pseudo-elements/class 사용가능.
+    * 단점: 여러개의 html페이지를 그리는 경우 반복해서 써줘야됨. html파일 자체의 사이즈가 커짐 => inline/external CSS에 비해서 상대적으로 느림.
+  * external
+    * 장점: 여러개의 페이지에 대해서 (상대적으로) 잘 구조화되게 만들고 적용/재사용 가능. html 파일 사이즈 작음
+    * 단점: html 이외의 별도의 파일을 생성 => 느린 로딩속도. 별도의 파일에 분리되어 있어서 해당 스타일을 찾아볼때 귀찮음...
 * 여러 개의 CSS 규칙이 한 개의 대상에 적용될 때, 어떤 규칙이 우선순위를 가지게 되나요?
+  * inline > internal > external
+  * Specificity: ID selector(#id) > class selector(.class) / attribute selector([type=input]) / pseudo-class(:hover) > type selector(div, section, h1) / pseudo-element(:before)
+  * 같은 specificity를 가진 경우 마지막에 선언된 스타일
+    * cf) pseudo-class vs pseudo-element
+      pseudo-class는 개별 element의 특별한 상태를 명시. html의 트리구조 뿐 아니라 외부적 요인(해당 페이지의 과거 방문기록 유무)이나 해당 요소의 상태, 혹은 마우스의 위치 등에 따라서 다른 스타일 적용 가능하게 함.
+      pseudo-element는 element의 '특정 부분'에 대해서 다른 스타일을 적용 가능하게 하도록 함. 
+      CSS3 이후 pseudo-class는 :(single colon), pseudo-element는 ::(double colon)으로 구분하려고 시도하는 중이라고 함.
+
 * 어떤 박스가 `position: absolute;`인 속성을 갖는다면, 그 위치의 기준점은 어디가 되나요?
 * 가로나 세로로 여러 개의 박스가 공간을 채우되, 그 중 한 개의 박스만 가변적인 크기를 가지고 나머지 박스는 고정된 크기를 갖게 하려면 어떻게 해야 할까요?
 * `float` 속성은 왜 좋지 않을까요?
