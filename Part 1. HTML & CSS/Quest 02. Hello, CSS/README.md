@@ -42,7 +42,7 @@
   * Specificity: ID selector(#id) > class selector(.class) / attribute selector([type=input]) / pseudo-class(:hover) > type selector(div, section, h1) / pseudo-element(:before)
   * 같은 specificity를 가진 경우 마지막에 선언된 스타일
     * cf) pseudo-class vs pseudo-element
-        *pseudo-class는 개별 element의 특별한 상태를 명시. html의 트리구조 뿐 아니라 외부적 요인(해당 페이지의 과거 방문기록 유무)이나 해당 요소의 상태, 혹은 마우스의 위치 등에 따라서 다른 스타일 적용 가능하게 함.
+        * pseudo-class는 개별 element의 특별한 상태를 명시. html의 트리구조 뿐 아니라 외부적 요인(해당 페이지의 과거 방문기록 유무)이나 해당 요소의 상태, 혹은 마우스의 위치 등에 따라서 다른 스타일 적용 가능하게 함.
         pseudo-element는 element의 '특정 부분'에 대해서 다른 스타일을 적용 가능하게 하도록 함. 
         CSS3 이후 pseudo-class는 :(single colon), pseudo-element는 ::(double colon)으로 구분하려고 시도하는 중이라고 함.
 
