@@ -39,7 +39,7 @@
     * 단점: html 이외의 별도의 파일을 생성 => 느린 로딩속도. 별도의 파일에 분리되어 있어서 해당 스타일을 찾아볼때 귀찮음...
 * 여러 개의 CSS 규칙이 한 개의 대상에 적용될 때, 어떤 규칙이 우선순위를 가지게 되나요?
   * inline > internal > external
-  * Specificity: ID selector(#id) > class selector(.class) / attribute selector([type=input]) / pseudo-class(:hover) > type selector(div, section, h1) / pseudo-element(:before)
+  * Specificity: ID selector(#id) > class selector(.class) / attribute selector([type=input]) / pseudo-class(:hover) > type selector(div, section, h1) / pseudo-element(::before)
   * 같은 specificity를 가진 경우 마지막에 선언된 스타일
     * cf) pseudo-class vs pseudo-element
         * pseudo-class는 개별 element의 특별한 상태를 명시. html의 트리구조 뿐 아니라 외부적 요인(해당 페이지의 과거 방문기록 유무)이나 해당 요소의 상태, 혹은 마우스의 위치 등에 따라서 다른 스타일 적용 가능하게 함.
@@ -49,9 +49,13 @@
   * 왼쪽 위를 (0,0)으로 오른쪽으로 갈수록 x값이 +, 아래로 갈 수록 y값이 +
 * 가로나 세로로 여러 개의 박스가 공간을 채우되, 그 중 한 개의 박스만 가변적인 크기를 가지고 나머지 박스는 고정된 크기를 갖게 하려면 어떻게 해야 할까요?
   * 가변인 박스만 float없이 나머지 요소들에 대해서 float값과 width를 준다
-
+  * 모든 박스를 inline element 혹은 `display:inline-block`으로 주고, 나머지 박스는 고정 크기를, 너비를 가변적으로 주고 싶은 박스만 %로 width를 준다
+  * flex box 안에 나란히 둘 child 요소들을 넣고, 가변으로 폭을 줄 박스에만 flex-grow 값을 준다.
 * `float` 속성은 왜 좋지 않을까요?
-
+  * block formatting / inline formatting: 해당 요소가 [block element](https://www.w3.org/TR/CSS2/visuren.html#block-level)인지, [inline element](https://www.w3.org/TR/CSS2/visuren.html#inline-level)인지에 따라 layout이 배열됨(참조: [normal flow](https://www.w3.org/TR/CSS2/visuren.html#normal-flow))
+    * cf) [layout model](https://developer.mozilla.org/en-US/docs/Web/CSS/Layout_mode): block, inline, table, positioned, *flexible*, *grid*
+  * float된 요소는 box이더라도 block box들의 레이아웃이 결정되는 normal flow에 포함되지 않기 때문에, float인 box의 parent tag에 바로 붙어있는 텍스트나 내용은 float box가 없는 것 처럼 화면에 그려짐
+  * 화면의 크기가 다양하게 달라지는 경우, layout이 깨질 가능성이 높음.
 * Flexbox(Flexible box)를 사용할 때의 한계점은 무엇인가요?
 
 ## Quest
@@ -63,3 +67,4 @@
 * [이 그림](layout2.png)을 flexbox를 쓰지 않고 구현해 보세요. `skeletons/layout2.html` 파일에 링크된 `skeletons/layout2.css` 파일을 수정하면 됩니다.
 * [이 그림](layout3.png)을 flexbox를 쓰지 않고 구현해 보세요. `skeletons/layout3.html` 파일에 링크된 `skeletons/layout3.css` 파일을 수정하면 됩니다.
 * 위와 같은 그림을 flexbox를 써서 구현해 보세요. `skeletons/layout4.html` 파일에 링크된 `skeletons/layout4.css` 파일을 수정하면 됩니다.
+  * layout3에서 block/inline element가 화면을 가득 채우게 할 수 있을까?

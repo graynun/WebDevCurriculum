@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style type="text/css">
+			section{
+				display:flex;
+				/*flex-direction: row;*/
+				justify-content: flex-start;
+				/*align-items: center;*/
+			}
+			.width_fixed {
+				width:100px;
+				height:100px;
+				border: 1px solid blue;
+
+				/*display:flex;
+
+				flex-direction: column-reverse;*/
+			}
+
+			.width_change{
+				/*display:inline-block;*/
+				/*width:auto;*/
+				/*align-self:stretch;*/
+				margin:0 10px;
+				border:1px dotted red;
+				flex: 10px 1;
+				align-self:center;
+			}
+
+		</style>
+	</head>
+
+	<body>
+		<section>
+			Text directly contained inside `display:flex` box
+			<div class="width_fixed">dummy text1 dummy text1 dummy text1</div>
+			<div class="width_fixed">dummy text2 dummy text2 dummy text2</div>
+			<div class="width_change">dummy text3 dummy text3 dummy text3</div>
+			<div class="width_fixed" style="justify-content:flex-end">dummy text4 dummy text4</div>
+		</section>
+	</body>
+</html>

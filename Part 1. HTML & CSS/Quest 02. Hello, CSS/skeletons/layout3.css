@@ -15,24 +15,43 @@ body {
 .main {
 	background-color: skyblue;
 	/* TODO: 이 곳을 채우세요! */
+	display: inline-block;
+	width: calc(100% - 508px);/*이것도 결국 inline element 사이에 생기는 빈공간때문에 8px인듯 */
+	vertical-align: top;
+
+	/*inline-block element사이에 빈공간이 뜨는데 없애는 방법을 딱히 모르겠다능...*/
+	/*margin-left:-4px;
+	margin-right: -4px;*/
+
 }
 
 .main header {
 	background-color: lightgray;
 	/* TODO: 이 곳을 채우세요! */
+	height: 30px;
+	overflow: hidden;
 }
 
 .left {
 	background-color: pink;
 	/* TODO: 이 곳을 채우세요! */
+	width: 200px;
+	display: inline-block;
+	vertical-align: top;
 }
 
 .right {
 	background-color: greenyellow;
 	/* TODO: 이 곳을 채우세요! */
+	display: inline-block;
+	vertical-align: top;
+	width: 300px;
+	
 }
 
 footer {
 	background-color: yellow;
 	/* TODO: 이 곳을 채우세요! */
+	height: 50px;
+	display: block;
 }
