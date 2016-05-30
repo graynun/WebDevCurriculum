@@ -83,15 +83,17 @@ header nav.header ul{
 
 header nav.header li {
 	display: inline-block;
+	font-size: 14px;
 	font-weight: bold;
-	margin-left: 15px;
+	margin-left: 10px;
 
 	line-height: 56px;
 	vertical-align: middle;
 }
 
 header div.header-buttons {
-	float:right;
+	/*float:right;*/
+	margin-left: 100px;
 	height: 56px;
 	line-height: 56px;
 }
@@ -100,16 +102,28 @@ header button{
 	height: 34px;
 
 	/*background-color: linear-gradient(#89DB6C, #69B050);*/
-	background-color: #89DB6C;
 
 	vertical-align: middle;
-	font-size: 16px;
-	font-weight: bold;
-	padding: 0 5px 0 5px;
+	font-size: 12px;
+	font-weight: 500;
+	padding: 0 10px 0 10px;
 	margin-right: 5px;
 
-	border: 1px solid #69B050;
+	
 	border-radius: 3px;
+}
+
+header button.sign-up {
+	/*background-color: #89DB6C;*/
+	background-image: linear-gradient(to bottom, #89DB6C, #69B050);
+	border: 1px solid #69B050;
+	color: white;
+}
+
+header button.sign-in {
+	/*background-color: #EEEEEE;*/
+	background-image: linear-gradient(to bottom, #FAFAFA, #EEEEEE);
+	border: 1px solid #DDDDDD;
 }
 
 section {
