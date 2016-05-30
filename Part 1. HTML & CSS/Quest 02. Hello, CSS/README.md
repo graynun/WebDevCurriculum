@@ -54,6 +54,7 @@
   * 가변인 박스만 float없이 나머지 요소들에 대해서 float값과 width를 준다
   * 모든 박스를 inline element 혹은 `display:inline-block`으로 주고, 나머지 박스는 고정 크기를, 너비를 가변적으로 주고 싶은 박스만 %로 width를 준다
   * flex box 안에 나란히 둘 child 요소들을 넣고, 가변으로 폭을 줄 박스에만 flex-grow 값을 준다.
+  * 가변으로 주고 싶은 box만 `position: absolute`를 주고, `top, bottom, left, right` 를 설정해 준다.
 * `float` 속성은 왜 좋지 않을까요?
   * block formatting / inline formatting: 해당 요소가 [block element](https://www.w3.org/TR/CSS2/visuren.html#block-level)인지, [inline element](https://www.w3.org/TR/CSS2/visuren.html#inline-level)인지에 따라 layout이 배열됨(참조: [normal flow](https://www.w3.org/TR/CSS2/visuren.html#normal-flow))
     * cf) [layout model](https://developer.mozilla.org/en-US/docs/Web/CSS/Layout_mode): block, inline, table, positioned, *flexible*, *grid*
