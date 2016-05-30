@@ -47,6 +47,9 @@
         CSS3 이후 pseudo-class는 :(single colon), pseudo-element는 ::(double colon)으로 구분하려고 시도하는 중이라고 함.
 * 어떤 박스가 `position: absolute;`인 속성을 갖는다면, 그 위치의 기준점은 어디가 되나요?
   * 왼쪽 위를 (0,0)으로 오른쪽으로 갈수록 x값이 +, 아래로 갈 수록 y값이 +
+  * 해당 box의 부모를 탐색하면서 position이 지정되어 있는 box가 있는지 확인
+    * 지정이 되어 있는 ancestor box가 나타나면 그 박스의 왼쪽 위 모서리가 0,0
+    * 지정이 되어 있는 ancestor box가 없다면 원래 브라우저의 왼쪽 위 모서리가 0,0
 * 가로나 세로로 여러 개의 박스가 공간을 채우되, 그 중 한 개의 박스만 가변적인 크기를 가지고 나머지 박스는 고정된 크기를 갖게 하려면 어떻게 해야 할까요?
   * 가변인 박스만 float없이 나머지 요소들에 대해서 float값과 width를 준다
   * 모든 박스를 inline element 혹은 `display:inline-block`으로 주고, 나머지 박스는 고정 크기를, 너비를 가변적으로 주고 싶은 박스만 %로 width를 준다
@@ -57,6 +60,12 @@
   * float된 요소는 box이더라도 block box들의 레이아웃이 결정되는 normal flow에 포함되지 않기 때문에, float인 box의 parent tag에 바로 붙어있는 텍스트나 내용은 float box가 없는 것 처럼 화면에 그려짐
   * 화면의 크기가 다양하게 달라지는 경우, layout이 깨질 가능성이 높음.
 * Flexbox(Flexible box)를 사용할 때의 한계점은 무엇인가요?
+
+## 기타 질문
+* position:absolute 역시 normal flow에서 벗어나는데 이건 왜 float만큼 욕을 안먹는거지? 안쓰나?
+  * 보통은 그래서 normal flow에서 벗어나지 않게 innermost box에서만 쓴다고 한다...
+* <em>과 font-style:italic 처럼 비슷한 기능을 하는 요소가 겹치거나 conflict하는 경우는 없을까?
+  * em은 semantic meaning이고(보여지는 방식은 브라우저가 정하는 것) font-style:italic은 의미와 관계 없이 보이는 부분에 대한 치중. 그냥 의미와 치장 요소를 분리하는 거라고 생각하면 더 쉽다.
 
 ## Quest
 * 아래의 그림들은 모두 전체적으로 창의 크기에 꽉 차야 하며, 창의 크기가 일정 크기 이상일 경우 전체 창 크기가 어떻게 바뀌되더라도 그림에 맞게 각 박스의 크기가 조절되어야 합니다.

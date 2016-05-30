@@ -10,14 +10,26 @@ body {
 
 .contents {
 	/* TODO: 이 곳을 채우세요! */
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 50px;
 }
 
 .main {
 	background-color: skyblue;
 	/* TODO: 이 곳을 채우세요! */
-	display: inline-block;
-	width: calc(100% - 508px);/*이것도 결국 inline element 사이에 생기는 빈공간때문에 8px인듯 */
-	vertical-align: top;
+	/*display: inline-block;	position: absolute로 갈거라서 이건 필요없다. */
+	/*vertical-align: top;	display:inline-block을 안쓰기때문에 얘도 필요없음...*/
+
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 200px;
+	right: 300px;
+
+	/*width: calc(100% - 508px);	calc는 사용을 피하는 것이 좋다고 한다. 장식은 css에게 계산은 js에게...*/
 
 	/*inline-block element사이에 빈공간이 뜨는데 없애는 방법을 딱히 모르겠다능...*/
 	/*margin-left:-4px;
@@ -29,23 +41,31 @@ body {
 	background-color: lightgray;
 	/* TODO: 이 곳을 채우세요! */
 	height: 30px;
-	overflow: hidden;
+	/*overflow: hidden;*/
 }
 
 .left {
 	background-color: pink;
 	/* TODO: 이 곳을 채우세요! */
+	position: absolute;
+	top: 0;
+	left: 0;
 	width: 200px;
-	display: inline-block;
-	vertical-align: top;
+	height: 100%;
+/*	display: inline-block;  어차피 첫 box이므로 딱히 필요가 없을듯	*/
+/*	vertical-align: top;	이것도 inline-block안쓰니까 딱히 필요없다...	*/
 }
 
 .right {
 	background-color: greenyellow;
 	/* TODO: 이 곳을 채우세요! */
-	display: inline-block;
-	vertical-align: top;
+	/*display: inline-block;*/
+	/*vertical-align: top;*/
+	position: absolute;
+	top: 0;
+	right: 0;
 	width: 300px;
+	height: 100%;
 	
 }
 
@@ -53,5 +73,8 @@ footer {
 	background-color: yellow;
 	/* TODO: 이 곳을 채우세요! */
 	height: 50px;
-	display: block;
+	/* left의 내용이 넘치는데 스크롤이 따라가게 하려면 fixed. 근데 이렇게 해도 .contents에 들어있는 애들의 background색이 처음 computed 된 box크기까지만 색칠되어있기 때문에 애매해 보인다... */
+	position: fixed;	
+	width: 100%;
+	bottom: 0;
 }
