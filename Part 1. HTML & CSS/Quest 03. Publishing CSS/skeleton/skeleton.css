@@ -101,16 +101,14 @@ header div.header-buttons {
 header button{
 	height: 34px;
 
-	/*background-color: linear-gradient(#89DB6C, #69B050);*/
-
 	vertical-align: middle;
 	font-size: 12px;
 	font-weight: 500;
-	padding: 0 10px 0 10px;
-	margin-right: 5px;
 
-	
 	border-radius: 3px;
+	
+	padding: 0 13px 0 13px;
+	margin-right: 5px;
 }
 
 header button.sign-up {
@@ -127,11 +125,18 @@ header button.sign-in {
 }
 
 section {
-	border: 1px solid black;
+	
 }
 
-.main-header {
+section.main-header {
+	border: 1px solid black;
 	height: 70px;
+}
+
+section.main-header div{
+	display: inline-block;
+	line-height: 70px;
+	vertical-align: middle;
 }
 
 .main-detail div {
