@@ -62,10 +62,10 @@
 * Flexbox(Flexible box)를 사용할 때의 한계점은 무엇인가요?
 
 ## 기타 질문
-* position:absolute 역시 normal flow에서 벗어나는데 이건 왜 float만큼 욕을 안먹는거지? 안쓰나?
+* `position:absolute` 역시 normal flow에서 벗어나는데 이건 왜 float만큼 욕을 안먹는거지? 안쓰나?
   * 보통은 그래서 normal flow에서 벗어나지 않게 innermost box에서만 쓴다고 한다...
-* <em>과 font-style:italic 처럼 비슷한 기능을 하는 요소가 겹치거나 conflict하는 경우는 없을까?
-  * em은 semantic meaning이고(보여지는 방식은 브라우저가 정하는 것) font-style:italic은 의미와 관계 없이 보이는 부분에 대한 치중. 그냥 의미와 치장 요소를 분리하는 거라고 생각하면 더 쉽다.
+* `<em>`과 `font-style: italic` 처럼 비슷한 기능을 하는 요소가 겹치거나 conflict하는 경우는 없을까?
+  * `<em>`은 semantic meaning이고(보여지는 방식은 브라우저가 정하는 것) `font-style: italic`은 의미와 관계 없이 보이는 부분에 대한 치중. 그냥 의미와 치장 요소를 분리하는 거라고 생각하면 더 쉽다.
 
 ## Quest
 * 아래의 그림들은 모두 전체적으로 창의 크기에 꽉 차야 하며, 창의 크기가 일정 크기 이상일 경우 전체 창 크기가 어떻게 바뀌되더라도 그림에 맞게 각 박스의 크기가 조절되어야 합니다.
