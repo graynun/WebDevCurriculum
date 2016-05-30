@@ -1,5 +1,12 @@
+@font-face {
+	font-family: Octicons;
+	/*src: url('../octicons.ttf') format('truetype');	왜때문에인지 에러가...*/
+	src: url('./octicons.ttf') format('truetype');
+}
+
 * {
 	/* TODO: 어떤 코드가 들어가야 할까요? */
+	
 }
 
 html {
@@ -8,6 +15,130 @@ html {
 
 body {
 	/* TODO: 어떤 코드가 들어가야 할까요? */
+	margin: auto;
+	font-family: Helvetica;
 }
 
 /* TODO: 또 어떤 코드들이 들어가야 할까요? */
+
+nav ul {
+	padding-left: 0;
+}
+
+nav li {
+	display: inline-block;
+}
+
+.octicons {
+	font-family: Octicons;
+	font-size: 32px;
+
+	vertical-align: middle;
+}
+
+header {
+	height: 56px;
+	background-color: #F5F5F5;
+	width: 100%;
+}
+
+header * {
+	display: inline-block;
+}
+
+header form.header{
+	border : 1px solid #D6D6D6;
+	width: 360px;
+	height: 26px;
+	background-color: white;
+	border-radius: 5px
+}
+
+header form.header .search-label{
+	height: 20px;
+	background-color: #EEEEEE;
+	font-size: 11px;
+	font-color: #989898;
+	line-height: 20px;
+	vertical-align: middle;
+	padding: 0 5px 0 5px;
+	margin: 3px 3px;
+}
+
+header form.header > input{
+	width: 269px;
+	height: 22px;
+	border: none;
+}
+
+header > nav.header {
+	vertical-align: middle;
+}
+
+header nav.header ul{
+	margin: auto;
+/*	display: flex;
+	justify-content: space-between;*/
+}
+
+header nav.header li {
+	display: inline-block;
+	font-weight: bold;
+	margin-left: 15px;
+
+	line-height: 56px;
+	vertical-align: middle;
+}
+
+header div.header-buttons {
+	float:right;
+	height: 56px;
+	line-height: 56px;
+}
+
+header button{
+	height: 34px;
+
+	/*background-color: linear-gradient(#89DB6C, #69B050);*/
+	background-color: #89DB6C;
+
+	vertical-align: middle;
+	font-size: 16px;
+	font-weight: bold;
+	padding: 0 5px 0 5px;
+	margin-right: 5px;
+
+	border: 1px solid #69B050;
+	border-radius: 3px;
+}
+
+section {
+	border: 1px solid black;
+}
+
+.main-header {
+	height: 70px;
+}
+
+.main-detail div {
+	display: inline-block;
+	width: 816px;
+}
+
+.main-detail aside {
+	display: inline-block;
+	width: 170px;
+}
+
+footer {
+	height: 76px;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+
+	background-color: #F5F5F5;
+}
+
+footer *{
+	display: inline-block;
+}
