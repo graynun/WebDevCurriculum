@@ -29,10 +29,12 @@ nav li {
 	display: inline-block;
 }
 
+a {
+	color: #4078C0;
+}
+
 .octicons {
 	font-family: Octicons;
-	font-size: 32px;
-
 	vertical-align: middle;
 }
 
@@ -44,6 +46,10 @@ header {
 
 header * {
 	display: inline-block;
+}
+
+header span.octicons {
+	font-size: 32px;
 }
 
 header form.header{
@@ -137,6 +143,32 @@ section.main-header div{
 	display: inline-block;
 	line-height: 70px;
 	vertical-align: middle;
+}
+
+section.main-header .octicons {
+	font-size: 32px;
+}
+
+section.main-header .buttons{
+	margin-left: 368px;
+}
+
+section.main-header span.button {
+	border : 1px solid black;
+	margin: auto;
+}
+
+section.main-header button {
+	/*width: 80px;*/
+	height: 26px;
+	padding: 0 10px 0 10px;
+
+	font-size: 14px;
+	font-weight: bold;
+}
+
+section.main-header span.main-header .octicons {
+	font-size: 14px;
 }
 
 .main-detail div {
