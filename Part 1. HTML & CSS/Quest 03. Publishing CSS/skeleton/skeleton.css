@@ -15,6 +15,7 @@ html {
 
 body {
 	/* TODO: 어떤 코드가 들어가야 할까요? */
+	width: 1024px;
 	margin: auto;
 	font-family: Helvetica;
 }
@@ -98,8 +99,7 @@ header nav.header li {
 }
 
 header div.header-buttons {
-	/*float:right;*/
-	margin-left: 100px;
+	float:right;
 	height: 56px;
 	line-height: 56px;
 }
@@ -150,7 +150,9 @@ section.main-header .octicons {
 }
 
 section.main-header .buttons{
-	margin-left: 368px;
+	/*margin-left: 368px;*/
+	border: 1px solid blue;
+	float: right;
 }
 
 section.main-header span.button {
@@ -169,6 +171,14 @@ section.main-header button {
 
 section.main-header span.main-header .octicons {
 	font-size: 14px;
+}
+
+section.main-header div.directory {
+	font-size: 20px;
+}
+
+a.bold {
+	font-weight: bold;
 }
 
 .main-detail div {
