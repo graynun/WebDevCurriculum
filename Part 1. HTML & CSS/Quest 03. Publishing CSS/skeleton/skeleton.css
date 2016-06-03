@@ -102,6 +102,7 @@ header div.header-buttons {
 	float:right;
 	height: 56px;
 	line-height: 56px;
+	padding: 0 10px;
 }
 
 header button{
@@ -135,8 +136,9 @@ section {
 }
 
 section.main-header {
-	border: 1px solid black;
 	height: 70px;
+	border-top: 1px solid #F4F4F4;
+	border-bottom: 1px solid #F4F4F4;
 }
 
 section.main-header div{
@@ -145,48 +147,75 @@ section.main-header div{
 	vertical-align: middle;
 }
 
-section.main-header .octicons {
+section.main-header div.directory {
+	font-size: 20px;
+}
+
+section.main-header div.directory .octicons {
 	font-size: 32px;
 }
 
-section.main-header .buttons{
-	/*margin-left: 368px;*/
-	border: 1px solid blue;
-	float: right;
-}
-
-section.main-header span.button {
-	border : 1px solid black;
-	margin: auto;
-}
-
 section.main-header button {
-	/*width: 80px;*/
 	height: 26px;
-	padding: 0 10px 0 10px;
+	padding: 0 5px;
 
 	font-size: 14px;
 	font-weight: bold;
+
+	border: 1px solid #E3E3E3;
+	background-image: linear-gradient(to bottom, #FFFFFF, #E9E9E9)
+}
+
+section.main-header .buttons{
+	float: right;
+	padding: 0 10px;
+}
+
+section.main-header div.button {
+	height: 26px;
+	line-height: 26px;
+	border : 1px solid #EEEEEE;
+	border-radius: 3px;
 }
 
 section.main-header span.main-header .octicons {
 	font-size: 14px;
 }
 
-section.main-header div.directory {
-	font-size: 20px;
+section.main-header div.button span.count{
+	padding: 0 10px;
+	font-size: 14px
 }
 
 a.bold {
 	font-weight: bold;
 }
 
-.main-detail div {
-	display: inline-block;
-	width: 816px;
+section.main-detail, section.main-left, aside {
+	border: 1px solid black;
 }
 
-.main-detail aside {
+section.main-detail div {
+	display: inline-block;
+	width: 810px;
+}
+
+section.main-detail div.repo-explanation {
+	height: 55px;
+	line-height: 60px;
+
+	font-size: 18px;
+	color: #6C6C6C;
+}
+
+section.main-detail div.repo-info{
+	display: flex;
+	width: 790px;
+	height: 48px;
+	border: 1px solid #E8E8E8;
+}
+
+section.main-detail aside {
 	display: inline-block;
 	width: 170px;
 }
