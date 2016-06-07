@@ -55,44 +55,48 @@
 					</div>
 					<div class="repo-info">
 						<div class="top">
-							<span class="commit-count">
-								<span class="octicons">&#xf07e;</span>26 commits
+							<span>
+								<span class="octicons">&#xf07e;</span> <span class="commit-count">26</span> commits
 							</span>
-							<span class="repo-branch">
-								<span class="octicons">&#xf020;</span>2 branches
+							<span>
+								<span class="octicons">&#xf020;</span> <span class="repo-branch">2</span> branches
 							</span>
-							<span class="releases">
-								<span class="octicons">&#xf015;</span>0 releases
+							<span>
+								<span class="octicons">&#xf015;</span> <span class="releases">0</span> releases
 							</span>
-							<span class="contributors">
-								<span class="octicons">&#xf037;</span>1 contributor
+							<span>
+								<span class="octicons">&#xf037;</span> <span class="contributors">1</span> contributor
 							</span>
 						</div>
 						<div class="bottom"></div>
 					</div>
 
-					<button>pull request</button>
-					<select>
+					<button class="pull-request"><span class="octicons">&#xf0ac;</span></button>
+					<select class="branch">
 						<option value="2016">Branch:2016</option>
 					</select>
 					<a class="bold" href="">WebDevCurriculum</a> / +
-					<button>menu</button>
+					<button><span class="octicons">&#xf061;</span></button>
 
-					<table id="directory-view">
+					<table class="directory-view">
 						<tbody>
 							<tr>
-								<th>This branch is 5 commits ahead of master.
-								<span>Pull request</span>
-								<span>Compare</span>
-								</th>
-							</tr>
-								
-							<tr>
-								<td>...</td>
+								<td>This branch is 5 commits ahead of master.</td>
+								<td></td>
+								<td>
+									<span class="pull-request"><span class="octicons">&#xf009; </span>Pull request</span>
+									<span class="compare"><span class="octicons">&#xf04d; </span>Compare</span>
+								</td>
 							</tr>
 							<tr>
-								Kivol authored 19 hours ago
-								<span>lastest commit 5ead7a7a36</span>
+								<td> ...</td>
+								<td></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Kivol authored 19 hours ago</td>
+								<td></td>
+								<td><code>latest commit 5ead7a7a36 <span class="octicons">&#xf035;</span></code></td>
 							</tr>
 							<tr>
 								<td>FolderNames</td>
@@ -102,10 +106,10 @@
 						<tbody>
 					</table>
 
-					<table id="readme">
+					<table class="readme">
 						<tbody>
 							<tr>
-								<th>README.md</th>
+								<th><span class="octicons">&#xf007;</span> README.md</th>
 							</tr>
 							<tr>
 								<td>KnowRe web development curriculum 2016</td>
@@ -115,49 +119,66 @@
 
 				</div>
 
-				<aside class="main-right">
+				<aside>
 					<!-- TODO: 메인의 오른쪽 메뉴 부분 -->
 					<nav>
+						<div class="repo-detail">
+							<div class="selected"><span class="octicons">&#xf05f;</span> Code</div>
+							<div><span class="octicons">&#xf026;</span> <a href="">Issues</a></div>
+							<div><span class="octicons">&#xf009;</span> <a href="">Pull requests</a></div>
+						</div>
+						<div class="repo-stat">
+							<div><span class="octicons">&#xf085;</span> <a href="">Pulse</a></div>
+							<div><span class="octicons">&#xf043;</span> <a href="">Graphs</a></div>
+						</div>
 					</nav>
-					<div>
-						HTTPS clone URL
-						<input type="text" placeholder="https://github.com" disabled>
-						<button id="cloneURL">copy image</button>
-						You can clone with HTTPS or Subversion.
-						<button id="clone-in-desktop">Clone in Desktop</button>
-						<button id="download-zip">Download ZIP</button>
+					<div class="download-repo">
+						<span class="bold">HTTPS</span> clone URL
+						<form class="copy-url">
+							<input type="text" placeholder="https://github.com" >
+							<button class="clone-url"><span class="octicons">&#xf035;</span></button>
+						</form>
+						You can clone with <a href="">HTTPS</a> or <a href="">Subversion</a>.<span class="octicons">&#xf02c;</span>
+						<div class="clone-buttons">
+							<button class="clone-in-desktop"><span class="octicons">&#xf0dc;</span> Clone in Desktop</button>
+							<button class="download-zip"><span class="octicons">&#xf00b;</span> Download ZIP</button>
+						</div>
 					</div>
 				</aside>
 			</section>
 		</section>
 
 		<footer>
-			<!-- TODO: 하단의 Copyright, Terms, Privacy 등은 어떻게 처리하면 좋을까요? -->
-			©2015 Github, Inc.
-			<nav>
-				<ul>
-					<li>Terms</li>
-					<li>Privacy</li>
-					<li>Security</li>
-					<li>Contact</li>
-					<li>Help</li>
-				</ul>
-			</nav>
+			<!-- TODO: 하단의 Copyright, Terms, Privacy 등은 어떻게 처리하면 좋을까요? -->	
+			<div class="left-footer">
+				<span>©2015 Github, Inc.</span>
+				<nav class="left">
+					<ul>
+						<li><a href="">Terms</a></li>
+						<li><a href="">Privacy</a></li>
+						<li><a href="">Security</a></li>
+						<li><a href="">Contact</a></li>
+						<li><a href="">Help</a></li>
+					</ul>
+				</nav>
+			</div>
 
 			<!-- <img alt="octocat image"/> -->
 			<span class="footer octicons">&#xf00a;</span>
 
-			<nav>
-				<ul>
-					<li>Status</li>
-					<li>API</li>
-					<li>Training</li>
-					<li>Shop</li>
-					<li>Blog</li>
-					<li>About</li>
-					<li>Pricing</li>
-				</ul>
-			</nav>
+			<div class="right-footer">
+				<nav class="right">
+					<ul>
+						<li><a href="">Status</a></li>
+						<li><a href="">API</a></li>
+						<li><a href="">Training</a></li>
+						<li><a href="">Shop</a></li>
+						<li><a href="">Blog</a></li>
+						<li><a href="">About</a></li>
+						<li><a href="">Pricing</a></li>
+					</ul>
+				</nav>
+			</div>
 
 		</footer>
 	</body>
