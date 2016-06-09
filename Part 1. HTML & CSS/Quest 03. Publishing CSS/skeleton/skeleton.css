@@ -35,6 +35,10 @@ a {
 	text-decoration: none;
 }
 
+a.bold {
+	font-weight: bold;
+}
+
 .octicons {
 	font-family: Octicons;
 	vertical-align: middle;
@@ -52,6 +56,7 @@ header * {
 
 header span.octicons {
 	font-size: 32px;
+	color: #B3B2B3;
 }
 
 header form.header{
@@ -62,7 +67,7 @@ header form.header{
 	border-radius: 5px
 }
 
-header form.header .search-label{
+form.header .search-label{
 	height: 20px;
 	background-color: #EEEEEE;
 	font-size: 11px;
@@ -83,13 +88,11 @@ header > nav.header {
 	vertical-align: middle;
 }
 
-header nav.header ul{
+nav.header ul{
 	margin: auto;
-/*	display: flex;
-	justify-content: space-between;*/
 }
 
-header nav.header li {
+nav.header li {
 	display: inline-block;
 	font-size: 14px;
 	font-weight: bold;
@@ -132,10 +135,6 @@ header button.sign-in {
 	border: 1px solid #DDDDDD;
 }
 
-section {
-	
-}
-
 section.main-header {
 	height: 70px;
 	border-top: 1px solid #F4F4F4;
@@ -154,6 +153,7 @@ section.main-header div.directory {
 
 section.main-header div.directory .octicons {
 	font-size: 32px;
+	/*이런거 안좋다고 지양하라던데(selector 너무 많이 불러서)...*/
 }
 
 section.main-header button {
@@ -181,16 +181,15 @@ section.main-header div.button {
 
 section.main-header span.main-header .octicons {
 	font-size: 14px;
+	/*이런거 안좋다고 지양하라던데(selector 너무 많이 불러서)...*/
 }
 
-section.main-header div.button span.count{
+div.button span.count{
 	padding: 0 10px;
 	font-size: 14px
 }
 
-a.bold {
-	font-weight: bold;
-}
+
 
 section.main-detail > div {
 	display: inline-block;
@@ -332,7 +331,8 @@ section.main-detail aside {
 
 }
 
-section.main-detail aside nav{
+/*section.main-detail aside nav{*/
+aside nav{
 	border-left: 1px solid #F2F2F2;
 	padding-bottom: 20px;
 	padding-top: 20px;
@@ -349,7 +349,8 @@ nav div.repo-detail div{
 	padding-left: 10px;
 }
 
-nav div.repo-detail .selected {
+/*nav div.repo-detail .selected {*/
+div.repo-detail .selected {
 	border-top: 2px solid #F0F0F0;
 	border-bottom: 2px solid #F0F0F0;
 	border-right: 3px solid #CD6217;
@@ -359,7 +360,7 @@ nav div.repo-detail .selected {
 	font-weight: bold;
 }
 
-nav div.repo-stat div {
+div.repo-stat div {
 	height: 35px;
 	line-height: 35px;
 	font-size: 14px;
@@ -409,6 +410,7 @@ form.copy-url button.clone-url {
 	border-bottom-right-radius: 5px;
 }
 
+/*div.download-repo div.clone-buttons button {*/
 div.download-repo div.clone-buttons button {
 	margin-top: 10px;
 	font-size: 14px;
@@ -436,6 +438,8 @@ footer {
 	font-size: 13px;
 
 	border-top: 1px solid #F0F0F0;
+
+	background-color: #FFFFFF;
 }
 
 footer div.left-footer {
