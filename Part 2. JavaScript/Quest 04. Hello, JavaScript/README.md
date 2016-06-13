@@ -6,7 +6,16 @@
 
 ## Topics
 * 기본적인 자바스크립트 문법
-  * 원시 데이터 타입과 연산자
+  * 원시 데이터 타입(primitive data type)과 연산자
+    * Primitive Data types in Javascript
+      ** Boolean
+      ** Null
+      ** Undefined: A variable that has not been assigned a value has the value undefined(출처: [mdn](https://developer.mozilla.org/en/docs/Web/JavaScript/Data_structures))
+      ** Number
+      ** String
+      ** Symbol(in ECMAScript6)
+    * Operators
+      ** Bitwise operation을 쓸 일이 생기나...? 생긴다면 언제?
   * `var`
   * `if`
   * `for`
@@ -18,8 +27,14 @@
 
 ## Checklist
 * 웹 브라우저의 자바스크립트 콘솔은 어떻게 사용할까요?
+  ** 개발자 도구 > Console!
   * 웹 브라우저(Chrome)에서 자바스크립트 콘솔을 띄우는 단축키는 무엇인가요?
+  ** `cmd` + `option` + i
 * `var`를 이용하여 변수를 선언하는 것은 그렇게 하지 않는 것과 어떤 면에서 다를까요?
+  * var를 붙이지 않는 variable(Undeclared variable)은 무조건 global variable이 된다. 단, strict mode에서는 에러남...
+  * declared variable은 코드가 실행될 때 가장 먼저 만들어짐(hoisting된다고 한다: 코드에서 declared variable들이 가장 먼저 실행된 뒤에 나머지 코드들이 돌아감). 반면 undeclared variable은 value가 들어갈 때 까지는 존재하지도 않음.
+  * undeclared variable은 "configurable"(지울수도 있음). 반면 declared variable은 non-configurable.
+
 * 자바스크립트의 익명 함수는 무엇인가요?
 
 ## Quest
