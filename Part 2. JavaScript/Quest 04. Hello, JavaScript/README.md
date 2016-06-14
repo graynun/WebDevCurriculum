@@ -34,8 +34,11 @@
   * var를 붙이지 않는 variable(Undeclared variable)은 무조건 global variable이 된다. 단, strict mode에서는 에러남...
   * declared variable은 코드가 실행될 때 가장 먼저 만들어짐(hoisting된다고 한다: 코드에서 declared variable들이 가장 먼저 실행된 뒤에 나머지 코드들이 돌아감). 반면 undeclared variable은 value가 들어갈 때 까지는 존재하지도 않음.
   * undeclared variable은 "configurable"(지울수도 있음). 반면 declared variable은 non-configurable.
-
 * 자바스크립트의 익명 함수는 무엇인가요?
+  * "named identifier"가 없이 declare된 함수. 
+~~~~
+function `Named Identifier`(){/* function 내용 */}
+~~~~
 
 ## Quest
 * 초보 프로그래머의 영원한 친구, 별찍기 프로그램입니다.
