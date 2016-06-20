@@ -8,14 +8,15 @@
 * 기본적인 자바스크립트 문법
   * 원시 데이터 타입(primitive data type)과 연산자
     * Primitive Data types in Javascript
-      ** Boolean
-      ** Null
-      ** Undefined: A variable that has not been assigned a value has the value undefined(출처: [mdn](https://developer.mozilla.org/en/docs/Web/JavaScript/Data_structures))
-      ** Number
-      ** String
-      ** Symbol(in ECMAScript6)
+    ** Boolean
+    ** Null
+    ** Undefined: A variable that has not been assigned a value has the value undefined(출처: [mdn](https://developer.mozilla.org/en/docs/Web/JavaScript/Data_structures))
+    ** Number
+    ** String
+    ** Symbol(in ECMAScript6)
     * Operators
-      ** Bitwise operation을 쓸 일이 생기나...? 생긴다면 언제?
+    ** Bitwise operation을 쓸 일이 생기나...? 생긴다면 언제?
+    ** 가끔 boolean 여러개일 때 비교연산 등등을 쓰는 경우가 있다고 한다(속도가 매우 중요한 경우).
   * `var`
   * `if`
   * `for`
@@ -32,13 +33,16 @@
   ** `cmd` + `option` + i
 * `var`를 이용하여 변수를 선언하는 것은 그렇게 하지 않는 것과 어떤 면에서 다를까요?
   * var를 붙이지 않는 variable(Undeclared variable)은 무조건 global variable이 된다. 단, strict mode에서는 에러남...
-  * declared variable은 코드가 실행될 때 가장 먼저 만들어짐(hoisting된다고 한다: 코드에서 declared variable들이 가장 먼저 실행된 뒤에 나머지 코드들이 돌아감). 반면 undeclared variable은 value가 들어갈 때 까지는 존재하지도 않음.
+  * declared variable은 코드가 실행될 때 가장 먼저 만들어짐(hoisting된다고 한다: 코드에서 declared variable들이 가장 먼저 실행된 뒤에 나머지 코드들이 돌아감). 반면 undeclared variable은 실제로 불려질 때 까지는 존재하지도 않음.
+  ** hoisting의 경우 변수에 뭔가 값을 assign해도 일단 '그 변수가 있다(선언되었다)' 부분만 hoisting되고, 실제 value assing하는 것은 assign 하는 코드가 있는 순간에 일어남.
   * undeclared variable은 "configurable"(지울수도 있음). 반면 declared variable은 non-configurable.
 * 자바스크립트의 익명 함수는 무엇인가요?
-  * "named identifier"가 없이 declare된 함수. 
 ~~~~
 function `Named Identifier`(){/* function 내용 */}
 ~~~~
+  * `named identifier`가 없이 declare된 함수
+
+
 
 ## Quest
 * 초보 프로그래머의 영원한 친구, 별찍기 프로그램입니다.
