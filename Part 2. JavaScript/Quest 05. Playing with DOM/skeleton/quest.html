@@ -19,10 +19,10 @@
 	</head>
 	<body>
 		<section class="row1">
-			<div class="square"></div>
-			<div class="square"></div>
-			<div class="square"></div>
-			<div class="square"></div>
+			<div class="square">1</div>
+			<div class="square">2</div>
+			<div class="square">3</div>
+			<div class="square">4</div>
 		</section>
 
 		<section class="row2">
@@ -33,11 +33,55 @@
 		</section>
 
 		<script>
+			// console.log(document);
+			// console.log(document.querySelector("#square"));
+			// console.log(document.getElementById("square"));
+			// console.log(document.querySelector("#square").classList);
+
 			var row1Squares = document.querySelectorAll('.row1 .square');
 
 			for(var i = 0; i < row1Squares.length; i++) {
 				var node = row1Squares[i];
 				/* TODO: node 변수를 어떻게 조작해야 할까요? */
+				// node.addEventListener('click', function(){
+				// 	if(window.getComputedStyle(this).getPropertyValue("background-color") === "rgb(255, 255, 0)"){
+				// 		this.setAttribute("style", "background-color:rgba(0, 0, 0, 0)");
+				// 	}else{
+				// 		this.setAttribute("style", "background-color:rgb(255, 255, 0)");
+				// 	}
+				// });
+
+				var eventCreator = function(node, currentColor){
+					var currentNode = node,
+						currentColor = currentColor;
+					console.log(window.getComputedStyle(currentNode).getPropertyValue("background-color"));
+					/* currentNode는 고정, currentColor는 계속 바뀌는 상황에서 어떻게 짜야 하는것인가? */
+
+					function decideColor(currentColor){
+						if(currentColor === "rgb(255, 255, 0"){
+							console.log("current color is yellow");
+							return "rgba(0, 0, 0, 0)";
+						}else if(currentColor === "rgba(0, 0, 0, 0)"){
+							console.log("current color is white");
+							return "rgb(255, 255, 0)";
+						}
+					}
+
+					function setColor(color){
+						currentNode.setAttribute("style", "background-color:"+color);
+					}
+
+					function eventMapper(){
+						currentNode.addEventListener('click', function(){
+							setColor(decideColor(currentColor));
+						});
+					}
+					return eventMapper();
+				};
+
+				var currentNode = node,
+					currentColor = window.getComputedStyle(currentNode).getPropertyValue("background-color");
+				eventCreator(currentNode, currentColor);
 			}
 
 			var row2Squares = document.querySelectorAll('.row2 .square');
@@ -45,6 +89,13 @@
 			for(var i = 0; i < row2Squares.length; i++) {
 				var node = row2Squares[i];
 				/* TODO: node 변수를 어떻게 조작해야 할까요? */
+				node.addEventListener('click', function(){
+					if(this.classList.contains("enabled")){
+						this.classList.remove("enabled");
+					}else{
+						this.classList.add("enabled");
+					}
+				});
 			}
 		</script>
 	</body>

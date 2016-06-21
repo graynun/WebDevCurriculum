@@ -28,9 +28,25 @@
 	* `element.classList`를 하면 해당 element에 있는 class들을 담은 object가 return된다
 		* 여기에 `add`, `remove` Method를 사용해서 주거나 없앤다.
   * IE9나 그 이전의 옛날 브라우저들에서는 어떻게 해야 하나요?
-	** 줄때: `document.getElementById()`, `document.querySelector()`, `document.querySelectorAll()` 등을 사용해서 해당 element를 선택한 뒤 `element.className += "className"`
-	** 없앨때: 정규표현식으로 해당 className을 replace하라는데 (참고:[여기](http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript)) 그냥 `element.className = ""` 하면 안되나여...
+  	* 줄때: `document.getElementById()`, `document.querySelector()`, `document.querySelectorAll()` 등을 사용해서 해당 element를 선택한 뒤 `element.className += "className"`
+  	* 없앨때: 정규표현식으로 해당 className을 replace하라는데 (참고:[여기](http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript)) 그냥 `element.className = ""` 하면 안되나여...
 * 자바스크립트의 Closure는 무엇이며, 어떤 식으로 활용할 수 있나요?
+	* [Closure](https://developer.mozilla.org/en/docs/Web/JavaScript/Closures): A closure is a special kind of object that combines two things: a function, and the environment in which that function was created. The environment consists of any local variables that were in-scope at the time that the closure was created. 
+	* 하나의 object에 대해서 하나의 method를 쓸 때 유용하게 쓸 수 있다고 한다(참조: [Practical closures](https://developer.mozilla.org/en/docs/Web/JavaScript/Closures#Practical_closures))
+	* private method와 유사하게 특정 범위 내에서만 불려질 수 있는 함수를 만들수도 있다고 한다: 보안 문제뿐 아니라 namespace 관리 측면에서도 좋다고(참조: [Emulating private methods with closures](https://developer.mozilla.org/en/docs/Web/JavaScript/Closures#Practical_closures))
+		* 
+		~~~~
+		this.foo = function(val){ /* blahblah */ }
+		~~~~
+		과 
+		~~~~
+		return:{
+			foo: function(val){
+			/* blahblah */
+			}
+		}
+		~~~~
+		둘의 차이는?
 
 ## Quest
 * Skeleton 디렉토리에 주어진 HTML을 조작하는 스크립트를 완성해 보세요.
