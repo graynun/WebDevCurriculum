@@ -56,28 +56,39 @@
 
 				/* this 없이 짜기 */
 
-				var eventCreator = function(node){
-					var currentNode = node;
+				// var eventCreator = function(node){
+				// 	var currentNode = node;
 
-					function decideColor(currentColor){
-						if(currentColor === "rgb(255, 255, 0)"){
-							return "rgba(0, 0, 0, 0)";
-						}else if(currentColor === "rgba(0, 0, 0, 0)"){
-							return "rgb(255, 255, 0)";
+				// 	function decideColor(currentColor){
+				// 		if(currentColor === "rgb(255, 255, 0)"){
+				// 			return "rgba(0, 0, 0, 0)";
+				// 		}else if(currentColor === "rgba(0, 0, 0, 0)"){
+				// 			return "rgb(255, 255, 0)";
+				// 		}
+				// 	}
+
+				// 	function setColor(color){
+				// 		currentNode.setAttribute("style", "background-color:"+color);
+				// 	}
+
+				// 	currentNode.addEventListener('click', function(){
+				// 		var currentColor = window.getComputedStyle(currentNode).getPropertyValue("background-color");
+				// 		setColor(decideColor(currentColor));
+				// 	});
+				// };
+
+				// eventCreator(node);
+
+				/* 따로 안빼고도 this 없이 짧게 짜기 */
+				(function(node){
+					node.addEventListener('click', function(){
+						if(window.getComputedStyle(node).getPropertyValue("background-color") === "rgb(255, 255, 0)"){
+							node.setAttribute("style", "background-color:rgba(0, 0, 0, 0)");
+						}else{
+							node.setAttribute("style", "background-color:rgb(255, 255, 0)");
 						}
-					}
-
-					function setColor(color){
-						currentNode.setAttribute("style", "background-color:"+color);
-					}
-
-					currentNode.addEventListener('click', function(){
-						var currentColor = window.getComputedStyle(currentNode).getPropertyValue("background-color");
-						setColor(decideColor(currentColor));
 					});
-				};
-
-				eventCreator(node);
+				})(node);
 			}
 
 			var row2Squares = document.querySelectorAll('.row2 .square');
@@ -98,20 +109,32 @@
 
 				/* this 없이 짜기 */
 
-				var eventCreator = function(node){
-					var currentNode = node;
+				// var eventCreator = function(node){
+				// 	var currentNode = node;
 
-					currentNode.addEventListener('click', function(){
-						var currentClassList = currentNode.classList;
-						if(currentClassList.contains("enabled")){
-							currentClassList.remove("enabled");
-						}else {
-							currentClassList.add("enabled");
-						}
-					})
-				}
+				// 	currentNode.addEventListener('click', function(){
+				// 		var currentClassList = currentNode.classList;
+				// 		if(currentClassList.contains("enabled")){
+				// 			currentClassList.remove("enabled");
+				// 		}else {
+				// 			currentClassList.add("enabled");
+				// 		}
+				// 	})
+				// }
 
-				eventCreator(node);
+				// eventCreator(node);
+
+				/* 따로 안빼고도 this 없이 짧게 짜기 */
+				(function(node){
+					node.addEventListener('click', function(){
+						node.classList.toggle("enabled");
+						// if(this.classList.contains("enabled")){
+						// 	this.classList.remove("enabled");
+						// }else{
+						// 	this.classList.add("enabled");
+						// }
+					});
+				})(node);
 
 			}
 		</script>
