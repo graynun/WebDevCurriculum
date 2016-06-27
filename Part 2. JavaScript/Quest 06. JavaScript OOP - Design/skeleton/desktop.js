@@ -1,7 +1,12 @@
-var Desktop = function() {
+var Desktop = function(numberOfIcons, numberOfFolders) {
 	/* TODO: Desktop 클래스는 어떤 멤버함수와 멤버변수를 가져야 할까요? */
 	var domObj,
 		memberIcons;
+
+	this.createIcon = function(){
+	},
+	this.createFolder = function(){
+	}
 };
 
 var Icon = function(name) {
