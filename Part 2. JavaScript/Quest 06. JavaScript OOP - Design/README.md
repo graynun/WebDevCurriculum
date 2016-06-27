@@ -21,11 +21,28 @@
   * 클래스 기반의 객체지향 프로그래밍과 어떤 점이 다를까요?
   * Prototype-based에서는 object를 만들 때 기존에 있는 object를 clone하는 방식이라면 Class-based의 경우 instantiation으로 만들어야 한다(이 과정에서 format interpretation이 일어난다고)
   * Class의 경우 static type checking을 하는 경우 compile시에 type checking이 일어나므로 프로그램 돌리는동안(during runtime) 클래스의 변경이 어렵지만 prototype(object)의 경우 type checking이 runtime일때 일어나므로 더 쉽게 할 수 있다고 한다(근데 이건 static type checking language의 이야기이지 꼭 prototype vs class의 문제는 아닌듯....) 
+
 * 객체의 프로토타입 함수는 무엇일까요?
+  * prototype "property"가 아니라 "function"인가요...?
 
 * JavaScript에서 `private`한 멤버 변수를 구현하려면 어떤 식으로 해야 할까요?
+  * 처음 class(object?)를 만들때 변수를 var로 선언한다
+    * 다른 방법이 있을까?
 
 * 자바스크립트에서 클래스간에 상속을 하려면 어떤 식으로 구현해야 할까요?
+  * ES6: `class ChildClass extends ParentClass {...}` - '클래스' 라는 개념이 js에 생겼기 때문에 이런식으로 하게 된것인가?(그냥 자바문법 아닌가?...)
+  * 
+  ~~~~
+  function ChildClass(argument) {
+    ParentClass.call(this, argument);
+    ...
+  }
+
+  ChildClass.prototype = new ParentClass();
+  ChidClass.prototype = Object.create(ParentClass.prototype);
+  ~~~~
+
+
 
 ## Quest
 * Quest 06 ~ Quest 07 을 통해, 웹 상에서 동작하는 간단한 바탕화면 시스템을 만들 예정입니다.
