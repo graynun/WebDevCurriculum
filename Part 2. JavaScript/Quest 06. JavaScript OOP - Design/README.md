@@ -21,9 +21,12 @@
   * 클래스 기반의 객체지향 프로그래밍과 어떤 점이 다를까요?
   * Prototype-based에서는 object를 만들 때 기존에 있는 object를 clone하는 방식이라면 Class-based의 경우 instantiation으로 만들어야 한다(이 과정에서 format interpretation이 일어난다고)
   * Class의 경우 static type checking을 하는 경우 compile시에 type checking이 일어나므로 프로그램 돌리는동안(during runtime) 클래스의 변경이 어렵지만 prototype(object)의 경우 type checking이 runtime일때 일어나므로 더 쉽게 할 수 있다고 한다(근데 이건 static type checking language의 이야기이지 꼭 prototype vs class의 문제는 아닌듯....) 
+  * Object-oriented에서 Object는 결국 필요한 data(attribute, member variable, etc.)를 담고 있고, 그걸 읽어오거나 변경하거나 특정 연산을 시키는 operation(method, member function, etc.)으로 구성되어 있는 것 같다.
+  * 그럼 이 object를 어떻게 define할 것인가? 이 object를 찍어내는 틀이 class인가? 아니면 prototype인가?에 따라서 크게 달라지는듯.
+  * class와 prototype의 가장 큰 차이는 inherit 할때 몽땅 똑같이 해야만 하는 것인가? 가장 많이 일어나는 일은 method를 선택적으로 inherit하거나 추가하는 것 같다. prototype은 상대적으로 쉽게 선택적 inherit / method의 추가가 일어난다. 
 
 * 객체의 프로토타입 함수는 무엇일까요?
-  * prototype "property"가 아니라 "function"인가요...?
+  * `DefinedClass.prototype.functionIWant`: 내가 원하는 method를 해당 "클래스"(정확히는 prototype)에 추가하는 방법.
 
 * JavaScript에서 `private`한 멤버 변수를 구현하려면 어떤 식으로 해야 할까요?
   * 처음 class(object?)를 만들때 변수를 var로 선언한다
