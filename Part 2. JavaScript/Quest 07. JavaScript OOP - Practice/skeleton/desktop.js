@@ -8,6 +8,15 @@ var Desktop = function() {
 
 Desktop.prototype.bindEvent = function(){
 	var that = this;
+
+	var selectMovingItem = new Event("selectMovingItem");
+
+	this.domObj.addEventListener("selectMovingItem", function(){
+		that.movingItem.
+	});
+
+
+
 	this.domObj.addEventListener('mousemove', function(event){
 		if(that.movingItem !== null) that.movingItem.movePosition(event);
 	})
@@ -15,7 +24,7 @@ Desktop.prototype.bindEvent = function(){
 
 Desktop.prototype.createIcon = function(name){
 	var newIcon = new Icon(name);
-	newIcon.desktop = this;
+	// newIcon.desktop = this;
 	newIcon.bindEvent();
 	newIcon.setPosition(200, 400);
 
@@ -25,7 +34,7 @@ Desktop.prototype.createIcon = function(name){
 
 Desktop.prototype.createFolder = function(name){
 	var newFolder = new Folder(name);
-	newFolder.desktop = this;
+	// newFolder.desktop = this;
 	newFolder.bindEvent();
 	newFolder.setPosition(400, 200);
 
@@ -35,12 +44,20 @@ Desktop.prototype.createFolder = function(name){
 
 Desktop.prototype.createWindow = function(icon){
 	var newWindow = new Window(icon.name, icon);
-	newWindow.desktop = this;
+	// newWindow.desktop = this;
 	newWindow.bindEvent();
 	newWindow.setPosition(200, 200);	
 
 	this.memberWindow.push(newWindow);
 	this.domObj.appendChild(newWindow.domObj);
+}
+
+Desktop.prototype.selectMovingItem = function(item){
+	this.movingItem = item;
+}
+
+Desktop.prototype.deselectMovingItem = function(){
+	this.movingItem = null;
 }
 
 
@@ -53,7 +70,7 @@ var Icon = function(name) {
 
 	this.domObj = domObj,
 	this.name = name,
-	this.desktop,
+	// this.desktop,
 	this.position = [0,0],
 	this.offset = [0,0];
 };
@@ -108,16 +125,13 @@ var Folder = function(name) {
 
 Folder.prototype.bindEvent = function(){
 	var that = this;
+
 	this.domObj.addEventListener('mousedown', function(event){
 		that.selectToMove(event);
 	})
 	this.domObj.addEventListener('mouseup', function(){
 		that.deselect();
 	})
-	this.desktop.domObj.addEventListener('mousemove', function(event){
-		if(that.desktop.movingItem !== null) that.desktop.movingItem.movePosition(event);
-	})
-
 	this.domObj.addEventListener('dblclick', function(){
 		that.desktop.createWindow(that);
 	})

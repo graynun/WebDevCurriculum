@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style type="text/css">
+			.desktop {
+				width : 1024px;
+				height: 768px;
+				box-sizing: border-box;
+				border: 1px solid black;
+			}
+
+
+
+			.icon {
+				background-color: red;
+				width: 100px;
+				height: 100px;
+				position: absolute;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="desktop">
+			
+		</section>
+
+		<script>
+			var Icon = function(name){
+				var dom = document.createElement('div');
+				dom.classList.add('icon');
+				dom.classList.add(name);
+
+				this.domObj = dom;
+				this.name = name;
+				this.position = [0,0];
+			}
+
+			var newIcon = new Icon("newIcon");
+			document.querySelector('.desktop').appendChild(newIcon.domObj);
+
+			var bombEvent = new Event('bomb');
+
+			newIcon.domObj.addEventListener('mousedown', function(event){
+				newIcon.domObj.dispatchEvent(bombEvent);
+			})
+
+			newIcon.domObj.addEventListener('bomb', function(event){
+				console.log(event.type);
+			}, false);
+
+			
+
+		</script>
+	</body>
+</html>
