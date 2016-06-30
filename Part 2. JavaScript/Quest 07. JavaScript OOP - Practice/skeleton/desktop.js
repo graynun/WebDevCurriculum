@@ -9,22 +9,41 @@ var Desktop = function() {
 Desktop.prototype.bindEvent = function(){
 	var that = this;
 
-	var selectMovingItem = new Event("selectMovingItem");
-
 	this.domObj.addEventListener("selectMovingItem", function(){
-		that.movingItem.
+		if(event.target.classList[0] === "icon" || event.target.classList[0] === "folder") {
+			for(var i=0; i<that.memberIcons.length;i++) {
+				if(that.memberIcons[i].name === event.target.classList[1]) {
+					that.selectMovingItem(that.memberIcons[i]);
+				}
+			}
+		}else {
+			for(var i=0; i<that.memberWindow.length;i++) {
+				if(that.memberWindow[i].name === event.target.classList[1]) {
+					that.selectMovingItem(that.memberWindow[i]);
+				}
+			}
+		}
 	});
-
-
 
 	this.domObj.addEventListener('mousemove', function(event){
 		if(that.movingItem !== null) that.movingItem.movePosition(event);
+	})
+
+	this.domObj.addEventListener("deselectMovingItem", function(){
+		that.movingItem = null;
+	})
+
+	this.domObj.addEventListener("createWindow", function(){
+		for(var i=0; i<that.memberIcons.length;i++){
+			if(that.memberIcons[i].name === event.target.classList[1]){
+				that.createWindow(that.memberIcons[i]);
+			}
+		}
 	})
 }
 
 Desktop.prototype.createIcon = function(name){
 	var newIcon = new Icon(name);
-	// newIcon.desktop = this;
 	newIcon.bindEvent();
 	newIcon.setPosition(200, 400);
 
@@ -34,7 +53,6 @@ Desktop.prototype.createIcon = function(name){
 
 Desktop.prototype.createFolder = function(name){
 	var newFolder = new Folder(name);
-	// newFolder.desktop = this;
 	newFolder.bindEvent();
 	newFolder.setPosition(400, 200);
 
@@ -44,7 +62,6 @@ Desktop.prototype.createFolder = function(name){
 
 Desktop.prototype.createWindow = function(icon){
 	var newWindow = new Window(icon.name, icon);
-	// newWindow.desktop = this;
 	newWindow.bindEvent();
 	newWindow.setPosition(200, 200);	
 
@@ -70,18 +87,30 @@ var Icon = function(name) {
 
 	this.domObj = domObj,
 	this.name = name,
-	// this.desktop,
 	this.position = [0,0],
 	this.offset = [0,0];
 };
 
 Icon.prototype.bindEvent = function(){
 	var that = this;
+
+	var selectMovingItem = new Event("selectMovingItem", {"bubbles": true});
+	var deselectMovingItem = new Event("deselectMovingItem", {"bubbles": true});
+
+	this.domObj.addEventListener("selectMovingItem", function(){
+		console.log("selectMovingItem on " + that.name);
+	})
+
+	this.domObj.addEventListener("deselectMovingItem", function(){
+		console.log("deselectMovingItem on " + that.name);
+	})
+
 	this.domObj.addEventListener('mousedown', function(event){
-		that.selectToMove(event);
+		that.setOffset(event);
+		this.dispatchEvent(selectMovingItem);
 	})
 	this.domObj.addEventListener('mouseup', function(){
-		that.deselect();
+		this.dispatchEvent(deselectMovingItem);
 	})
 }
 
@@ -93,19 +122,13 @@ Icon.prototype.setPosition = function(x,y){
 	this.domObj.style.top = y + "px";
 }
 
-Icon.prototype.selectToMove = function(event){
-	this.desktop.movingItem = this;
-
+Icon.prototype.setOffset = function(event){
 	this.offset[0] = event.clientX - this.domObj.offsetLeft;
 	this.offset[1] = event.clientY - this.domObj.offsetTop;
 }
 
 Icon.prototype.movePosition = function(event){
 	this.setPosition(event.clientX - this.offset[0], event.clientY - this.offset[1]);
-}
-
-Icon.prototype.deselect = function(){
-	this.desktop.movingItem = null;
 }
 
 
@@ -118,7 +141,6 @@ var Folder = function(name) {
 
 	this.domObj = domObj,
 	this.name = name,
-	this.desktop,
 	this.position = [0,0],
 	this.offset = [0,0];
 };
@@ -126,21 +148,33 @@ var Folder = function(name) {
 Folder.prototype.bindEvent = function(){
 	var that = this;
 
+	var selectMovingItem = new Event("selectMovingItem", {"bubbles": true});
+	var deselectMovingItem = new Event("deselectMovingItem", {"bubbles": true});
+	var createWindow = new Event("createWindow", {"bubbles": true});
+
+	this.domObj.addEventListener("selectMovingItem", function(){
+		console.log("selectMovingItem on " + that.name);
+	})
+
+	this.domObj.addEventListener("deselectMovingItem", function(){
+		console.log("deselectMovingItem on " + that.name);
+	})
+
 	this.domObj.addEventListener('mousedown', function(event){
-		that.selectToMove(event);
+		that.setOffset(event);
+		this.dispatchEvent(selectMovingItem);
 	})
 	this.domObj.addEventListener('mouseup', function(){
-		that.deselect();
+		this.dispatchEvent(deselectMovingItem);
 	})
 	this.domObj.addEventListener('dblclick', function(){
-		that.desktop.createWindow(that);
+		this.dispatchEvent(createWindow);
 	})
 }
 
 Folder.prototype.setPosition = Icon.prototype.setPosition;
-Folder.prototype.selectToMove = Icon.prototype.selectToMove;
+Folder.prototype.setOffset = Icon.prototype.setOffset;
 Folder.prototype.movePosition = Icon.prototype.movePosition;
-Folder.prototype.deselect = Icon.prototype.deselect;
 
 
 var Window = function(name, icon) {
@@ -153,7 +187,6 @@ var Window = function(name, icon) {
 	this.domObj = domObj,
 	this.position = [0,0],
 	this.offset = [0,0],
-	this.desktop,
 	this.connectedIcon = icon,
 	this.name = icon.name;
 };
@@ -161,6 +194,5 @@ var Window = function(name, icon) {
 Window.prototype.bindEvent = Icon.prototype.bindEvent;
 
 Window.prototype.setPosition = Icon.prototype.setPosition;
-Window.prototype.selectToMove = Icon.prototype.selectToMove;
+Window.prototype.setOffset = Icon.prototype.setOffset;
 Window.prototype.movePosition = Icon.prototype.movePosition;
-Window.prototype.deselect = Icon.prototype.deselect;

@@ -39,16 +39,21 @@
 			var newIcon = new Icon("newIcon");
 			document.querySelector('.desktop').appendChild(newIcon.domObj);
 
-			var bombEvent = new Event('bomb');
+			var bombEvent = new Event('bomb', {"bubbles":true});
 
 			newIcon.domObj.addEventListener('mousedown', function(event){
 				newIcon.domObj.dispatchEvent(bombEvent);
 			})
 
 			newIcon.domObj.addEventListener('bomb', function(event){
-				console.log(event.type);
+				console.log(this);
+				console.log(event.target);
 			}, false);
 
+			document.querySelector('.desktop').addEventListener('bomb', function(event){
+				console.log(this);
+				console.log(event.target.name);
+			}, false);
 			
 
 		</script>
