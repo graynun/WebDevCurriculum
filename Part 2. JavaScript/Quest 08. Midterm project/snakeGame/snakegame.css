@@ -1,0 +1,25 @@
+body {
+	width: 1000px;
+	height: 700px;
+}
+
+.playArea {
+	width: 100%;
+	height: 100%;
+	border: 1px solid black;
+	line-height: 0.1;
+}
+
+.gridBlock {
+	display:inline-flex;
+	width: 100px;
+	height: 100px;
+
+	box-sizing: border-box;
+	border: 1px solid blue;
+}
+
+
+.gridBlock.snake {
+	background-color: black;
+}
