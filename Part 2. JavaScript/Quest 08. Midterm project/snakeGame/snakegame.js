@@ -54,10 +54,32 @@ var Snake = function(playArea, length){
 		this.placeOnGrid(0,i);
 	}
 
-	// this.startMove  = setInterval(function(){
-	// 	snake.moveRight();
-	// 	// snake.moveDown();
-	// }, 500);
+	this.setIntervalRight();
+}
+
+Snake.prototype.setIntervalRight = function(){
+	this.startMoveRight  = setInterval(function(){
+		snake.moveRight();
+	}, 500);
+}
+
+Snake.prototype.setIntervalLeft = function(){
+	this.startMoveLeft  = setInterval(function(){
+		snake.moveLeft();
+	}, 500);
+}
+
+Snake.prototype.setIntervalUp = function(){
+	this.startMoveUp  = setInterval(function(){
+		snake.moveUp();
+	}, 500);
+}
+
+Snake.prototype.setIntervalDown = function(){
+	this.startMoveDown  = setInterval(function(){
+		snake.moveDown();
+		console.log("move down?");
+	}, 500);
 }
 
 Snake.prototype.placeOnGrid = function(y,x){
@@ -67,22 +89,34 @@ Snake.prototype.placeOnGrid = function(y,x){
 	this.blocks.push(this.playArea.gridBlockArr[y][x]);	
 }
 
+Snake.prototype.clearIntervals = function(){
+	clearInterval(this.startMoveRight);
+	clearInterval(this.startMoveLeft);
+	clearInterval(this.startMoveUp);
+	clearInterval(this.startMoveDown);
+}
+
 Snake.prototype.moveRight = function(){
 	var headX = this.blocks[this.blocks.length - 1].position[1];
 	var headY = this.blocks[this.blocks.length - 1].position[0];
 	var neckX = this.blocks[this.blocks.length - 2].position[1];
 
-	if(headX === neckX - 1){
+
+
+	if(headX >= this.playArea.gridBlockArr[headY].length - 1){
+		this.clearIntervals();
+		console.log("reached the right edge of the playArea");
+	}else if(headX === neckX - 1){
 		console.log("do nothing because it can't go right");
-	}else if(headX < this.playArea.gridBlockArr[headY].length - 1) {
+	}else if(this.playArea.gridBlockArr[headY][headX+1].isSnake === true){
+		this.clearIntervals();
+		console.log("crushed on its own body");
+	}else{
 		this.blocks[0].isSnake = false;
 		this.blocks[0].domObj.classList.remove("snake");
 		this.blocks.splice(0, 1);
 
 		this.placeOnGrid(headY, headX+1);
-	}else{
-		// clearInterval(this.defaultMove);
-		console.log("reached the right edge of the playArea");
 	}
 }
 
@@ -92,16 +126,22 @@ Snake.prototype.moveDown = function(){
 	var headY = this.blocks[this.blocks.length - 1].position[0];
 	var neckY = this.blocks[this.blocks.length - 2].position[0];
 
-	if(headY === neckY-1){
+	//console.log(this.playArea.gridBlockArr[headY+1][headX].isSnake);
+
+	if(headY >= this.playArea.gridBlockArr.length - 1){
+		this.clearIntervals();
+		console.log("reached at the bottom of the playArea");
+	}else if(headY === neckY-1){
 		console.log("do nothing because it can't go down");
-	}else if(headY < this.playArea.gridBlockArr.length - 1){
+	}else if(this.playArea.gridBlockArr[headY+1][headX].isSnake === true){
+		this.clearIntervals();
+		console.log("crushed on its own body");
+	}else{
 		this.blocks[0].isSnake = false;
 		this.blocks[0].domObj.classList.remove("snake");
 		this.blocks.splice(0, 1);
 
 		this.placeOnGrid(headY+1, headX);
-	}else{
-		console.log("reached at the bottom of the playArea");
 	}
 	
 }
@@ -111,16 +151,25 @@ Snake.prototype.moveUp = function(){
 	var headY = this.blocks[this.blocks.length - 1].position[0];
 	var neckY = this.blocks[this.blocks.length - 2].position[0];
 
-	if(headY === neckY+1){
+
+
+	//console.log(this.playArea.gridBlockArr[headY-1][headX].isSnake);
+
+
+	if(headY < 1){
+		this.clearIntervals();
+		console.log("reached at the top of the playArea");
+	}else if(headY === neckY+1){
 		console.log("do nothing because it can't go up");
-	}else if(headY > 0){
+	}else if(this.playArea.gridBlockArr[headY-1][headX].isSnake === true){
+		this.clearIntervals();
+		console.log("crushed on its own body");
+	}else{
 		this.blocks[0].isSnake = false;
 		this.blocks[0].domObj.classList.remove("snake");
 		this.blocks.splice(0, 1);
 
 		this.placeOnGrid(headY-1, headX);
-	}else{
-		console.log("reached at the top of the playArea");
 	}
 }
 
@@ -128,16 +177,23 @@ Snake.prototype.moveLeft = function(){
 	var headX = this.blocks[this.blocks.length - 1].position[1];
 	var headY = this.blocks[this.blocks.length - 1].position[0];
 	var neckX = this.blocks[this.blocks.length - 2].position[1];
+
+	//console.log(this.playArea.gridBlockArr[headY][headX-1].isSnake);
 	
-	if(headX === neckX+1){
+	if(headX < 1){
+		this.clearIntervals();
+		console.log("reached at the left edge of the playArea");
+	}else if(headX === neckX+1){
 		console.log("do nothing because it can't go left");
-	}else if(headX > 0){
+	}else if(this.playArea.gridBlockArr[headY][headX-1].isSnake === true){
+		this.clearIntervals();
+		console.log("crushed on its own body");
+	}else {
 		this.blocks[0].isSnake = false;
 		this.blocks[0].domObj.classList.remove("snake");
 		this.blocks.splice(0, 1);
 
-		this.placeOnGrid(headY, headX-1);		
-	}else{
-		console.log("reached at the left edge of the playArea");
+		this.placeOnGrid(headY, headX-1);
 	}
+		
 }
