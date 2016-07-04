@@ -4,18 +4,18 @@ var PlayArea = function(xSize, ySize){
 	this.domObj,
 	this.width = xSize,
 	this.height = ySize,
-	this.gridBlockArr = [];
+	this.gridBlockArr = {};
 
 	this.createDom();
 	document.body.appendChild(this.domObj);
 
 	for(var i=0;i<ySize;i++){
-		this.gridBlockArr[i] = [];
-		
 		for(var j=0;j<xSize;j++){
-			var gridBlock = new GridBlock(i,j);
+			var gridBlock = new GridBlock(j,i);
 			this.domObj.appendChild(gridBlock.domObj);
-			this.gridBlockArr[i][j] = gridBlock;
+
+			var key = gridBlock.position;
+			this.gridBlockArr[key] = gridBlock;
 		}
 	}
 }
@@ -28,9 +28,9 @@ PlayArea.prototype.createDom = function(){
 }
 
 
-var GridBlock = function(y, x){
+var GridBlock = function(x, y){
 	this.domObj,
-	this.position = [y, x],
+	this.position = [x, y],
 	this.isSnake = false,
 	this.isApple = false;
 
@@ -51,7 +51,7 @@ var Snake = function(playArea, length){
 	this.playArea = playArea;
 
 	for(var i=0;i<length;i++){
-		this.placeOnGrid(0,i);
+		this.placeOnGrid(i,0);
 	}
 
 	this.setIntervalRight();
@@ -78,15 +78,15 @@ Snake.prototype.setIntervalUp = function(){
 Snake.prototype.setIntervalDown = function(){
 	this.startMoveDown  = setInterval(function(){
 		snake.moveDown();
-		console.log("move down?");
 	}, 500);
 }
 
-Snake.prototype.placeOnGrid = function(y,x){
-	this.playArea.gridBlockArr[y][x].isSnake = true;
-	this.playArea.gridBlockArr[y][x].domObj.classList.add("snake");
+Snake.prototype.placeOnGrid = function(x,y){
+	var key = x+","+y
+	this.playArea.gridBlockArr[key].isSnake = true;
+	this.playArea.gridBlockArr[key].domObj.classList.add("snake");
 
-	this.blocks.push(this.playArea.gridBlockArr[y][x]);	
+	this.blocks.push(this.playArea.gridBlockArr[key]);	
 }
 
 Snake.prototype.clearIntervals = function(){
@@ -97,18 +97,19 @@ Snake.prototype.clearIntervals = function(){
 }
 
 Snake.prototype.moveRight = function(){
-	var headX = this.blocks[this.blocks.length - 1].position[1];
-	var headY = this.blocks[this.blocks.length - 1].position[0];
-	var neckX = this.blocks[this.blocks.length - 2].position[1];
+	var headX = this.blocks[this.blocks.length - 1].position[0];
+	var headY = this.blocks[this.blocks.length - 1].position[1];
+	var neckX = this.blocks[this.blocks.length - 2].position[0];
 
+	var nextBlockKey = Number(headX+1) + "," + headY;
 
-
-	if(headX >= this.playArea.gridBlockArr[headY].length - 1){
+	if(headX >= this.playArea.width - 1){
 		this.clearIntervals();
 		console.log("reached the right edge of the playArea");
 	}else if(headX === neckX - 1){
 		console.log("do nothing because it can't go right");
-	}else if(this.playArea.gridBlockArr[headY][headX+1].isSnake === true){
+		this.setIntervalRight();
+	}else if(this.playArea.gridBlockArr[nextBlockKey].isSnake === true){
 		this.clearIntervals();
 		console.log("crushed on its own body");
 	}else{
@@ -116,24 +117,27 @@ Snake.prototype.moveRight = function(){
 		this.blocks[0].domObj.classList.remove("snake");
 		this.blocks.splice(0, 1);
 
-		this.placeOnGrid(headY, headX+1);
+		this.placeOnGrid(headX+1, headY);
 	}
 }
 
 Snake.prototype.moveDown = function(){
 	// console.log("moveDown called?");
-	var headX = this.blocks[this.blocks.length - 1].position[1];
-	var headY = this.blocks[this.blocks.length - 1].position[0];
-	var neckY = this.blocks[this.blocks.length - 2].position[0];
+	var headX = this.blocks[this.blocks.length - 1].position[0];
+	var headY = this.blocks[this.blocks.length - 1].position[1];
+	var neckY = this.blocks[this.blocks.length - 2].position[1];
+
+	var nextBlockKey = headX + "," + Number(headY+1);
 
 	//console.log(this.playArea.gridBlockArr[headY+1][headX].isSnake);
 
-	if(headY >= this.playArea.gridBlockArr.length - 1){
+	if(headY >= this.playArea.height - 1){
 		this.clearIntervals();
 		console.log("reached at the bottom of the playArea");
 	}else if(headY === neckY-1){
 		console.log("do nothing because it can't go down");
-	}else if(this.playArea.gridBlockArr[headY+1][headX].isSnake === true){
+		this.setIntervalDown();
+	}else if(this.playArea.gridBlockArr[nextBlockKey].isSnake === true){
 		this.clearIntervals();
 		console.log("crushed on its own body");
 	}else{
@@ -141,27 +145,25 @@ Snake.prototype.moveDown = function(){
 		this.blocks[0].domObj.classList.remove("snake");
 		this.blocks.splice(0, 1);
 
-		this.placeOnGrid(headY+1, headX);
+		this.placeOnGrid(headX, headY+1);
 	}
 	
 }
 
 Snake.prototype.moveUp = function(){
-	var headX = this.blocks[this.blocks.length - 1].position[1];
-	var headY = this.blocks[this.blocks.length - 1].position[0];
-	var neckY = this.blocks[this.blocks.length - 2].position[0];
+	var headX = this.blocks[this.blocks.length - 1].position[0];
+	var headY = this.blocks[this.blocks.length - 1].position[1];
+	var neckY = this.blocks[this.blocks.length - 2].position[1];
 
-
-
-	//console.log(this.playArea.gridBlockArr[headY-1][headX].isSnake);
-
+	var nextBlockKey = headX + "," + Number(headY-1);
 
 	if(headY < 1){
 		this.clearIntervals();
 		console.log("reached at the top of the playArea");
 	}else if(headY === neckY+1){
+		this.setIntervalUp();
 		console.log("do nothing because it can't go up");
-	}else if(this.playArea.gridBlockArr[headY-1][headX].isSnake === true){
+	}else if(this.playArea.gridBlockArr[nextBlockKey].isSnake === true){
 		this.clearIntervals();
 		console.log("crushed on its own body");
 	}else{
@@ -169,23 +171,24 @@ Snake.prototype.moveUp = function(){
 		this.blocks[0].domObj.classList.remove("snake");
 		this.blocks.splice(0, 1);
 
-		this.placeOnGrid(headY-1, headX);
+		this.placeOnGrid(headX, headY-1);
 	}
 }
 
 Snake.prototype.moveLeft = function(){
-	var headX = this.blocks[this.blocks.length - 1].position[1];
-	var headY = this.blocks[this.blocks.length - 1].position[0];
-	var neckX = this.blocks[this.blocks.length - 2].position[1];
+	var headX = this.blocks[this.blocks.length - 1].position[0];
+	var headY = this.blocks[this.blocks.length - 1].position[1];
+	var neckX = this.blocks[this.blocks.length - 2].position[0];
 
-	//console.log(this.playArea.gridBlockArr[headY][headX-1].isSnake);
-	
+	var nextBlockKey = Number(headX-1) + "," + headY;
+
 	if(headX < 1){
 		this.clearIntervals();
 		console.log("reached at the left edge of the playArea");
 	}else if(headX === neckX+1){
+		this.setIntervalLeft();
 		console.log("do nothing because it can't go left");
-	}else if(this.playArea.gridBlockArr[headY][headX-1].isSnake === true){
+	}else if(this.playArea.gridBlockArr[nextBlockKey].isSnake === true){
 		this.clearIntervals();
 		console.log("crushed on its own body");
 	}else {
@@ -193,7 +196,7 @@ Snake.prototype.moveLeft = function(){
 		this.blocks[0].domObj.classList.remove("snake");
 		this.blocks.splice(0, 1);
 
-		this.placeOnGrid(headY, headX-1);
+		this.placeOnGrid(headX-1, headY);
 	}
 		
 }
