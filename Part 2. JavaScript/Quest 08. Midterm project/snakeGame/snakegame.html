@@ -7,35 +7,7 @@
 	</head>
 	<body>
 		<script type="text/javascript">
-			var myPlayArea = new PlayArea(10, 7);
-			var snake = new Snake(myPlayArea, 6);
-
-			document.addEventListener('keydown', function(event){
-				switch (event.keyCode){
-					case 38:
-						snake.clearIntervals();
-						snake.moveUp();
-						snake.setIntervalUp();
-						break;
-					case 40:
-						snake.clearIntervals();
-						snake.moveDown();
-						snake.setIntervalDown();
-						break;
-					case 37:
-						snake.clearIntervals();
-						snake.moveLeft();
-						snake.setIntervalLeft();
-						break;
-					case 39:
-						snake.clearIntervals();
-						snake.moveRight();
-						snake.setIntervalRight();
-						break;
-					default:
-						console.log("input not an arrow key");
-				}
-			})
+			var myPlayArea = new PlayArea(13, 10);
 		</script>
 	</body>
 </html>

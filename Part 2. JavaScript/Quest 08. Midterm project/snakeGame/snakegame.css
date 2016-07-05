@@ -1,6 +1,6 @@
 body {
-	width: 1000px;
-	height: 700px;
+	width: 1040px;
+	height: 800px;
 }
 
 .playArea {
@@ -12,8 +12,8 @@ body {
 
 .gridBlock {
 	display:inline-flex;
-	width: 100px;
-	height: 100px;
+	width: 80px;
+	height: 80px;
 
 	box-sizing: border-box;
 	border: 1px solid blue;
@@ -22,4 +22,8 @@ body {
 
 .gridBlock.snake {
 	background-color: black;
+}
+
+.gridBlock.apple {
+	background-color: red;
 }
