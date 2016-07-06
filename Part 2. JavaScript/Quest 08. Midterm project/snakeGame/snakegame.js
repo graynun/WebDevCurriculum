@@ -69,7 +69,7 @@ PlayArea.prototype.isBlockSnake = function(blockKey){
 }
 
 PlayArea.prototype.isBlockApple = function(blockKey){
-	if(this.gridBlockArr[blockKey].isApple === true){
+	if(this.gridBlockArr[blockKey] === this.apple){
 		return true;
 	}else{
 		return false;
@@ -138,61 +138,59 @@ var Snake = function(playArea, length){
 Snake.prototype.bindEvents = function(){
 	var that = this;
 	document.addEventListener('keydown', function(event){
-
-		var time;
-		console.log(that.blocks.length);
-		if(that.blocks.length < 5){
-			time = 500;
-		}else if(that.blocks.length < 10){
-			time = 300;
-		}else if(that.blocks.length < 15){
-			time = 200;
-		}else{
-			time = 100;
-		}
-		console.log(time);
-
 		switch (event.keyCode){
 			case 38:
 				if(that.movingDirection() === "down"){
 					console.log("do nothing because it can't go up");
 				}else{
-					that.clearIntervals();
 					that.moveUp();
-					that.setIntervalUp(time);
 				}
 				break;
 			case 40:
 				if(that.movingDirection() === "up"){
 					console.log("do nothing because it can't go down");
 				}else{
-					that.clearIntervals();
 					that.moveDown();
-					that.setIntervalDown(time);
 				}
 				break;
 			case 37:
 				if(that.movingDirection() === "right"){
 					console.log("do nothing because it can't go left");
 				}else{
-					that.clearIntervals();
 					that.moveLeft();
-					that.setIntervalLeft(time);
 				}
 				break;
 			case 39:
 				if(that.movingDirection() === "left"){
 					console.log("do nothing because it can't go right");
 				}else{
-					that.clearIntervals();
 					that.moveRight();
-					that.setIntervalRight(time);
 				}
 				break;
 			default:
 				console.log("input is not an arrow key");
 		}
 	})
+}
+
+Snake.prototype.calculateIntervalTime = function(){
+	var time;
+	if(this.blocks.length < 3){
+		time = 500;
+	}else if(this.blocks.length < 6){
+		time = 450;
+	}else if(this.blocks.length < 9){
+		time = 400;
+	}else if(this.blocks.length < 12){
+		time = 350;
+	}else if(this.blocks.length < 15){
+		time = 300;
+	}else if(this.blocks.length < 18){
+		time = 250;
+	}else{
+		time = 200;
+	}
+	return time;
 }
 
 Snake.prototype.setIntervalRight = function(time){
@@ -282,7 +280,7 @@ Snake.prototype.ableToMove = function(nextBlockKey){
 }
 
 Snake.prototype.eatApple = function(nextBlockKey){
-	this.playArea.gridBlockArr[nextBlockKey].becomeNormalFromApple();
+	this.playArea.apple.becomeNormalFromApple();
 	this.makeBlockSnakeHead(nextBlockKey);
 }
 
@@ -305,11 +303,14 @@ Snake.prototype.moveRight = function(){
 	var headY = this.blocks[this.blocks.length - 1].position[1];
 	var nextBlockKey = Number(headX+1) + "," + headY;
 
+	this.clearIntervals();
 	if(this.ableToMove(nextBlockKey)){
 		this.moveForward(nextBlockKey);
+		this.setIntervalRight(this.calculateIntervalTime());
 	}else{
 		console.log("game over");
 	}
+	
 }
 
 Snake.prototype.moveDown = function(){
@@ -317,11 +318,14 @@ Snake.prototype.moveDown = function(){
 	var headY = this.blocks[this.blocks.length - 1].position[1];
 	var nextBlockKey = headX + "," + Number(headY+1);
 
+	this.clearIntervals();
 	if(this.ableToMove(nextBlockKey)){
 		this.moveForward(nextBlockKey);
+		this.setIntervalDown(this.calculateIntervalTime());
 	}else{
 		console.log("game over");
 	}
+	
 }
 
 Snake.prototype.moveUp = function(){
@@ -329,11 +333,14 @@ Snake.prototype.moveUp = function(){
 	var headY = this.blocks[this.blocks.length - 1].position[1];
 	var nextBlockKey = headX + "," + Number(headY-1);
 
+	this.clearIntervals();
 	if(this.ableToMove(nextBlockKey)){
 		this.moveForward(nextBlockKey);
+		this.setIntervalUp(this.calculateIntervalTime());
 	}else{
 		console.log("game over");
 	}
+	
 }
 
 Snake.prototype.moveLeft = function(){
@@ -341,8 +348,10 @@ Snake.prototype.moveLeft = function(){
 	var headY = this.blocks[this.blocks.length - 1].position[1];
 	var nextBlockKey = Number(headX-1) + "," + headY;
 
+	this.clearIntervals();
 	if(this.ableToMove(nextBlockKey)){
 		this.moveForward(nextBlockKey);
+		this.setIntervalLeft(this.calculateIntervalTime());
 	}else{
 		console.log("game over");
 	}
