@@ -98,8 +98,6 @@ RuleBook.prototype.calculateIntervalTime = function(){
 	}else{
 		time = 100;
 	}
-
-	console.log(time);
 	return time;
 }
 
@@ -113,7 +111,6 @@ RuleBook.prototype.canSnakeMove = function(nextBlockKey){
 	}else if(tailPosition === nextBlockKey){
 		return true;
 	}else if(this.isBlockSnake(nextBlockKey)){
-		this.snake.clearIntervals();
 		console.log("crushed on its own body");
 		return false;
 	}else{
@@ -264,7 +261,7 @@ Snake.prototype.generateNextBlockKey = function(){
 
 Snake.prototype.move = function(){
 	var nextBlockKey = this.generateNextBlockKey();
-	
+
 	if(this.ruleBook.canSnakeMove(nextBlockKey)){
 		if(this.ruleBook.isBlockApple(nextBlockKey)){
 			this.eatApple(nextBlockKey);
