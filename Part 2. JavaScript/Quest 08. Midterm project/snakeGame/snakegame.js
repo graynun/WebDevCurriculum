@@ -1,10 +1,131 @@
 "use strict";
 
+var RuleBook = function(){
+	this.playArea,
+	this.snake,
+	this.apple;	
+
+	this.playArea = new PlayArea(13, 10);
+	this.snake = new Snake(this);
+
+	for(var i=0;i<3;i++){
+		var key = i + "," + 0;
+		this.makeBlockSnakeTail(key);
+	}
+
+	this.generateApple();
+	this.snake.move();	
+}
+
+RuleBook.prototype.makeBlockSnakeTail = function(blockKey){
+	this.playArea.gridBlockArr[blockKey].becomeSnake();
+	this.snake.blocks.push(this.playArea.gridBlockArr[blockKey]);	
+}
+
+RuleBook.prototype.makeBlockSnakeHead = function(blockKey){
+	this.playArea.gridBlockArr[blockKey].becomeSnake();
+	this.snake.blocks[this.snake.blocks.length] = this.playArea.gridBlockArr[blockKey];	
+}
+
+RuleBook.prototype.isBlockOnGrid = function(blockKey){
+	if(this.playArea.gridBlockArr[blockKey] === undefined) {
+		return false;
+	}else{
+		return true;
+	}
+}
+
+RuleBook.prototype.isBlockSnake = function(blockKey){
+	if(this.playArea.gridBlockArr[blockKey].isSnake === true){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+RuleBook.prototype.isBlockApple = function(blockKey){
+	if(this.playArea.gridBlockArr[blockKey] === this.apple){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+RuleBook.prototype.makeBlockApple = function(blockKey){
+	this.playArea.gridBlockArr[blockKey].becomeApple();
+}
+
+RuleBook.prototype.removeAppleBlock = function(blockKey){
+	this.playArea.gridBlockArr[blockKey].becomeNormalFromApple();
+}
+
+RuleBook.prototype.generateApple = function(){
+	var randX = Math.floor(Math.random() * this.playArea.width);
+	var randY = Math.floor(Math.random() * this.playArea.height);
+	var key = randX + "," + randY;
+
+	var selectedBlock = this.playArea.gridBlockArr[key];
+	if(selectedBlock.isApple === true || selectedBlock.isSnake === true){
+		console.log("can't be an apple - something's on the grid block");
+		this.generateApple();
+	}else{
+		selectedBlock.becomeApple();
+		this.apple = this.playArea.gridBlockArr[key];
+	}
+}
+
+RuleBook.prototype.calculateIntervalTime = function(){
+	var time;
+
+	var snakeLength = this.snake.blocks.length || 3;
+
+	if(snakeLength < 4){
+		time = 500;
+	}else if(snakeLength < 7){
+		time = 450;
+	}else if(snakeLength < 10){
+		time = 400;
+	}else if(snakeLength < 13){
+		time = 350;
+	}else if(snakeLength < 16){
+		time = 300;
+	}else if(snakeLength < 19){
+		time = 250;
+	}else if(snakeLength < 22){
+		time = 200;
+	}else if(snakeLength < 25){
+		time = 150;
+	}else{
+		time = 100;
+	}
+
+	console.log(time);
+	return time;
+}
+
+
+
+RuleBook.prototype.canSnakeMove = function(nextBlockKey){
+	var tailPosition = this.snake.blocks[0].position[0] + "," + this.snake.blocks[0].position[1];
+	if(!this.isBlockOnGrid(nextBlockKey)){
+		console.log("reached the right edge of the playArea");
+		return false;
+	}else if(tailPosition === nextBlockKey){
+		return true;
+	}else if(this.isBlockSnake(nextBlockKey)){
+		this.snake.clearIntervals();
+		console.log("crushed on its own body");
+		return false;
+	}else{
+		return true;
+	}
+}
+
+
 var PlayArea = function(xSize, ySize){
 	this.domObj,
 	this.width = xSize,
 	this.height = ySize,
-	this.snake,
 	this.gridBlockArr = {},
 	this.apple;
 
@@ -12,8 +133,6 @@ var PlayArea = function(xSize, ySize){
 	document.body.appendChild(this.domObj);
 
 	this.createBlocks(this.width, this.height);
-	this.snake = new Snake(this, 3);
-	this.generateApple();
 }
 
 PlayArea.prototype.createDom = function(){
@@ -31,57 +150,8 @@ PlayArea.prototype.createBlocks = function(xSize, ySize){
 
 			var key = gridBlock.position;
 			this.gridBlockArr[key] = gridBlock;
-			gridBlock.domObj.innerHTML = key;
 		}
 	}
-}
-
-PlayArea.prototype.generateApple = function(){
-	var randX = Math.floor(Math.random() * this.width);
-	var randY = Math.floor(Math.random() * this.height);
-	var key = randX + "," + randY;
-
-	var selectedBlock = this.gridBlockArr[key];
-	if(selectedBlock.isApple === true || selectedBlock.isSnake === true){
-		console.log("can't be an apple - something's on the grid block");
-		this.generateApple();
-	}else{
-		selectedBlock.isApple = true;
-		selectedBlock.domObj.classList.add("apple");
-		this.apple = this.gridBlockArr[key];
-	}
-}
-
-PlayArea.prototype.isBlockOnGrid = function(blockKey){
-	if(this.gridBlockArr[blockKey] === undefined) {
-		return false;
-	}else{
-		return true;
-	}
-}
-
-PlayArea.prototype.isBlockSnake = function(blockKey){
-	if(this.gridBlockArr[blockKey].isSnake === true){
-		return true;
-	}else{
-		return false;
-	}
-}
-
-PlayArea.prototype.isBlockApple = function(blockKey){
-	if(this.gridBlockArr[blockKey] === this.apple){
-		return true;
-	}else{
-		return false;
-	}
-}
-
-PlayArea.prototype.makeBlockApple = function(blockKey){
-	this.gridBlockArr[blockKey].becomeApple();
-}
-
-PlayArea.prototype.releaseBlockApple = function(blockKey){
-	this.gridBlockArr[blockKey].becomeNormalFromApple();
 }
 
 var GridBlock = function(x, y){
@@ -121,18 +191,12 @@ GridBlock.prototype.becomeNormalFromApple = function(){
 }
 
 
-var Snake = function(playArea, length){
-	this.length = length,
+var Snake = function(ruleBook){
 	this.blocks = [],
-	this.playArea = playArea;
-
-	for(var i=0;i<length;i++){
-		var key = i + "," + 0;
-		this.makeBlockSnakeTail(key);
-	}
+	this.ruleBook = ruleBook,
+	this.direction = "right";
 
 	this.bindEvents();
-	this.setIntervalRight(500);
 }
 
 Snake.prototype.bindEvents = function(){
@@ -140,31 +204,31 @@ Snake.prototype.bindEvents = function(){
 	document.addEventListener('keydown', function(event){
 		switch (event.keyCode){
 			case 38:
-				if(that.movingDirection() === "down"){
+				if(that.direction === "down"){
 					console.log("do nothing because it can't go up");
 				}else{
-					that.moveUp();
+					that.direction = "up";
 				}
 				break;
 			case 40:
-				if(that.movingDirection() === "up"){
+				if(that.direction === "up"){
 					console.log("do nothing because it can't go down");
 				}else{
-					that.moveDown();
+					that.direction = "down";
 				}
 				break;
 			case 37:
-				if(that.movingDirection() === "right"){
+				if(that.direction === "right"){
 					console.log("do nothing because it can't go left");
 				}else{
-					that.moveLeft();
+					that.direction = "left";
 				}
 				break;
 			case 39:
-				if(that.movingDirection() === "left"){
+				if(that.direction === "left"){
 					console.log("do nothing because it can't go right");
 				}else{
-					that.moveRight();
+					that.direction = "right";
 				}
 				break;
 			default:
@@ -173,186 +237,65 @@ Snake.prototype.bindEvents = function(){
 	})
 }
 
-Snake.prototype.calculateIntervalTime = function(){
-	var time;
-	if(this.blocks.length < 3){
-		time = 500;
-	}else if(this.blocks.length < 6){
-		time = 450;
-	}else if(this.blocks.length < 9){
-		time = 400;
-	}else if(this.blocks.length < 12){
-		time = 350;
-	}else if(this.blocks.length < 15){
-		time = 300;
-	}else if(this.blocks.length < 18){
-		time = 250;
-	}else{
-		time = 200;
+Snake.prototype.generateNextBlockKey = function(){
+	var headX = this.blocks[this.blocks.length - 1].position[0];
+	var headY = this.blocks[this.blocks.length - 1].position[1];
+	var direction = this.direction;
+	var nextBlockKey;
+	
+	switch (direction){
+		case "up":
+			nextBlockKey = headX + "," + Number(headY-1);
+			break;
+		case "down":
+			nextBlockKey = headX + "," + Number(headY+1);
+			break;
+		case "left":
+			nextBlockKey = Number(headX-1) + "," + headY;
+			break;
+		case "right":
+			nextBlockKey = Number(headX+1) + "," + headY;
+			break;
+		default:
+			console.log("something's wrong - input not an direction");
 	}
-	return time;
+	return nextBlockKey;
 }
 
-Snake.prototype.setIntervalRight = function(time){
+Snake.prototype.move = function(){
+	var nextBlockKey = this.generateNextBlockKey();
+	
+	if(this.ruleBook.canSnakeMove(nextBlockKey)){
+		if(this.ruleBook.isBlockApple(nextBlockKey)){
+			this.eatApple(nextBlockKey);
+			this.ruleBook.generateApple();
+		}else{
+			this.moveToNext(nextBlockKey);
+		}
+	}else{
+		clearTimeout(this.snakeTimeout);
+		console.log("game over");
+		return;
+	}
+
 	var that = this;
-	this.startMoveRight  = setInterval(function(){
-		that.moveRight();
-	}, time);
+	var time = this.ruleBook.calculateIntervalTime();
+	this.snakeTimeout = setTimeout(function(){
+		that.move()},
+	time);
 }
 
-Snake.prototype.setIntervalLeft = function(time){
-	var that = this;
-	this.startMoveLeft  = setInterval(function(){
-		that.moveLeft();
-	}, time);
+Snake.prototype.eatApple = function(nextBlockKey){
+	this.ruleBook.apple.becomeNormalFromApple();
+	this.ruleBook.makeBlockSnakeHead(nextBlockKey);
 }
 
-Snake.prototype.setIntervalUp = function(time){
-	var that = this;
-	this.startMoveUp  = setInterval(function(){
-		that.moveUp();
-	}, time);
-}
-
-Snake.prototype.setIntervalDown = function(time){
-	var that = this;
-	this.startMoveDown  = setInterval(function(){
-		that.moveDown();
-	}, time);
-}
-
-Snake.prototype.clearIntervals = function(){
-	clearInterval(this.startMoveRight);
-	clearInterval(this.startMoveLeft);
-	clearInterval(this.startMoveUp);
-	clearInterval(this.startMoveDown);
-}
-
-Snake.prototype.makeBlockSnakeTail = function(blockKey){
-	this.playArea.gridBlockArr[blockKey].becomeSnake();
-	this.blocks.push(this.playArea.gridBlockArr[blockKey]);	
-}
-
-Snake.prototype.makeBlockSnakeHead = function(blockKey){
-	this.playArea.gridBlockArr[blockKey].becomeSnake();
-	this.blocks[this.blocks.length] = this.playArea.gridBlockArr[blockKey];	
+Snake.prototype.moveToNext = function(nextBlockKey){
+	this.removeTailBlock();
+	this.ruleBook.makeBlockSnakeTail(nextBlockKey);	
 }
 
 Snake.prototype.removeTailBlock = function(){
 	this.blocks[0].becomeNormalFromSnake();
 	this.blocks.splice(0, 1);
-}
-
-Snake.prototype.movingDirection = function(){
-	var headX = this.blocks[this.blocks.length - 1].position[0];
-	var headY = this.blocks[this.blocks.length - 1].position[1];
-	var neckX = this.blocks[this.blocks.length - 2].position[0];
-	var neckY = this.blocks[this.blocks.length - 2].position[1];
-
-	if(headX === neckX + 1){
-		return "right";
-	}else if(headX === neckX - 1){
-		return "left";
-	}else if(headY === neckY + 1){
-		return "down";
-	}else if(headY === neckY - 1){
-		return "up";
-	}else{
-		console.log("can't happen - no direction");
-	}
-}
-
-Snake.prototype.ableToMove = function(nextBlockKey){
-	var tailPosition = this.blocks[0].position[0] + "," + this.blocks[0].position[1];
-	if(!this.playArea.isBlockOnGrid(nextBlockKey)){
-		this.clearIntervals();
-		console.log("reached the right edge of the playArea");
-		return false;
-	}else if(tailPosition === nextBlockKey){
-		return true;
-	}else if(this.playArea.isBlockSnake(nextBlockKey)){
-		this.clearIntervals();
-		console.log("crushed on its own body");
-		return false;
-	}else{
-		return true;
-	}
-}
-
-Snake.prototype.eatApple = function(nextBlockKey){
-	this.playArea.apple.becomeNormalFromApple();
-	this.makeBlockSnakeHead(nextBlockKey);
-}
-
-Snake.prototype.moveToNext = function(nextBlockKey){
-	this.removeTailBlock();
-	this.makeBlockSnakeTail(nextBlockKey);	
-}
-
-Snake.prototype.moveForward = function(nextBlockKey){
-	if(this.playArea.isBlockApple(nextBlockKey)){
-		this.eatApple(nextBlockKey);
-		this.playArea.generateApple();
-	}else{
-		this.moveToNext(nextBlockKey);
-	}
-}
-
-Snake.prototype.moveRight = function(){
-	var headX = this.blocks[this.blocks.length - 1].position[0];
-	var headY = this.blocks[this.blocks.length - 1].position[1];
-	var nextBlockKey = Number(headX+1) + "," + headY;
-
-	this.clearIntervals();
-	if(this.ableToMove(nextBlockKey)){
-		this.moveForward(nextBlockKey);
-		this.setIntervalRight(this.calculateIntervalTime());
-	}else{
-		console.log("game over");
-	}
-	
-}
-
-Snake.prototype.moveDown = function(){
-	var headX = this.blocks[this.blocks.length - 1].position[0];
-	var headY = this.blocks[this.blocks.length - 1].position[1];
-	var nextBlockKey = headX + "," + Number(headY+1);
-
-	this.clearIntervals();
-	if(this.ableToMove(nextBlockKey)){
-		this.moveForward(nextBlockKey);
-		this.setIntervalDown(this.calculateIntervalTime());
-	}else{
-		console.log("game over");
-	}
-	
-}
-
-Snake.prototype.moveUp = function(){
-	var headX = this.blocks[this.blocks.length - 1].position[0];
-	var headY = this.blocks[this.blocks.length - 1].position[1];
-	var nextBlockKey = headX + "," + Number(headY-1);
-
-	this.clearIntervals();
-	if(this.ableToMove(nextBlockKey)){
-		this.moveForward(nextBlockKey);
-		this.setIntervalUp(this.calculateIntervalTime());
-	}else{
-		console.log("game over");
-	}
-	
-}
-
-Snake.prototype.moveLeft = function(){
-	var headX = this.blocks[this.blocks.length - 1].position[0];
-	var headY = this.blocks[this.blocks.length - 1].position[1];
-	var nextBlockKey = Number(headX-1) + "," + headY;
-
-	this.clearIntervals();
-	if(this.ableToMove(nextBlockKey)){
-		this.moveForward(nextBlockKey);
-		this.setIntervalLeft(this.calculateIntervalTime());
-	}else{
-		console.log("game over");
-	}
 }
