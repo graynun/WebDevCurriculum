@@ -15,15 +15,12 @@ class Man extends Human{
 		return this.firstName + " " + this.lastName;
 	}
 
-	this.sayName = function() {
-		console.log("Hi, my name is "+this.name);
-	}
 }
 
-// Man.prototype.sayName = function(){
-// 	console.log("Hi, my name is "+this.name);
-// }
-
+ Man.prototype.sayName = function() {
+		console.log("Hi, my name is "+this.name);
+ }
+//  
 
 
 // function Human(first, last){
