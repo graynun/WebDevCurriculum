@@ -25,6 +25,14 @@
 
 ## Checklist
 * 인터넷은 어떻게 동작하나요? OSI 7 Layer에 입각하여 설명해 보세요.
+  * 보내는사람
+    * Application layer: 브라우저에서 www.google.com을 칩니다
+    * Presentation layer: Application layer에서 넘어온 데이터의 형식이나 암호화 등에 대한 정보를 처리
+    * Session layer: 통신을 하기 위한 session을 만들고 없애줌
+    * Transport layer: 어떤 protocol을 쓰는지, 한 번에 얼만큼 많은 정보들을 전달하는지, 전달된 정보가 몇 번째 정보인지 등이 포함된 segment 가 생성된다.
+    * Network layer: IP address를 통해서 실제로 전해지는 정보를 누가 받아야 하는지, layer4에서 어떤 protocol을 쓰는지 등이 포함된 packet이 만들어진다
+    * Data-link layer: 논리적 주소(IP address)를 물리적 주소로 바꾸어주고 해당 정보를 포함하여 Frame으로 만듬
+    * Physical layer: Frame전송!
 * 우리가 브라우저의 주소 창에 www.knowre.com 을 쳤을 때, 어떤 과정을 통해 노리의 서버 주소를 알게 되나요?
 
 ## Quest
