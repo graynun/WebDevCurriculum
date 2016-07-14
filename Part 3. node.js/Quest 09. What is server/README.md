@@ -28,12 +28,13 @@
   * 보내는사람
     * Application layer: 브라우저에서 www.google.com을 칩니다
     * Presentation layer: Application layer에서 넘어온 데이터의 형식이나 암호화 등에 대한 정보를 처리
-    * Session layer: 통신을 하기 위한 session을 만들고 없애줌
+    * Session layer: 소프트 웨어 사이에서 대화(통신)을 하기 위한 session을 관리(만들기/없애기)
     * Transport layer: 어떤 protocol을 쓰는지, 한 번에 얼만큼 많은 정보들을 전달하는지, 전달된 정보가 몇 번째 정보인지 등이 포함된 segment 가 생성된다.
-    * Network layer: IP address를 통해서 실제로 전해지는 정보를 누가 받아야 하는지, layer4에서 어떤 protocol을 쓰는지 등이 포함된 packet이 만들어진다
-    * Data-link layer: 논리적 주소(IP address)를 물리적 주소로 바꾸어주고 해당 정보를 포함하여 Frame으로 만듬
-    * Physical layer: Frame전송!
+    * Network layer: 발신/수신자의 IP주소, 해당 패킷의 TTL, L4의 protocol 정보 등이 포함된 packet이 만들어진다
+    * Data-link layer: 해당 packet이 가야하는 물리적 주소, L3에서 사용된 protocol정보를 포함한 Frame으로 만듬
+    * Physical layer: Frame전송! 실제 구리선 / optical fiber등을 타고 정보 전달. 전달시에는 회선을 공유하는 다른 host들과 충돌이 나지 않도록 전송 순서 / 타이밍 등을 결정하는 규칙이 정해져 있다.
 * 우리가 브라우저의 주소 창에 www.knowre.com 을 쳤을 때, 어떤 과정을 통해 노리의 서버 주소를 알게 되나요?
+  * 내 브라우저 => 내 컴퓨터 => router(Router 안에 DNS가 있는 경우 여기서 멈출수도) => DNS (주소를 모르는 경우) => 상위 DNS
 
 ## Quest
 * tracert(Windows가 아닌 경우 traceroute) 명령을 통해 www.google.com까지 가는 경로를 찾아 보세요.
@@ -68,7 +69,28 @@ traceroute to www.google.com (216.58.197.164), 64 hops max, 52 byte packets
 
 * Wireshark를 통해 www.google.com으로 요청을 날렸을 떄 어떤 TCP 패킷이 오가는지 확인해 보세요
   * TCP 패킷을 주고받는 과정은 어떻게 되나요?
+    * client => Google server: GET / HTTP/1.1
+    * Google server => client: HTTP/1.1 302 Found(text/html)
+    * client => Google server: GET /?gfe_rd=cr&ei=8_2GV4zYLO798weXwYTYAQ HTTP/1.1\r\n]
+    * Google server => client: HTTP/1.1 302 Found(text/html)
   * 각각의 패킷에 어떤 정보들이 담겨 있나요?
+    * Frame 헤더 정보: number, length, arrival time, protocols in frame
+    * Ethernet 헤더 정보: Source(내 맥북의 MAC address), destination(local router MAC address) L3 protocol 정보(IPv4)
+    * IPv4 헤더 정보: Source(내 맥북 IP), destination(Google server IP), L4 protocol(TCP), TTL, 전체 길이, header checksum 등등...
+    * TCP 헤더 정보: Source port, destination port, sequence number, window size, checksum 등등 
+    * HTTP 헤더 정보:
+      * client to server packet: Host, connection, user-agent, accept, date, etc
+      * Server to client packet: cache-control, content-type, location, date, etc.
 * telnet 명령을 통해 http://www.google.com/ URL에 HTTP 요청을 날려 보세요.
   * 어떤 헤더들이 있나요?
   * 그 헤더들은 어떤 역할을 하나요?
+~~~~
+Host: www.google.com\r\n
+Connection: keep-alive\r\n
+Upgrade-Insecure-Requests: 1\r\n
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36\r\n
+X-Client-Data: CJO2yQEIprbJAQjAtskBCJOXygEI8pzKAQ==\r\n
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n
+Accept-Encoding: gzip, deflate, sdch\r\n
+Accept-Language: en-US,en;q=0.8,ko;q=0.6\r\n
+~~~~
