@@ -32,7 +32,7 @@
     * Transport layer: 어떤 protocol을 쓰는지, 한 번에 얼만큼 많은 정보들을 전달하는지, 전달된 정보가 몇 번째 정보인지 등이 포함된 segment 가 생성된다.
     * Network layer: 발신/수신자의 IP주소, 해당 패킷의 TTL, L4의 protocol 정보 등이 포함된 packet이 만들어진다
     * Data-link layer: 해당 packet이 가야하는 물리적 주소, L3에서 사용된 protocol정보를 포함한 Frame으로 만듬
-    * Physical layer: Frame전송! 실제 구리선 / optical fiber등을 타고 정보 전달. 전달시에는 회선을 공유하는 다른 host들과 충돌이 나지 않도록 전송 순서 / 타이밍 등을 결정하는 규칙이 정해져 있다.
+    * Physical layer: Frame전송! 실제 구리선 / optical fiber등을 타고 정보 전달. 전달시에는 회선을 공유하는 다른 host들과 충돌이 나지 않도록 전송 순서 / 타이밍 등을 결정하는 규칙이 정해져 있다(Ethernet: CSMA/CD, Wi-fi: CSMA/CA).
 * 우리가 브라우저의 주소 창에 www.knowre.com 을 쳤을 때, 어떤 과정을 통해 노리의 서버 주소를 알게 되나요?
   * 내 브라우저 => 내 컴퓨터 => router(Router 안에 DNS가 있는 경우 여기서 멈출수도) => DNS (주소를 모르는 경우) => 상위 DNS
 
@@ -84,6 +84,7 @@ traceroute to www.google.com (216.58.197.164), 64 hops max, 52 byte packets
 * telnet 명령을 통해 http://www.google.com/ URL에 HTTP 요청을 날려 보세요.
   * 어떤 헤더들이 있나요?
   * 그 헤더들은 어떤 역할을 하나요?
+  * 아래는 wireshark의 http 헤더 정보를 긁어왔습니다(telnet 에서 get request가 작동하지 않음)
 ~~~~
 Host: www.google.com\r\n
 Connection: keep-alive\r\n
