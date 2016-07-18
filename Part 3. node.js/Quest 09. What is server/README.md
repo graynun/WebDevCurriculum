@@ -34,7 +34,16 @@
     * Data-link layer: 해당 packet이 가야하는 물리적 주소, L3에서 사용된 protocol정보를 포함한 Frame으로 만듬
     * Physical layer: Frame전송! 실제 구리선 / optical fiber등을 타고 정보 전달. 전달시에는 회선을 공유하는 다른 host들과 충돌이 나지 않도록 전송 순서 / 타이밍 등을 결정하는 규칙이 정해져 있다(Ethernet: CSMA/CD, Wi-fi: CSMA/CA).
 * 우리가 브라우저의 주소 창에 www.knowre.com 을 쳤을 때, 어떤 과정을 통해 노리의 서버 주소를 알게 되나요?
-  * 내 브라우저 => 내 컴퓨터 => router(Router 안에 DNS가 있는 경우 여기서 멈출수도) => DNS (주소를 모르는 경우) => 상위 DNS
+  * Recursive Query
+  * 내 브라우저 
+    => 내 컴퓨터 
+    => router(Router 안에 DNS가 있는 경우 여기서 멈출수도) 
+    => Local DNS(과거에 방문한 적이 있으면 여기서 멈출수도)
+    => Root DNS
+    => top-level DNS
+    => second-level DNS(ex: *.knowre.com)
+  * 서버가 단 하나의 IP주소를 가진 경우에는 누가 언제 물어봐도 DNS가 동일한 IP주소를 이야기해주지만, CDN으로 구성된 서버의 경우 조금 달라짐.
+  * CDN으로 구성된 경우 Local DNS나 second-level DNS에서 규칙에 알맞은(예: 거리가 가깝거나(network상에서 hop수가 적은 서버), 운영비용이 더 싸거나, 트래픽이 더 적게 몰려있거나) 서버의 IP주소를 알려줌. [참고](https://www.nczonline.net/blog/2011/11/29/how-content-delivery-networks-cdns-work/)
 
 ## Quest
 * tracert(Windows가 아닌 경우 traceroute) 명령을 통해 www.google.com까지 가는 경로를 찾아 보세요.
