@@ -1,0 +1,9 @@
+{
+  "name": "skeleton",
+  "version": "0.0.1",
+  "description": "first quest on node.js",
+  "main": "app.js",
+  "author": "graynun",
+  "dependencies" :
+    {}
+}
