@@ -15,8 +15,18 @@
 
 ## Checklist
 * HTTP의 GET과 POST 메소드는 어떻게 다른가요?
+	* `GET`: request URI에서 확인된 정보를 받아온다. (HTTP를 사용하는 서버라면 필수로 구현해야함)
+	* `POST`: 서버에 데이터를 보내며, 특정 행동을 하도록 trigger한다(예: DB업데이트). side-effects(해당 메소드를 부르기 전/후 서버에 변화)가 있을 수 있다.
   * 다른 HTTP 메소드에는 무엇이 있나요?
+  	* `HEAD`: GET과 더불어서 필수로 지원되어야 하는 method. GET과 똑같지만 body를 제외한 내용만 받아온다. (HTTP를 사용하는 서버라면 필수로 구현해야함)
+  	* `PUT`: 서버에 새로운 resource를 업로드한다. 
+  	* `DELETE`: 서버에서 resource를 삭제한다.
+  	* `OPTIONS`: 서버가 어떤 HTTP 메소드를 실행할 수 있는지 확인한다.
+  	* `TRACE`: 메시지가 proxy를 거쳐 서버에 도달하는 과정을 추적한다.
+
 * HTTP 서버에 GET과 POST를 통해 데이터를 보내려면 어떻게 해야 하나요?
+	*`GET`: URL에 정보를 함께 보내거나(ex: `GET /zboard.php?id=ppomppu`), header에 custom key를 추가해서 보낸다.
+	* `POST`: `GET`과 똑같이 하거나, body에 정보를 실어서 보낸다.
 
 ## Quest
 * 다음의 동작을 하는 서버를 만들어 보세요.
