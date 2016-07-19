@@ -27,6 +27,10 @@
 * HTTP 서버에 GET과 POST를 통해 데이터를 보내려면 어떻게 해야 하나요?
 	*`GET`: URL에 정보를 함께 보내거나(ex: `GET /zboard.php?id=ppomppu`), header에 custom key를 추가해서 보낸다.
 	* `POST`: `GET`과 똑같이 하거나, body에 정보를 실어서 보낸다.
+		* POST body content-type:
+			* `x-www-urlencoded`: `GET`의 url과 같은 형식. file은 보낼 수 없다
+			* `multipart/form-data`: form이 text뿐 아니라 file upload를 포함할 때
+			* 기타: text(`text/plain`), JSON(`application/json`), javascript(`application/javascript`), XML(`application/xml`), XML(`text/xml`), html(`text/html`)
 
 ## Quest
 * 다음의 동작을 하는 서버를 만들어 보세요.
