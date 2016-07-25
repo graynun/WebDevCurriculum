@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+	</head>
+	<body>
+		<button class="getButton">
+			Send a GET request
+		</button>
+
+		<button class="postButton">
+			Send a POST request
+		</button>
+
+
+		<script type="text/javascript">
+			(function(){
+				var httpRequest;
+				document.querySelector(".getButton").onclick = function(){
+					makeRequest('http://localhost:8080/ajaxtest');
+				};
+
+				function makeRequest(url){
+					httpRequest = new XMLHttpRequest();
+
+					if(!httpRequest){
+						alert("cannot create an XMLHTTP instance");
+						return false;
+					}
+
+					if(httpRequest){
+						httpRequest.onreadystatechange = alertContents;
+						httpRequest.open('GET', url);
+						httpRequest.send();	
+					}					
+				}
+
+				function alertContents(){
+					if(httpRequest.readyState === XMLHttpRequest.DONE){
+						console.log(httpRequest);
+						if(httpRequest.status === 200){
+							alert(httpRequest.responseText);
+						}else{
+							console.log(httpRequest);
+							alert("http response status is not 200");
+						}
+					}
+				}
+			})();
+		</script>
+	</body>
+</html>
+
+
