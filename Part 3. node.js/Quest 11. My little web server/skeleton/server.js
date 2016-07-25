@@ -6,7 +6,7 @@ http.createServer(function(req, res) {
 	var generateKeyAndValueObject = function(reqUrl){
 		var reqStrArr = reqUrl.split(/\?|\&/g);
 		reqStrArr.splice(0,1);
-		
+
 		var keyAndValueObj = {};
 		for(var i=0;i<reqStrArr.length;i++){
 			var keyAndValueArr = reqStrArr[i].split(/\=/);
@@ -28,7 +28,7 @@ http.createServer(function(req, res) {
 			res.end("Hello World!");
 		}else if(req.url.slice(0, 4) === "/foo"){
 			var keyAndValueObj = generateKeyAndValueObject(req.url);
-			generateResponse(keyAndValueObj);
+			if(keyAndValueObj.length != 0) generateResponse(keyAndValueObj);
 			res.end();
 		}else{
 			res.end("unexpected url " + req.url);
@@ -36,7 +36,7 @@ http.createServer(function(req, res) {
 	}else if(req.method === "POST"){
 		if(req.url.slice(0, 4) === "/foo"){
 			var keyAndValueObj = generateKeyAndValueObject(req.url);
-			generateResponse(keyAndValueObj);
+			if(keyAndValueObj.length != 0) generateResponse(keyAndValueObj);
 			res.end();
 		}else{
 			res.end("unexpected url " + req.url);
