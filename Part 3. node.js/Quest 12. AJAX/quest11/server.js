@@ -21,22 +21,24 @@ http.createServer(function(req, res) {
 		console.log("ever got GET request?");
 		console.log(req.url);
 
-		if(req.url === "/loadClient"){
+		if(req.url === "/loadClient" || req.url === "/loadClient?"){
 			var html = fs.readFileSync('client.html');
 			res.write(html);
 			res.end();
-		}if(req.url === "/ajaxtest"){
+		}else if(req.url === "/ajaxtest"){
 			// res.writeHead(400, {
 			// 	'Content-type': 'text/plain'
 			// })
-			res.end("Hello World!");
+			setTimeout(function(){
+				res.end("Hello World!")
+			}, 3000);
 
 		}else if(req.url.slice(0, 4) === "/foo"){
 			var keyAndValueObj = generateKeyAndValueObject(req.url);
 			if(keyAndValueObj['bar'] !== undefined) res.write("Hello, "+keyAndValueObj['bar']);
 			res.end();
 		}else{
-			res.end("unexpected url " + req.url);
+			res.end("GET request unexpected url " + req.url);
 		}
 
 	}else if(req.method === "POST"){
@@ -57,8 +59,17 @@ http.createServer(function(req, res) {
 			}else{
 				res.end("nothing on body");
 			}
+		}else if(req.url === "/loadClient"){
+			var reqBody;
+			req.on('data', function(chunk){
+				reqBody = chunk.toString();
+			}).on('end', function(){
+				console.log("POST request body content is "+ reqBody);
+				res.write("body that the server received was "+ reqBody);
+				res.end();
+			});
 		}else{
-			res.end("unexpected url " + req.url);
+			res.end("POST request unexpected url " + req.url);
 		}
 	}
 
