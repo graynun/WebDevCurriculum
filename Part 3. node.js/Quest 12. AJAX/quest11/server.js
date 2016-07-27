@@ -18,21 +18,17 @@ http.createServer(function(req, res) {
 
 
 	if(req.method === "GET"){
-		console.log("ever got GET request?");
+		console.log("got GET request");
 		console.log(req.url);
 
-		if(req.url === "/loadClient" || req.url === "/loadClient?"){
+		if(req.url === "/ajaxtest"){
+			res.end("Hello World!");
+
+		// }else if(req.url === "/loadClient" || req.url === "/loadClient?"){
+		}else if(req.url === "/loadClient" || req.url === "/loadClient?"){
 			var html = fs.readFileSync('client.html');
 			res.write(html);
 			res.end();
-		}else if(req.url === "/ajaxtest"){
-			// res.writeHead(400, {
-			// 	'Content-type': 'text/plain'
-			// })
-			setTimeout(function(){
-				res.end("Hello World!")
-			}, 3000);
-
 		}else if(req.url.slice(0, 4) === "/foo"){
 			var keyAndValueObj = generateKeyAndValueObject(req.url);
 			if(keyAndValueObj['bar'] !== undefined) res.write("Hello, "+keyAndValueObj['bar']);
@@ -42,6 +38,9 @@ http.createServer(function(req, res) {
 		}
 
 	}else if(req.method === "POST"){
+		console.log("got POST request");
+		console.log(req.url);
+
 		if(req.url.slice(0, 4) === "/foo"){
 			if(req.headers['content-type'] === "application/x-www-form-urlencoded" && req.headers['content-length'] !== '0'){
 				var reqBody;
@@ -59,7 +58,7 @@ http.createServer(function(req, res) {
 			}else{
 				res.end("nothing on body");
 			}
-		}else if(req.url === "/loadClient"){
+		}else if(req.url === "/ajaxtest"){
 			var reqBody;
 			req.on('data', function(chunk){
 				reqBody = chunk.toString();

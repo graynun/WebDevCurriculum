@@ -2,6 +2,13 @@
 <html>
 	<head>
 		<meta charset="utf-8">
+		<style>
+			.responseArea {
+				border : 1px solid black;
+				width : 200px;
+				height: 100px;
+			}
+		</style>
 	</head>
 	<body>
 		<button class="getButton">
@@ -21,31 +28,15 @@
 
 		<script type="text/javascript">
 			(function(){
-				var httpRequest;
+				var httpRequest, httpPostRequest;
 				document.querySelector(".getButton").onclick = function(){
 					makeRequest('http://localhost:8080/ajaxtest');
 				};
 
 				document.querySelector(".postButton").onclick = function(){
-					makePostRequest('http://localhost:8080/loadClient');
+					makePostRequest('http://localhost:8080/ajaxtest');
 				}
-
-
-				function makePostRequest(url){
-					httpRequest = new XMLHttpRequest();
-
-					if(!httpRequest){
-						console.log("cannot create an XMLHTTP instance");
-						return false;
-					}
-
-					httpRequest.onreadystatechange = alertContents;
-					httpRequest.open('POST', url);
-					httpRequest.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-					httpRequest.send(document.querySelector(".textToSend").value);
-				}
-
-
+				
 				function makeRequest(url){
 					httpRequest = new XMLHttpRequest();
 
@@ -55,7 +46,7 @@
 					}
 
 					httpRequest.onreadystatechange = alertContents;
-					httpRequest.open('GET', url, false);
+					httpRequest.open('GET', url, true);
 					httpRequest.send();	
 				}
 
@@ -63,10 +54,44 @@
 					if(httpRequest.readyState === XMLHttpRequest.DONE){
 						console.log(httpRequest);
 						if(httpRequest.status === 200){
-							document.querySelector(".responseArea").value = httpRequest.responseText;
+							document.querySelector(".responseArea").innerHTML = httpRequest.responseText;
 							alert(httpRequest.responseText);
 						}else{
 							console.log(httpRequest);
+							alert("http response status is not 200");
+						}
+					}
+				}
+
+
+
+
+
+				function makePostRequest(url){
+					httpPostRequest = new XMLHttpRequest();
+
+					if(!httpPostRequest){
+						console.log("cannot create an XMLHTTP instance");
+						return false;
+					}
+
+					httpPostRequest.onreadystatechange = alertPostContents;
+					httpPostRequest.open('POST', url);
+					httpPostRequest.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+					httpPostRequest.send(document.querySelector(".textToSend").value);
+				}
+
+
+
+
+				function alertPostContents(){
+					if(httpPostRequest.readyState === XMLHttpRequest.DONE){
+						console.log(httpPostRequest);
+						if(httpPostRequest.status === 200){
+							document.querySelector(".responseArea").innerHTML = httpPostRequest.responseText;
+							alert(httpPostRequest.responseText);
+						}else{
+							console.log(httpPostRequest);
 							alert("http response status is not 200");
 						}
 					}

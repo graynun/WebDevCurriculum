@@ -17,7 +17,12 @@
 
 ## Checklist
 * 어떠한 자바스크립트 코드가 HTTP 응답이나 사용자의 이벤트등에 종속되어 언제 실행되어야 할 지 알기 어려울 때엔 어떻게 해야 할까요?
+
 * 브라우저의 `XMLHttpRequest` 객체는 무엇이고 어떻게 동작하나요?
+	* 서버와 클라이언트 사이에 데이터를 주고받을 수 있도록 하는 클라이언트 기능을 제공하는 API(출처:[mdn](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest))
+	* 페이지 새로고침 없이 url(여기선 서버에 가까운듯)에서 정보를 받아올 수 있음
+	* 이름과 다르게 XML뿐 아니라 다른 데이터 타입(JSON 등)도 주고받을 수 있고, http이외의 프로토콜(file / htp)도 지원
+	* 클라이언트에서 XMLHttpRequest object를 만들어서 request에 필요한 정보(예: http request method, request header, response가 왔을때 실행될 함수 등등)를 지정해주고 서버에 request를 보내면 됨(`XMLHttpRequest.send();`)
 * `fetch` API는 무엇이고 어떻게 동작하나요?
 
 ## Quest
