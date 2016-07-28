@@ -30,7 +30,8 @@
 			(function(){
 				var httpRequest, httpPostRequest;
 				document.querySelector(".getButton").onclick = function(){
-					makeRequest('http://localhost:8080/ajaxtest');
+					// makeRequest('http://localhost:8080/ajaxtest');
+					makeRequest('http://httpbin.org/user-agent');
 				};
 
 				document.querySelector(".postButton").onclick = function(){
@@ -56,7 +57,7 @@
 						if(httpRequest.status === 200){
 							document.querySelector(".responseArea").innerHTML = httpRequest.responseText;
 							alert(httpRequest.responseText);
-						}else{
+						}else
 							console.log(httpRequest);
 							alert("http response status is not 200");
 						}

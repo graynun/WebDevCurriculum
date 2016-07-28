@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			.responseArea {
+				border : 1px solid black;
+				width : 200px;
+				height: 100px;
+			}
+		</style>
+	</head>
+	<body>
+		<button class="getButton">
+			Send a GET request
+		</button>
+
+		<!-- <form> -->
+			<input class="textToSend">
+			<button class="postButton">
+				Send a POST request
+			</button>
+		<!-- </form> -->
+
+		<section class="responseArea"></section>
+		
+
+
+		<script type="text/javascript">
+			(function(){
+
+				var httpRequest, httpPostRequest;
+				document.querySelector(".getButton").onclick = function(){
+					// makeRequest('http://localhost:8080/ajaxtest');
+					// makeRequest('http://httpbin.org/post');
+					makeRequest('http://httpbin.org/get').then(function(response){
+						alert("success! " + response);
+					}, function(reject){
+						alert("failed! " + reject);
+					})
+				};
+
+				document.querySelector(".postButton").onclick = function(){
+					makePostRequest('http://httpbin.org/post', document.querySelector(".textToSend").value).then(function(response){
+						document.querySelector(".responseArea").innerHTML = "success! \n"+ response;
+					}, function(reject){
+						document.querySelector(".responseArea").innerHTML = "failed! "+ reject;
+					});
+				}
+				
+				function makeRequest(url){
+					return new Promise(function(resolve, reject){
+						var req = new XMLHttpRequest();
+						req.open('post', url);
+
+						req.onload = function(){
+							if(req.status === 200){
+								resolve(req.response);
+							}else{
+								reject(Error(req.statusText));
+							}
+						}
+
+						req.onerror = function(){
+							reject(Error("Network error"));
+						}
+
+						req.send();
+					})
+				}
+
+				function makePostRequest(url, reqBody){
+					return new Promise(function(resolve, reject){
+						var req = new XMLHttpRequest();
+						req.open('post', url);
+
+						req.onload = function(){
+							if(req.status === 200){
+								resolve(req.response);
+							}else{
+								reject(Error(req.statusText));
+							}
+						}
+
+						req.onerror = function(){
+							reject(Error("Network error"));
+						}
+
+						req.send(reqBody);
+					})
+				}
+
+
+			})();
+		</script>
+	</body>
+</html>
+
+
