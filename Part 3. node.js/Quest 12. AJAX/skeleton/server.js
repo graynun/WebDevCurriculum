@@ -1,11 +1,12 @@
 var express = require('express'),
 	path = require('path'),
-	app = express(),
-	bodyParser = require('body-parser');
+	bodyParser = require('body-parser'),
+	fs = require('fs'),
+	app = express();
 
 app.use(express.static('client'));
-// app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname, 'index.html'));
@@ -19,7 +20,23 @@ var server = app.listen(8080, function () {
 
 app.post('/savefile', function(req, res){
 	console.log("savefile had called");
+	// console.log(req.headers);
 	console.log(req.body);
 
-	// res.end();
+	fs.writeFile('./notepad_files/'+req.body.title+'.txt', req.body.content,
+		function(err){
+			if(err) throw err;
+			console.log("file "+req.body.title+"created!");
+		}
+	);
+});
+
+app.get('/reloadFileList', function(req, res){
+	console.log("got reloadFileList");
+	fs.readdir('./notepad_files/', function(err, files){
+		if(err) throw err;
+		console.log(files);
+		res.send(files);
+		res.end();
+	});
 });
