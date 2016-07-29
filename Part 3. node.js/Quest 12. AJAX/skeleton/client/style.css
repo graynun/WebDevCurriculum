@@ -1,3 +1,25 @@
 * {
 	/* TODO: 필요한 CSS를 채워넣어 보세요! */
 }
+
+.textArea{
+	box-sizing: border-box;
+	position: absolute;
+	left: 10px;
+	width: calc(100% - 350px);
+	border : 1px solid blue;
+
+	padding: 10px;
+}
+
+.fileBody{
+	width: 90%;
+}
+
+
+.fileList{
+	position: absolute;
+	right: 10px;
+	width: 300px;
+	border: 1px solid black;
+}
