@@ -1,12 +1,14 @@
+"use strict";
+
 var express = require('express'),
 	path = require('path'),
 	bodyParser = require('body-parser'),
 	fs = require('fs'),
-	app = express();
+	app = express(),
+	fileManager = new FileManager();
 
 app.use(express.static('client'));
 app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname, 'index.html'));
@@ -21,22 +23,43 @@ var server = app.listen(8080, function () {
 app.post('/savefile', function(req, res){
 	console.log("savefile had called");
 	// console.log(req.headers);
-	console.log(req.body);
+	// console.log(req.body);
 
-	fs.writeFile('./notepad_files/'+req.body.title+'.txt', req.body.content,
-		function(err){
-			if(err) throw err;
-			console.log("file "+req.body.title+"created!");
-		}
-	);
+	fileManager.createFile(req.body);
+	res.end();
 });
 
 app.get('/reloadFileList', function(req, res){
 	console.log("got reloadFileList");
-	fs.readdir('./notepad_files/', function(err, files){
-		if(err) throw err;
-		console.log(files);
-		res.send(files);
-		res.end();
-	});
+	// fileManager.readFileList();
+	var fileArr = fileManager.readFileList();
+	for(var i=0;i<fileArr.length;i++){
+		fileArr[i] = fileArr[i].split(/.txt$/)[0];
+	}
+	console.log(fileArr);
+	res.send(fileArr);
+	res.end();
 });
+
+
+function FileManager() {
+};
+
+FileManager.prototype.createFile = function(reqBody){
+	fs.writeFile('./notepad_files/'+reqBody.title+'.txt', reqBody.content,
+		function(err){
+			if(err) throw err;
+			console.log("file "+reqBody.title+" created!");
+		}
+	);
+}
+
+FileManager.prototype.readFileList = function(){
+	var fileNameArr = fs.readdirSync('./notepad_files/');
+	if(fileNameArr[0] === ".DS_Store") fileNameArr.splice(0,1);
+	return fileNameArr;
+	//async하게는 만들 수 없는 것일까?
+}
+
+
+

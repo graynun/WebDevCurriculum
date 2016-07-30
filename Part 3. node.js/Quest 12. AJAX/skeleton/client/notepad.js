@@ -24,9 +24,10 @@ Notepad.prototype.saveFile = function(){
 
 	var req = new XMLHttpRequest();
 
-	req.onreadychangestate = function(){
+	req.onreadystatechange = function(){
 		if(req.readyState === XMLHttpRequest.DONE){
 			if(req.status === 200){
+				console.log("safely saved on fs");
 				that.fileList.reloadList();
 			}else{
 				console.log("req status is not 200");
@@ -38,7 +39,7 @@ Notepad.prototype.saveFile = function(){
 	req.setRequestHeader('Content-type', 'application/json;charset=utf-8');
 	
 	var content = {
-		title: "file01",
+		title: "file" + Number(that.fileList.fileNameList.length+1) ,
 		content: document.querySelector(".fileBody").value
 	};
 	
@@ -51,24 +52,29 @@ var NoteArea = function(){
 }
 
 var FileList = function(){
-
+	this.fileNameList = [];
 }
 
 FileList.prototype.reloadList = function(){
-	var req = new XMLHttpRequest();
+	console.log("fileList reloadList called");
+	var that = this;
 
+	var req = new XMLHttpRequest();
+	
 	req.onreadystatechange = function(){
 		if(req.readyState === XMLHttpRequest.DONE){
 			if(req.status === 200){
-				console.log(req.responseText);
-				document.querySelector(".fileList").innerHTML += req.responseText;
+				document.querySelector(".fileList").innerHTML = "";
+
+				that.fileNameList = JSON.parse(req.responseText);
+				for(var i=0;i<that.fileNameList.length;i++){
+					document.querySelector(".fileList").innerHTML += "<li>"+that.fileNameList[i]+"</li>";
+				}	
 			}else{
 				console.log("req status is not 200");
 			}
 		}
-		
 	};
-
 	req.open('GET', 'http://localhost:8080/reloadFileList');
 	req.send();
 }
