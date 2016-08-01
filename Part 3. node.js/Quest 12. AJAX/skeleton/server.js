@@ -22,8 +22,6 @@ var server = app.listen(8080, function () {
 
 app.post('/savefile', function(req, res){
 	console.log("savefile had called");
-	// console.log(req.headers);
-	// console.log(req.body);
 
 	fileManager.createFile(req.body);
 	res.end();
@@ -31,22 +29,27 @@ app.post('/savefile', function(req, res){
 
 app.get('/reloadFileList', function(req, res){
 	console.log("got reloadFileList");
-	// fileManager.readFileList();
+
 	var fileArr = fileManager.readFileList();
-	for(var i=0;i<fileArr.length;i++){
-		fileArr[i] = fileArr[i].split(/.txt$/)[0];
-	}
-	console.log(fileArr);
 	res.send(fileArr);
 	res.end();
 });
 
+app.get('/readFile', function(req, res){
+	console.log("got readfile get fileName "+req.query.fileName);
+
+	var data = fileManager.readFile(req.query.fileName);
+	res.send(data);
+	res.end();
+})
+
 
 function FileManager() {
+	this.dir = './notepad_files/';
 };
 
 FileManager.prototype.createFile = function(reqBody){
-	fs.writeFile('./notepad_files/'+reqBody.title+'.txt', reqBody.content,
+	fs.writeFile(this.dir+reqBody.title+'.txt', reqBody.content,
 		function(err){
 			if(err) throw err;
 			console.log("file "+reqBody.title+" created!");
@@ -55,11 +58,16 @@ FileManager.prototype.createFile = function(reqBody){
 }
 
 FileManager.prototype.readFileList = function(){
-	var fileNameArr = fs.readdirSync('./notepad_files/');
+	var fileNameArr = fs.readdirSync(this.dir);
 	if(fileNameArr[0] === ".DS_Store") fileNameArr.splice(0,1);
+	for(var i=0;i<fileNameArr.length;i++){
+		fileNameArr[i] = fileNameArr[i].split(/.txt$/)[0];
+	}
 	return fileNameArr;
 	//async하게는 만들 수 없는 것일까?
 }
 
-
-
+FileManager.prototype.readFile = function(fileName){
+	return fs.readFileSync(this.dir+fileName+".txt", 'utf8');
+	//async하게는 만들 수 없는 것일까?
+}

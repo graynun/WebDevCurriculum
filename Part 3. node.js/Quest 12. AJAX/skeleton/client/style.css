@@ -1,5 +1,6 @@
 * {
 	/* TODO: 필요한 CSS를 채워넣어 보세요! */
+	font-size: 1em;
 }
 
 .textArea{
@@ -22,4 +23,8 @@
 	right: 10px;
 	width: 300px;
 	border: 1px solid black;
+}
+
+.selected{
+	background-color: yellow;
 }
