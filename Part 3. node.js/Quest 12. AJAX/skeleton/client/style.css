@@ -9,12 +9,12 @@
 	left: 10px;
 	width: calc(100% - 350px);
 	border : 1px solid blue;
-
 	padding: 10px;
 }
 
 .fileBody{
 	width: 90%;
+	height: 6em;
 }
 
 

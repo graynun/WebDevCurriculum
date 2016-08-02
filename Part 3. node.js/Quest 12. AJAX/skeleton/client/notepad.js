@@ -3,7 +3,7 @@
 var Notepad = function() {
 	/* TODO: 그 외에 또 어떤 클래스와 메소드가 정의되어야 할까요? */
 	this.noteArea = new NoteArea(),
-	this.fileList = new FileList(this),
+	this.fileList = new FileList(),
 	this.selectedFile;
 
 	this.mapEvent();
@@ -21,10 +21,15 @@ Notepad.prototype.mapEvent = function(){
 		that.selectedFile = undefined;
 		document.querySelector(".fileBody").value = "";
 	}
+
+	document.addEventListener('remapFileNameEvent', function(event){
+		that.mapFileNameEvent();
+	})
 }
 
 Notepad.prototype.mapFileNameEvent = function(){
-	console.log("ever called mapFileNameEvent?");
+	if(this.selectedFile !== undefined) document.querySelector("."+this.selectedFile).classList.add("selected");	
+
 	var that = this;
 
 	for(var i=0;i<this.fileList.fileNameList.length;i++){
@@ -49,6 +54,8 @@ Notepad.prototype.saveFile = function(){
 			if(req.status === 200){
 				console.log("safely saved on fs");
 				that.fileList.reloadList();
+				var selectHighLighter = new Event('selectedFile');
+				document.dispatchEvent(selectHighLighter);
 			}else{
 				console.log("req status is not 200");
 			}
@@ -85,7 +92,8 @@ Notepad.prototype.saveFile = function(){
 }
 
 
-var NoteArea = function(){	
+var NoteArea = function(){
+	this.textareaDom = document.querySelector(".fileBody");
 }
 
 NoteArea.prototype.showFileContent = function(fileName){
@@ -97,7 +105,7 @@ NoteArea.prototype.showFileContent = function(fileName){
 		if(req.readyState === XMLHttpRequest.DONE){
 			if(req.status === 200){
 				console.log(req.responseText);
-				document.querySelector(".fileBody").value = req.responseText;
+				that.textareaDom.value = req.responseText;
 			}else{
 				console.log("req status is not 200");
 			}
@@ -110,8 +118,8 @@ NoteArea.prototype.showFileContent = function(fileName){
 	req.send();
 }
 
-var FileList = function(notepad){
-	this.notepad = notepad;
+var FileList = function(){
+	this.fileListDom = document.querySelector(".fileList");
 	this.fileNameList = [];
 
 	this.reloadList();
@@ -126,18 +134,16 @@ FileList.prototype.reloadList = function(){
 	req.onreadystatechange = function(){
 		if(req.readyState === XMLHttpRequest.DONE){ 
 			if(req.status === 200){
-				document.querySelector(".fileList").innerHTML = "";
+				that.fileListDom.innerHTML = "";
 
 				that.fileNameList = JSON.parse(req.responseText);
 
 				for(var i=0;i<that.fileNameList.length;i++){
-					document.querySelector(".fileList").innerHTML += "<li class="+that.fileNameList[i]+">"+that.fileNameList[i]+"</li>";
-					if(that.fileNameList[i]===that.notepad.selectedFile){
-						document.querySelector("."+that.notepad.selectedFile).classList.add("selected");
-					}
+					that.fileListDom.innerHTML += "<li class="+that.fileNameList[i]+">"+that.fileNameList[i]+"</li>";
 				}	
 
-				that.notepad.mapFileNameEvent();
+				var lieventmapper = new Event('remapFileNameEvent');
+				document.dispatchEvent(lieventmapper);
 
 			}else{
 				console.log("req status is not 200");
