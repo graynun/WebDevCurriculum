@@ -3,6 +3,21 @@
 	font-size: 1em;
 }
 
+.fileTabContainer{
+	border: 1px solid blue;
+	width: calc(100% - 350px);
+	height: 50px;
+	padding: auto;
+}
+
+.fileTab {
+	display: inline-block;
+	width: 80px;
+	height: 40px;
+	border: 1px solid grey;
+	margin: auto 10px auto 10px;
+}
+
 .textArea{
 	box-sizing: border-box;
 	position: absolute;
@@ -21,6 +36,7 @@
 .fileListArea{
 	position: absolute;
 	right: 10px;
+	top: 0px;
 	width: 300px;
 	border: 1px solid black;
 }

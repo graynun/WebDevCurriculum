@@ -32,6 +32,7 @@ app.get('/reloadFileList', function(req, res){
 
 	var fileArr = fileManager.readFileList();
 	res.send(fileArr);
+	// res.status(500);
 	res.end();
 });
 
@@ -40,6 +41,8 @@ app.get('/readFile', function(req, res){
 
 	var data = fileManager.readFile(req.query.fileName);
 	res.send(data);
+	console.log(data);
+	// res.status(300);
 	res.end();
 })
 

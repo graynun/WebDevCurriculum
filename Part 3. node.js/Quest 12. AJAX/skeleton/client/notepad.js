@@ -107,6 +107,7 @@ NoteArea.prototype.showFileContent = function(fileName){
 				console.log(req.responseText);
 				that.textareaDom.value = req.responseText;
 			}else{
+				console.log(req.status);
 				console.log("req status is not 200");
 			}
 		}

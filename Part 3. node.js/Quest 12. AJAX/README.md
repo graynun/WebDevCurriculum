@@ -24,7 +24,10 @@
 	* 이름과 다르게 XML뿐 아니라 다른 데이터 타입(JSON 등)도 주고받을 수 있고, http이외의 프로토콜(file / htp)도 지원
 	* 클라이언트에서 XMLHttpRequest object를 만들어서 request에 필요한 정보(예: http request method, request header, response가 왔을때 실행될 함수 등등)를 지정해주고 서버에 request를 보내면 됨(`XMLHttpRequest.send();`)
 * `fetch` API는 무엇이고 어떻게 동작하나요?
-
+	* 특정 URL에 resource를 요청해서 받아올 때 XMLHttpRequest object를 만들어서 각종 설정(성공/실패하는 경우 eventlistener 달아주기, open / send 해주기 등)을 하는 대신에 fetch라는 interface로 좀 더 간편하게 할 수 있게 됨
+	* `fetch(url, [option]).then(function(response){}, function(reject){})`의 구조로 간단하게 http request 요청 / response에 대해서 처리해 줄 수 있음
+	* `fetch`는 Promise object를 return하기 때문에 `.then()`과 같은 모양새로 response에 대한 처리가 가능해짐(참조: [Javascript Promises](http://www.html5rocks.com/en/tutorials/es6/promises/))
+	
 ## Quest
 * 자바스크립트를 이용하여 간단한 웹브라우저 기반의 텍스트 파일 메모장을 만들어 보겠습니다.
   * 먼저 연습으로 Quest 11의 GET/POST 요청을 AJAX를 통해 처리하는 것을 시도해 보세요!
