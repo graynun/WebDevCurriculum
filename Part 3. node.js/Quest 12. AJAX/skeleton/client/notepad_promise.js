@@ -4,6 +4,7 @@ var Notepad = function() {
 	/* TODO: 그 외에 또 어떤 클래스와 메소드가 정의되어야 할까요? */
 	this.noteArea = new NoteArea(),
 	this.fileList = new FileList(),
+	this.fileArr,
 	this.selectedFile;
 
 	this.mapEvent();
@@ -33,8 +34,10 @@ Notepad.prototype.mapFileNameEvent = function(){
 	var that = this;
 
 	for(var i=0;i<this.fileList.fileNameList.length;i++){
-		document.querySelector("."+that.fileList.fileNameList[i]).onclick = function(){
-			if(that.selectedFile !== undefined) document.querySelector("."+that.selectedFile).classList.remove("selected");
+		// console.log(document.querySelector("div."+that.fileList.fileNameList[i]));
+		console.log(that.fileList.fileNameList[i]);
+		document.querySelector("div."+that.fileList.fileNameList[i]).onclick = function(){
+			if(that.selectedFile !== undefined) document.querySelector("div."+that.selectedFile).classList.remove("selected");
 
 			that.selectedFile = this.className;
 			this.classList.add("selected");
@@ -138,17 +141,19 @@ FileList.prototype.reloadList = function(){
 		that.fileListDom.innerHTML = "";
 		for(var i=0;i<that.fileNameList.length;i++){
 			// that.fileListDom.innerHTML += "<li class="+that.fileNameList[i]+">"+that.fileNameList[i]+"</li>";
+			
 			var myFile = new File(that.fileNameList[i]);
 			that.fileList.push(myFile);
-			var dom = document.createElement('div');
+
+			var dom = document.createElement('li');
 			dom.innerHTML = myFile.fileName;
 			dom.classList.add(myFile.fileName);
 
 			that.fileListDom.appendChild(dom);
 		}	
 
-		// var lieventmapper = new Event('remapFileNameEvent');
-		// document.dispatchEvent(lieventmapper);
+		var lieventmapper = new Event('remapFileNameEvent');
+		document.dispatchEvent(lieventmapper);
 
 	}, function(reject){
 		console.log("reloadList rejected while processing the response with "+ reject);
@@ -157,13 +162,19 @@ FileList.prototype.reloadList = function(){
 
 
 var File = function(fileName){
-	this.dom = document.createElement('div'),
-	this.dom.classList.add("fileTab")
-	this.dom.innerHTML = fileName,
-	document.querySelector('.fileTabContainer').appendChild(this.dom);
+	this.tabDom,
 	this.fileName = fileName;
+
+	this.createDoms();
 }
 
+File.prototype.createDoms = function(){
+	this.tabDom = document.createElement('div');
+	this.tabDom.classList.add("fileTab");
+	this.tabDom.classList.add(this.fileName);
+	this.tabDom.innerHTML = this.fileName;
+	document.querySelector('.fileTabContainer').appendChild(this.tabDom);
+}
 
 
 
