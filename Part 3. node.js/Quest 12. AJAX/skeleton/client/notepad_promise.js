@@ -4,13 +4,15 @@ var Notepad = function() {
 	/* TODO: 그 외에 또 어떤 클래스와 메소드가 정의되어야 할까요? */
 	this.noteArea = new NoteArea(),
 	this.fileList = new FileList(),
-	this.fileArr,
-	this.selectedFile;
+	this.fileTab = new FileTab(),
+	this.fileArr = {},
+	this.selectedFile = undefined;
 
-	this.mapEvent();
+	this.mapEvents();
+	this.loadFiles();
 };
 
-Notepad.prototype.mapEvent = function(){
+Notepad.prototype.mapEvents = function(){
 	var that = this;
 
 	document.querySelector(".saveFile").onclick = function(){
@@ -18,34 +20,69 @@ Notepad.prototype.mapEvent = function(){
 	}
 
 	document.querySelector(".newFile").onclick = function(){
-		if(that.selectedFile !== undefined) document.querySelector("."+that.selectedFile).classList.remove("selected");
-		that.selectedFile = undefined;
-		document.querySelector(".fileBody").value = "";
+		var deselectFile = new Event('deselectFile');
+		document.dispatchEvent(deselectFile);
 	}
 
-	document.addEventListener('remapFileNameEvent', function(event){
-		that.mapFileNameEvent();
+	document.addEventListener('deselectFile', function(){
+		that.fileList.deselectFile();
+		that.fileTab.deselectFile();
+		that.deselectFile();
+
+		that.noteArea.emptyContentArea();
+	})
+
+	document.addEventListener('selectFile', function(event){
+		that.selectedFile = event.detail;
+		that.noteArea.showFileContent(that.selectedFile);
+		that.fileList.selectFile(that.selectedFile);
+		that.fileTab.selectFile(that.selectedFile);
+	})
+
+	document.addEventListener('removeTab', function(event){
+		that.fileTab.removeTab(event.detail);
 	})
 }
 
-Notepad.prototype.mapFileNameEvent = function(){
-	if(this.selectedFile !== undefined) document.querySelector("."+this.selectedFile).classList.add("selected");	
-
+Notepad.prototype.loadFiles = function(){
 	var that = this;
 
-	for(var i=0;i<this.fileList.fileNameList.length;i++){
-		// console.log(document.querySelector("div."+that.fileList.fileNameList[i]));
-		console.log(that.fileList.fileNameList[i]);
-		document.querySelector("div."+that.fileList.fileNameList[i]).onclick = function(){
-			if(that.selectedFile !== undefined) document.querySelector("div."+that.selectedFile).classList.remove("selected");
+	fetch('http://localhost:8080/reloadFileList', {method: 'GET'})
+	.then(function(response){
+		if(response.status !== 200) throw new Error("oops? "+response.status+" "+response.statusText);
+		return response.json();
+	}, function(reject){
+		console.log("fetch failed with error  "+ reject);
+	}).then(function(fileNameList){
+		for(var i=0;i<fileNameList.length;i++){
+			if(that.fileArr[fileNameList[i]] === undefined){
+				var myFile = new NotepadItem(fileNameList[i]);
+				that.fileArr[myFile.fileName]= myFile;
+			}
+		}	
 
-			that.selectedFile = this.className;
-			this.classList.add("selected");
-			that.noteArea.showFileContent(that.selectedFile);
+		that.fileList.emptyList();
+		that.fileList.reloadList(that.fileArr);
+
+		if(that.selectedFile !== undefined){
+			var selectFile = new CustomEvent('selectFile', {
+				detail: that.selectedFile
+			});
+			document.dispatchEvent(selectFile);
 		}
-	}
+		
+	}, function(reject){
+		console.log("reloadList rejected while processing the response with "+ reject);
+	});
 }
 
+Notepad.prototype.selectFile = function(notepadItem){
+	this.selectedFile = notepadItem;
+}
+
+Notepad.prototype.deselectFile = function(){
+	this.selectedFile = undefined;
+}
 
 Notepad.prototype.saveFile = function(){
 	var that = this;
@@ -53,22 +90,27 @@ Notepad.prototype.saveFile = function(){
 	var content;
 
 	if(this.selectedFile === undefined){
-		if(this.fileList.fileNameList.length === 0){
+		if(this.fileList.fileListArr.length === 0){
 			content ={
 				title: "file1" ,
 				content: document.querySelector(".fileBody").value	
 			};
-			this.selectedFile = "file1";
+
+			var myFile = new NotepadItem("file1");
+			that.fileArr.push(myFile);
+			this.selectFile(myFile);
 		}else{
 			content = {
-				title: "file" + Number(that.fileList.fileNameList.length+1),
+				title: "file" + Number(that.fileList.fileListArr.length+1),
 				content: document.querySelector(".fileBody").value
 			}
-			this.selectedFile = "file" + Number(that.fileList.fileNameList.length+1);
+			var myFile = new NotepadItem("file" + Number(that.fileList.fileListArr.length+1));
+			that.fileArr[myFile.fileName] = myFile;
+			this.selectFile(myFile);
 		}
 	}else{
 		content = {
-			title: this.selectedFile,
+			title: this.selectedFile.fileName,
 			content: document.querySelector(".fileBody").value
 		};
 	}
@@ -86,12 +128,206 @@ Notepad.prototype.saveFile = function(){
 		console.log("fetch failed  " + reject);
 	}).then(function(resolved){
 		console.log("safely saved on fs");
-		that.fileList.reloadList();
-		var selectHighLighter = new Event('selectedFile');
-		document.dispatchEvent(selectHighLighter);
+		that.loadFiles();
 	}, function(reject){
 		console.log("saveFile rejected while processing the response with "+ reject);
 	})
+}
+
+
+var NotepadItem = function(fileName){
+	this.fileName = fileName,
+	this.tabExist = false,
+	this.fileListExist = false;
+}
+
+var FileList = function(){
+	this.fileListDom = document.querySelector(".fileList"),
+	this.fileListArr = [];
+}
+
+FileList.prototype.reloadList = function(fileArr){
+	var that = this;	
+	for(var key in fileArr){
+		var fileListItem = new FileListItem(fileArr[key]);
+		this.fileListArr.push(fileListItem);
+		this.fileListDom.appendChild(fileListItem.dom);
+	}
+}
+
+FileList.prototype.emptyList = function(){
+	this.fileListArr = [];
+	while(this.fileListDom.firstChild){
+		this.fileListDom.removeChild(this.fileListDom.firstChild);
+	}
+}
+
+FileList.prototype.selectFile = function(selectedFile){
+	for(var i=0;i<this.fileListArr.length;i++){
+		if(selectedFile === this.fileListArr[i].notepadItem) this.fileListArr[i].beSelected();
+	}
+}
+
+FileList.prototype.deselectFile = function(){
+	for(var i=0;i<this.fileListArr.length;i++){
+		if(this.fileListArr[i].selected === true) {
+			this.fileListArr[i].beDeselected();
+		}
+	}
+}
+
+var FileListItem = function(notepadItem){
+	this.dom,
+	this.notepadItem = notepadItem,
+	this.fileName = notepadItem.fileName,
+	this.selected = false;
+
+	this.createDom();
+	this.mapDomEvent();
+}
+
+FileListItem.prototype.createDom = function(){
+	var dom = document.createElement('li');
+	dom.innerHTML = this.fileName;
+	dom.classList.add(this.fileName);
+	this.dom = dom;
+	this.notepadItem.fileListExist = true;
+}
+
+FileListItem.prototype.mapDomEvent = function() {
+	var that = this;
+
+	this.dom.onclick = function(){
+		var deselectFile = new Event('deselectFile');
+		document.dispatchEvent(deselectFile);
+
+		var selectFile = new CustomEvent('selectFile', {
+			detail: that.notepadItem
+		});
+
+		document.dispatchEvent(selectFile);
+	};
+};
+
+FileListItem.prototype.beSelected = function(){
+	this.selected = true;
+	this.dom.classList.add('selected');
+}
+
+FileListItem.prototype.beDeselected = function(){
+	this.selected = false;
+	this.dom.classList.remove('selected');
+}
+
+
+var FileTab = function(){
+	this.dom = document.querySelector(".fileTabContainer"),
+	this.fileTabArr = [];
+}
+
+FileTab.prototype.createTab = function(selectedFile){
+	var fileTabItem = new FileTabItem(selectedFile);
+	this.fileTabArr.push(fileTabItem);
+	this.dom.appendChild(fileTabItem.dom);
+}
+
+FileTab.prototype.selectFile = function(selectedFile){
+	if(selectedFile.tabExist === false) {
+		this.createTab(selectedFile);
+		this.selectFile(selectedFile);	
+	}else{
+		for(var i=0;i<this.fileTabArr.length;i++){		
+			if(selectedFile === this.fileTabArr[i].notepadItem) {
+				this.fileTabArr[i].beSelected();
+			}
+		}
+	}
+}
+
+FileTab.prototype.deselectFile = function(){
+	for(var i=0;i<this.fileTabArr.length;i++){
+		if(this.fileTabArr[i].selected === true) {
+			this.fileTabArr[i].beDeselected();
+		}
+	}
+}
+
+FileTab.prototype.removeTab = function(notepadItem){
+	notepadItem.tabExist = false;
+
+	for(var i=0;i<this.fileTabArr.length;i++){
+		if(this.fileTabArr[i].fileName === notepadItem.fileName) {
+			this.dom.removeChild(this.fileTabArr[i].dom);
+			this.fileTabArr.splice(i, 1);
+		}
+	}
+}
+
+
+var FileTabItem = function(selectedFile){
+	this.dom,
+	this.closeDom,
+	this.notepadItem = selectedFile,
+	this.fileName = selectedFile.fileName,
+	this.selected = false;
+
+	this.createDom();
+}
+
+FileTabItem.prototype.createDom = function(){
+	var dom = document.createElement('div');
+	dom.classList.add(this.fileName);
+	dom.innerHTML = this.fileName;
+	this.dom = dom;
+
+	var closeDom = document.createElement('span');
+	closeDom.classList.add("close");
+	closeDom.innerHTML = "X";
+	this.closeDom = closeDom;
+	this.dom.appendChild(this.closeDom);
+
+	this.notepadItem.tabExist = true;
+
+	this.mapDomEvent();
+}
+
+FileTabItem.prototype.mapDomEvent = function() {
+	var that = this;
+
+	this.dom.onclick = function(){
+		var deselectFile = new Event('deselectFile');
+		document.dispatchEvent(deselectFile);
+
+		var selectFile = new CustomEvent('selectFile', {
+			bubble: false,
+			detail: that.notepadItem
+		});
+		document.dispatchEvent(selectFile);
+	};
+
+	this.closeDom.addEventListener('click', function(event){
+		event.stopPropagation();
+
+		if(that.selected === true){
+			var deselectFile = new Event('deselectFile');
+			document.dispatchEvent(deselectFile);
+		}
+		
+		var removeTab = new CustomEvent('removeTab', {
+			detail: that.notepadItem
+		});
+		document.dispatchEvent(removeTab);
+	});
+};
+
+FileTabItem.prototype.beSelected = function(){
+	this.selected = true;
+	this.dom.classList.add('selected');
+}
+
+FileTabItem.prototype.beDeselected = function(){
+	this.selected = false;
+	this.dom.classList.remove('selected');
 }
 
 
@@ -99,82 +335,22 @@ var NoteArea = function(){
 	this.textareaDom = document.querySelector(".fileBody");
 }
 
-NoteArea.prototype.showFileContent = function(fileName){
+NoteArea.prototype.showFileContent = function(selectedFile){
 	var that = this;
 
-	fetch("http://localhost:8080/readFile?fileName=" + fileName, {method: 'GET'})
+	fetch("http://localhost:8080/readFile?fileName=" + selectedFile.fileName, {method: 'GET'})
 	.then(function(response){
 		if(response.status !== 200) throw new Error("oops? "+response.status+" "+response.statusText);
 		return response.text();
 	},function(reject){
 		console.log("fetch failed  " + reject);
 	}).then(function(fileContent){
-		console.log(typeof fileContent);
 		that.textareaDom.value = fileContent;
 	}, function(reject){
 		console.log("showFileContent rejected while processing the response with "+ reject);
 	});
 }
 
-var FileList = function(){
-	this.fileListDom = document.querySelector(".fileList");
-	// this.fileNameList = [],
-	this.fileList = [];
-
-	this.reloadList();
+NoteArea.prototype.emptyContentArea = function(){
+	this.textareaDom.value = "";
 }
-
-FileList.prototype.reloadList = function(){
-	console.log("reloadList of fileList called");
-	var that = this;
-
-	fetch('http://localhost:8080/reloadFileList', {method: 'GET'})
-	.then(function(response){
-		if(response.status !== 200) throw new Error("oops? "+response.status+" "+response.statusText);
-		return response.json();
-	}, function(reject){
-		console.log("fetch failed with error  "+ reject);
-	}).then(function(fileNameList){
-		console.log(fileNameList);
-		that.fileNameList = fileNameList;
-
-		that.fileListDom.innerHTML = "";
-		for(var i=0;i<that.fileNameList.length;i++){
-			// that.fileListDom.innerHTML += "<li class="+that.fileNameList[i]+">"+that.fileNameList[i]+"</li>";
-			
-			var myFile = new File(that.fileNameList[i]);
-			that.fileList.push(myFile);
-
-			var dom = document.createElement('li');
-			dom.innerHTML = myFile.fileName;
-			dom.classList.add(myFile.fileName);
-
-			that.fileListDom.appendChild(dom);
-		}	
-
-		var lieventmapper = new Event('remapFileNameEvent');
-		document.dispatchEvent(lieventmapper);
-
-	}, function(reject){
-		console.log("reloadList rejected while processing the response with "+ reject);
-	});
-}
-
-
-var File = function(fileName){
-	this.tabDom,
-	this.fileName = fileName;
-
-	this.createDoms();
-}
-
-File.prototype.createDoms = function(){
-	this.tabDom = document.createElement('div');
-	this.tabDom.classList.add("fileTab");
-	this.tabDom.classList.add(this.fileName);
-	this.tabDom.innerHTML = this.fileName;
-	document.querySelector('.fileTabContainer').appendChild(this.tabDom);
-}
-
-
-
