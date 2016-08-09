@@ -2,6 +2,7 @@
 
 var Notepad = function() {
 	/* TODO: 그 외에 또 어떤 클래스와 메소드가 정의되어야 할까요? */
+	this.dom = document.querySelector(".notepad");
 	this.noteArea = new NoteArea(),
 	this.fileList = new FileList(),
 	this.fileTab = new FileTab(),
@@ -21,10 +22,10 @@ Notepad.prototype.mapEvents = function(){
 
 	document.querySelector(".newFile").onclick = function(){
 		var deselectFile = new Event('deselectFile');
-		document.dispatchEvent(deselectFile);
+		that.dom.dispatchEvent(deselectFile);
 	}
 
-	document.addEventListener('deselectFile', function(){
+	this.dom.addEventListener('deselectFile', function(){
 		that.fileList.deselectFile();
 		that.fileTab.deselectFile();
 		that.deselectFile();
@@ -32,14 +33,14 @@ Notepad.prototype.mapEvents = function(){
 		that.noteArea.emptyContentArea();
 	})
 
-	document.addEventListener('selectFile', function(event){
+	this.dom.addEventListener('selectFile', function(event){
 		that.selectedFile = event.detail;
 		that.noteArea.showFileContent(that.selectedFile);
 		that.fileList.selectFile(that.selectedFile);
 		that.fileTab.selectFile(that.selectedFile);
 	})
 
-	document.addEventListener('removeTab', function(event){
+	this.dom.addEventListener('removeTab', function(event){
 		that.fileTab.removeTab(event.detail);
 	})
 }
@@ -51,8 +52,6 @@ Notepad.prototype.loadFiles = function(){
 	.then(function(response){
 		if(response.status !== 200) throw new Error("oops? "+response.status+" "+response.statusText);
 		return response.json();
-	}, function(reject){
-		console.log("fetch failed with error  "+ reject);
 	}).then(function(fileNameList){
 		for(var i=0;i<fileNameList.length;i++){
 			if(that.fileArr[fileNameList[i]] === undefined){
@@ -68,11 +67,11 @@ Notepad.prototype.loadFiles = function(){
 			var selectFile = new CustomEvent('selectFile', {
 				detail: that.selectedFile
 			});
-			document.dispatchEvent(selectFile);
+			that.dom.dispatchEvent(selectFile);
 		}
 		
-	}, function(reject){
-		console.log("reloadList rejected while processing the response with "+ reject);
+	}).catch(function(error){
+		console.log("Error happened "+ error.message);
 	});
 }
 
@@ -124,14 +123,12 @@ Notepad.prototype.saveFile = function(){
 	}).then(function(response){
 		if(response.status !== 200) throw new Error("oops? "+response.status+" "+response.statusText);
 		return;
-	}, function(reject){
-		console.log("fetch failed  " + reject);
 	}).then(function(resolved){
 		console.log("safely saved on fs");
 		that.loadFiles();
-	}, function(reject){
-		console.log("saveFile rejected while processing the response with "+ reject);
-	})
+	}).catch(function(error){
+		console.log("Error happened "+ error.message);
+	});
 }
 
 
@@ -198,14 +195,15 @@ FileListItem.prototype.mapDomEvent = function() {
 	var that = this;
 
 	this.dom.onclick = function(){
-		var deselectFile = new Event('deselectFile');
-		document.dispatchEvent(deselectFile);
+		var deselectFile = new Event('deselectFile', {"bubbles":true});
+		that.dom.dispatchEvent(deselectFile);
 
 		var selectFile = new CustomEvent('selectFile', {
-			detail: that.notepadItem
+			detail: that.notepadItem,
+			bubbles: true
 		});
 
-		document.dispatchEvent(selectFile);
+		that.dom.dispatchEvent(selectFile);
 	};
 };
 
@@ -295,28 +293,27 @@ FileTabItem.prototype.mapDomEvent = function() {
 	var that = this;
 
 	this.dom.onclick = function(){
-		var deselectFile = new Event('deselectFile');
-		document.dispatchEvent(deselectFile);
+		var deselectFile = new Event('deselectFile', {"bubbles":true});
+		that.dom.dispatchEvent(deselectFile);
 
 		var selectFile = new CustomEvent('selectFile', {
-			bubble: false,
+			bubbles: true,
 			detail: that.notepadItem
 		});
-		document.dispatchEvent(selectFile);
+		that.dom.dispatchEvent(selectFile);
 	};
 
 	this.closeDom.addEventListener('click', function(event){
-		event.stopPropagation();
-
 		if(that.selected === true){
-			var deselectFile = new Event('deselectFile');
-			document.dispatchEvent(deselectFile);
+			var deselectFile = new Event('deselectFile', {"bubbles":true});
+			that.dom.dispatchEvent(deselectFile);
 		}
 		
 		var removeTab = new CustomEvent('removeTab', {
+			bubbles: true,
 			detail: that.notepadItem
 		});
-		document.dispatchEvent(removeTab);
+		that.dom.dispatchEvent(removeTab);
 	});
 };
 
@@ -342,12 +339,10 @@ NoteArea.prototype.showFileContent = function(selectedFile){
 	.then(function(response){
 		if(response.status !== 200) throw new Error("oops? "+response.status+" "+response.statusText);
 		return response.text();
-	},function(reject){
-		console.log("fetch failed  " + reject);
 	}).then(function(fileContent){
 		that.textareaDom.value = fileContent;
-	}, function(reject){
-		console.log("showFileContent rejected while processing the response with "+ reject);
+	}).catch(function(error){
+		console.log("Error happened "+ error.message);
 	});
 }
 
