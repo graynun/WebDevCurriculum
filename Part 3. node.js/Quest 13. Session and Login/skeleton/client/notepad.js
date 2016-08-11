@@ -119,7 +119,7 @@ Notepad.prototype.saveFile = function(){
 
 Notepad.prototype.reloadListAndSelect = function(subject){
 	console.log("safely saved on fs");
-	subject.fileList.reloadList();
+	subject.loadFiles();
 	var selectHighLighter = new Event('selectedFile');
 	document.dispatchEvent(selectHighLighter);
 }
@@ -137,6 +137,7 @@ var FileList = function(){
 }
 
 FileList.prototype.reloadList = function(fileArr){
+	console.log("relaodList called?");
 	var that = this;	
 	for(var key in fileArr){
 		var fileListItem = new FileListItem(fileArr[key]);

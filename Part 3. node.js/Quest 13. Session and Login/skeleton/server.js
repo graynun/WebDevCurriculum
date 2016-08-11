@@ -3,7 +3,7 @@
 var express = require('express'),
 	path = require('path'),
 	bodyParser = require('body-parser'),
-	// cookieParser = require('cookie-parser'),
+	cookieParser = require('cookie-parser'),
 	session = require('express-session'),
 	fs = require('fs'),
 	app = express(),
@@ -11,6 +11,7 @@ var express = require('express'),
 
 app.use(express.static('client'));
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(
 	session({
 		secret: 'keyboard cat',
@@ -45,7 +46,8 @@ app.get('/reloadFileList', function(req, res){
 	console.log("got reloadFileList");
 	
 	// console.log(req.session);
-	console.log(req.sessionID);
+	// console.log(req.sessionID);
+	console.log(req.cookies);
 	console.log(req.session.cookie);
 
 	res.cookie("test", "rightname?");
@@ -60,7 +62,7 @@ app.get('/reloadFileList', function(req, res){
 });
 
 app.get('/readFile', function(req, res){
-	console.log("got readfile get fileName "+req.query.fileName);
+	console.log("got readfile request fileName "+req.query.fileName);
 
 	var data = fileManager.readFile(req.query.fileName);
 	res.send(data);
