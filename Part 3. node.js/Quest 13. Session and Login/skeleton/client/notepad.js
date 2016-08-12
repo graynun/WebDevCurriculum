@@ -49,8 +49,7 @@ Notepad.prototype.loadFiles = function(){
 	
 	var req = XMLHTTPGetRequestMaker(this, 'http://localhost:8080/reloadFileList', this.appendList);
 	req.send();
-	console.log(req);
-	
+	// console.log(req);
 }
 
 Notepad.prototype.appendList = function(subject, list){
