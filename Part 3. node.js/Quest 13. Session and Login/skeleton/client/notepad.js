@@ -11,7 +11,30 @@ var Notepad = function() {
 
 	this.mapEvents();
 	this.loadFiles();
+	this.loadLastStatus();
 };
+
+Notepad.prototype.loadLastStatus = function(){
+	var that = this;
+
+	XMLHTTPGetRequestMaker(that, "http://localhost:8080/loadLastStatus", function(that, responseText){
+		var lastStatus = JSON.parse(responseText);
+
+		document.querySelector(".fileListArea>h1").innerHTML = lastStatus.user+"'s file list";
+
+		if(lastStatus.lastTabs !== null){
+			for(var i=0;i<lastStatus.lastTabs.length;i++){
+				that.fileTab.createTab(that.fileArr[lastStatus.lastTabs[i]]);
+			}
+
+			var selectFile = new CustomEvent('selectFile', {
+				detail: that.fileArr[lastStatus.lastSelected],
+				bubbles: true
+			});
+			that.dom.dispatchEvent(selectFile);			
+		}
+	})
+}
 
 Notepad.prototype.mapEvents = function(){
 	var that = this;
@@ -23,6 +46,22 @@ Notepad.prototype.mapEvents = function(){
 	document.querySelector(".newFile").onclick = function(){
 		var deselectFile = new Event('deselectFile');
 		that.dom.dispatchEvent(deselectFile);
+	}
+
+	document.querySelector(".logout").onclick = function(){
+		console.log("Ever called?");
+
+		var currentTabs = [];
+		for(var i=0;i<that.fileTab.fileTabArr.length;i++){
+			currentTabs.push(that.fileTab.fileTabArr[i].fileName);
+		}
+		var sendInfo = {};
+		sendInfo["tabs"] = currentTabs.length === 0? null : currentTabs; 
+		sendInfo["selected"] = that.selectedFile === undefined? null : that.selectedFile.fileName;
+
+		XMLHTTPPostRequestMaker(that, "http://localhost:8080/logout", sendInfo, function(that, responseURL){
+			window.location.replace(responseURL);
+		});
 	}
 
 	this.dom.addEventListener('deselectFile', function(){
@@ -46,14 +85,10 @@ Notepad.prototype.mapEvents = function(){
 }
 
 Notepad.prototype.loadFiles = function(){
-	
-	var req = XMLHTTPGetRequestMaker(this, 'http://localhost:8080/reloadFileList', this.appendList);
-	req.send();
-	// console.log(req);
+	XMLHTTPGetRequestMaker(this, 'http://localhost:8080/reloadFileList', this.appendList);
 }
 
 Notepad.prototype.appendList = function(subject, list){
-	// console.log(this);
 	var fileNameList = JSON.parse(list);
 	
 	for(var i=0;i<fileNameList.length;i++){
@@ -136,7 +171,6 @@ var FileList = function(){
 }
 
 FileList.prototype.reloadList = function(fileArr){
-	console.log("relaodList called?");
 	var that = this;	
 	for(var key in fileArr){
 		var fileListItem = new FileListItem(fileArr[key]);
@@ -326,11 +360,12 @@ var NoteArea = function(){
 }
 
 NoteArea.prototype.showFileContent = function(selectedFile){
+	document.querySelector(".fileName").innerHTML = "File name: " + selectedFile.fileName;
 	var req = XMLHTTPGetRequestMaker(this, "http://localhost:8080/readFile?fileName=", this.showContent, selectedFile.fileName);
-	req.send();
 }
 
 NoteArea.prototype.emptyContentArea = function(){
+	document.querySelector(".fileName").innerHTML = "File name here";
 	this.textareaDom.value = "";
 }
 
@@ -349,8 +384,6 @@ var XMLHTTPGetRequestMaker = function(subject, url, callback, fileName){
 	req.onreadystatechange = function(){
 		if(req.readyState === XMLHttpRequest.DONE){ 
 			if(req.status === 200){
-				console.log(req.session);
-				console.log(document.cookie);
 				callback(subject, req.responseText);
 			}else{
 				console.log("req status is not 200");
@@ -360,8 +393,7 @@ var XMLHTTPGetRequestMaker = function(subject, url, callback, fileName){
 
 	url = fileName === undefined? url : url+fileName;
 	req.open('GET', url);
-
-	return req;
+	req.send();
 }
 
 var XMLHTTPPostRequestMaker = function(subject, url, content, callback){
@@ -372,7 +404,7 @@ var XMLHTTPPostRequestMaker = function(subject, url, content, callback){
 	req.onreadystatechange = function(){
 		if(req.readyState === XMLHttpRequest.DONE){
 			if(req.status === 200){
-				callback(subject);
+				callback(subject, req.responseURL);
 			}else{
 				console.log("req status is not 200");
 			}

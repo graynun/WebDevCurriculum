@@ -5,12 +5,11 @@
 		
 	</head>
 	<body>
-		Enter your id and password
+		Enter your ID and password
 		<div>
 		<input class="id" type="text" placeholder="ID">
 		<input class="pw" type="text" placeholder="Password">
 		</div>
-		<!-- <div class="pw">password <input type="password"></div> -->
 
 		<button class="login">click to login</button>
 
@@ -23,10 +22,12 @@
 
 				req.onreadystatechange = function(){
 					if(req.readyState === XMLHttpRequest.DONE){ 
+
 						if(req.status === 200){
 							console.log(req.responseURL);
-							window.location.href = req.responseURL;
+							window.location.replace(req.responseURL);
 						}else{
+							alert(req.response);
 							console.log("req status is not 200");
 						}
 					}
@@ -35,9 +36,11 @@
 				var id = document.querySelector(".id").value,
 					pw = document.querySelector(".pw").value;
 
-				var url = "http://localhost:8080/loginClicked?id="+id+"&pw="+pw;
-				console.log(url);
+				document.cookie = "id="+id;
+				document.cookie = "pw="+pw;
 
+				var url = "http://localhost:8080/loginClicked";
+				
 				req.open('GET', url);
 				req.send();
 			})

@@ -46,10 +46,18 @@
 .fileListArea{
 	position: absolute;
 	right: 10px;
-	top: 0px;
+	top: 10px;
 	width: 20%;
 	border: 1px solid black;
 }
+
+.logoutArea{
+	box-sizing: border-box;
+	height: 50px;
+	line-height: 50px;
+	border: 1px solid black;
+}
+
 
 .selected{
 	background-color: yellow;

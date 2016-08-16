@@ -3,72 +3,90 @@
 var express = require('express'),
 	path = require('path'),
 	bodyParser = require('body-parser'),
-	// cookieParser = require('cookie-parser'),
 	session = require('express-session'),
+	cookieParser = require('cookie-parser'),
 	fs = require('fs'),
 	app = express(),
 	fileManager = new FileManager(),
-	currentUser;
+	userManager = new UserManager();
 
 app.use(express.static('client'));
 app.use(bodyParser.json());
-// app.use(cookieParser());
+app.use(cookieParser());
 app.use(
 	session({
-		secret: 'keyboardCat',
+		secret: 'random jibberjabber',
 		resave: false,
-		saveUninitialized: true,
+		saveUninitialized: false,
 		cookie: {
 			secure: false,
-			maxAge: 60000
+			maxAge: 2 * 60 * 1000
 		}
 	})
 );
 
 
+app.use('/', function(req, res, next){
+	console.log("request session user at / is "+ req.session.user);
+	console.log("app.use request sessionID is "+req.sessionID);
+	next();
+});
+
 app.get('/login', function(req, res){
-	console.log("1 request sessionID is "+req.sessionID);
+	console.log("app.get request sessionID at /login is "+req.sessionID);
 	console.log(req.session);
 	res.sendFile(path.join(__dirname, '/client/login.html'));
 })
 
-app.get('/loginClicked', function(req, res){
-	console.log("request id is "+req.query.id);
-	console.log("request pw is "+req.query.pw);
-	console.log("get loginclicked got req.query?");
 
-	if(userInfo[req.query.id] === undefined){
-		console.log("there's no such user");
-		res.status(404).send("No such user!");
-	}else{
-		if(userInfo[req.query.id]['pw'] === req.query.pw){
-			console.log("yay user authenticated!");
-			req.session.user = req.query.id;
-			console.log("signed in user is "+req.session.user);
-			res.locals.user = req.session.user;
-			res.redirect(301, '/');			
-		}else{
-			console.log("wrong password :P");
-			res.status(401).send("Wrong password!");
-		}
-	}
-})
+app.use('/loginClicked', function(req, res, next){
+	//왜 이렇게 뜯지 않으면 app.get에서는 이 코드들이 실행되지 않는가?...
+	console.log("get loginclicked got req.query? in use?");
+	console.log(req.cookies.id);
+	console.log(req.cookies.pw);
 
+	res.locals.id = req.cookies.id;
+	res.locals.pw = req.cookies.pw;
 
-app.get('/', function (req, res) {
-	res.sendFile(path.join(__dirname, 'index.html'));
-	// next();
+	res.clearCookie('id');
+	res.clearCookie('pw');
+
+	next();
 });
 
-app.use('/', function(req, res, next){
-	console.log("request session user at / is "+ req.session.user);
-	console.log("response local user at / is "+res.locals.user);
-	console.log("2 request sessionID is "+req.sessionID);
-	// console.log("userInfo sessionID is "+ userInfo.sessionID);
-	// if(req.sessionID === userInfo.sessionID) console.log("the same user came back!");
-	// res.end();
-	next();
-})
+app.get('/loginClicked', function(req, res){
+	console.log("get loginclicked got req.query? in get?");
+
+	var loginSuccess = userManager.authenticate(res.locals.id, res.locals.pw);
+
+	if(loginSuccess[0]){
+		req.session.user = res.locals.id;
+		console.log("signed in user is "+req.session.user);
+		res.redirect('/main');			
+	}else{
+		console.log("login failed with "+loginSuccess[1]);
+		res.status(401).send(loginSuccess[1]);
+	}
+});
+
+app.post('/logout', function(req, res){
+	console.log("Ever called /logout?");
+	console.log(req.body.tabs);
+	console.log(req.body.selected);
+	userManager.saveLastStatus(req.session.user, req.body.tabs, req.body.selected);
+	req.session.destroy(function(err){
+		if(err) throw err;
+	})
+	res.redirect('/login');
+});
+
+
+app.get('/main', function (req, res) {
+	console.log("got /main get");
+	res.sendFile(path.join(__dirname, '/client/index.html'));
+});
+
+
 
 /* TODO: 여기에 처리해야 할 요청의 주소별로 동작을 채워넣어 보세요..! */
 
@@ -79,13 +97,13 @@ var server = app.listen(8080, function () {
 app.post('/savefile', function(req, res){
 	console.log("savefile had called");
 
-	fileManager.createFile(req.body);
+	fileManager.createFile(req.session.user, req.body);
 	res.end();
 });
 
 app.get('/reloadFileList', function(req, res){
 	console.log("got reloadFileList req?");
-	console.log(req.session.user);
+	console.log(req.session);
 	var fileArr = fileManager.readFileList(req.session.user);
 	res.send(fileArr);
 	console.log(fileArr);
@@ -93,18 +111,20 @@ app.get('/reloadFileList', function(req, res){
 });
 
 app.get('/readFile', function(req, res){
-	var data = fileManager.readFile(req.query.fileName);
+	console.log(req.query.fileName);
+	var data = fileManager.readFile(req.session.user, req.query.fileName);
 	res.send(data);
-	// console.log(data);
-	// res.status(300);
+	res.end();
+})
+
+app.get('/loadLastStatus', function(req, res){
+	var responseContent = userManager.readLastStatus(req.session.user);
+	res.send(responseContent);
 	res.end();
 })
 
 
 function FileManager() {
-	// this.dir = './notepad_files/';
-	// this.dir = './user1/';
-	// this.dir = './user2/';
 	this.dir;
 };
 
@@ -126,29 +146,52 @@ FileManager.prototype.readFileList = function(userID){
 		fileNameArr[i] = fileNameArr[i].split(/.txt$/)[0];
 	}
 	return fileNameArr;
-	//async하게는 만들 수 없는 것일까?
 }
 
 FileManager.prototype.readFile = function(userID, fileName){
 	this.dir = "./"+userID+"/";
+	console.log(this.dir);
+	console.log(this.dir+fileName+".txt");
 	return fs.readFileSync(this.dir+fileName+".txt", 'utf8');
-	//async하게는 만들 수 없는 것일까?
 }
 
-var userInfo = {
-	user1: {
-		sessionID: null,
-		id: "user1",
-		pw: "test1"
-	},
-	user2: {
-		sessionID: null,
-		id: "user2",
-		pw: "test2"
-	},
-	user3: {
-		sessionID: null,
-		id: "user3",
-		pw: "test3"
+
+function UserManager(){
+	this.userInfo = require('./userInfo.json');
+	console.log(this.userInfo);
+}
+
+
+UserManager.prototype.authenticate = function(id, pw){
+	if(this.userInfo[id] === undefined){
+		console.log("there's no such user");
+		return [false, "No such user"];
+	}else{
+		if(this.userInfo[id]['pw'] === pw){
+			console.log("yay user authenticated!");
+			return [true, this.userInfo[id]["lastTabs"],this.userInfo[id]["lastSelected"]];
+		}else{
+			return [false, "wrong password"];
+		}
 	}
+}
+
+UserManager.prototype.saveLastStatus = function(id, tabs, selected){
+	console.log(tabs);
+	console.log(selected);
+	this.userInfo[id]["lastTabs"] = tabs;
+	this.userInfo[id]["lastSelected"] = selected;
+	console.log(this.userInfo);
+	fs.writeFile('./userInfo.json', JSON.stringify(this.userInfo), function(err){
+		if(err) throw err;
+		console.log("updated lastStatus to the json file");
+	});
+}
+
+UserManager.prototype.readLastStatus = function(id){
+	var obj = {};
+	obj["user"] = this.userInfo[id]['id'];
+	obj["lastTabs"] = this.userInfo[id]["lastTabs"];
+	obj["lastSelected"] = this.userInfo[id]["lastSelected"];
+	return obj;
 }
