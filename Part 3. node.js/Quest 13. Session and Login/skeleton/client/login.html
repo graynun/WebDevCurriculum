@@ -33,16 +33,21 @@
 					}
 				};
 
-				var id = document.querySelector(".id").value,
-					pw = document.querySelector(".pw").value;
+				var inputId = document.querySelector(".id").value,
+					inputPw = document.querySelector(".pw").value;
 
-				document.cookie = "id="+id;
-				document.cookie = "pw="+pw;
+				var sendInfo = {
+					id:inputId,
+					pw:inputPw
+				}
 
-				var url = "http://localhost:8080/loginClicked";
+				// console.log(sendInfo);
+
+				var url = "http://localhost:8080/loginClicked?random="+Math.floor(Math.random()*10000);
 				
-				req.open('GET', url);
-				req.send();
+				req.open('POST', url);
+				req.setRequestHeader('Content-type', 'application/json;charset=utf-8');
+				req.send(JSON.stringify(sendInfo));
 			})
 		</script>
 	</body>

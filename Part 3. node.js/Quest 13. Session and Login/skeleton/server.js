@@ -4,7 +4,6 @@ var express = require('express'),
 	path = require('path'),
 	bodyParser = require('body-parser'),
 	session = require('express-session'),
-	cookieParser = require('cookie-parser'),
 	fs = require('fs'),
 	app = express(),
 	fileManager = new FileManager(),
@@ -12,10 +11,9 @@ var express = require('express'),
 
 app.use(express.static('client'));
 app.use(bodyParser.json());
-app.use(cookieParser());
 app.use(
 	session({
-		secret: 'random jibberjabber',
+		secret: 'change string whenvever I want to',
 		resave: false,
 		saveUninitialized: false,
 		cookie: {
@@ -39,30 +37,20 @@ app.get('/login', function(req, res){
 })
 
 
-app.use('/loginClicked', function(req, res, next){
-	//왜 이렇게 뜯지 않으면 app.get에서는 이 코드들이 실행되지 않는가?...
-	console.log("get loginclicked got req.query? in use?");
-	console.log(req.cookies.id);
-	console.log(req.cookies.pw);
-
-	res.locals.id = req.cookies.id;
-	res.locals.pw = req.cookies.pw;
-
-	res.clearCookie('id');
-	res.clearCookie('pw');
-
-	next();
-});
-
-app.get('/loginClicked', function(req, res){
+app.post('/loginClicked', function(req, res){
 	console.log("get loginclicked got req.query? in get?");
+	
+	console.log(req.body.id);
+	console.log(req.body.pw)
 
-	var loginSuccess = userManager.authenticate(res.locals.id, res.locals.pw);
+	var loginSuccess = userManager.authenticate(req.body.id, req.body.pw);
 
 	if(loginSuccess[0]){
-		req.session.user = res.locals.id;
-		console.log("signed in user is "+req.session.user);
-		res.redirect('/main');			
+		req.session.save(function(err){
+			req.session.user = req.body.id;
+			console.log("signed in user is "+req.session.user);
+			res.redirect('/main');			
+		})
 	}else{
 		console.log("login failed with "+loginSuccess[1]);
 		res.status(401).send(loginSuccess[1]);
@@ -76,8 +64,9 @@ app.post('/logout', function(req, res){
 	userManager.saveLastStatus(req.session.user, req.body.tabs, req.body.selected);
 	req.session.destroy(function(err){
 		if(err) throw err;
+		res.redirect('/login');
 	})
-	res.redirect('/login');
+	
 });
 
 
