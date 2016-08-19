@@ -18,9 +18,36 @@
 
 ## Checklist
 * RDBMS에 길이를 알 수 없는 배열을 저장하려면 어떻게 설계해야 할까요?
+	* `VARCHAR(MAX)`를 받는 column에 `,`등의 구분자(delimiter)로 구분된 string으로 만들어서 넣는다
+	* `TEXT` datatype을 지원하면 여기에 넣어도...
+
+
 * RDBMS 테이블의 정규화는 무엇인가요?
+	* Relational DBMS에서 데이터의 중복을 줄이고, 데이터의 무결성(data integrity)을 추구하기 위해 column과 table의 관게를 조직화 하는 것
+	* '정규형(normal form)'이 있으며, 각 정규형의 규칙을 만족하는 테이블은 정규화 되었다고 말한다.
+	* UNF(UnNormalized Form) => 1NF => 2NF => 3NF => (BCNF) => 4NF => 5NF => 6NF 의 순서로 정규화의 정도가 더 고도화되며, 특정 정규형을 만족하는 경우 그보다 낮은 정규형의 규칙들은 모두 만족한다
+	* 보통 3NF, (일부) 4NF의 정규형 규칙을 만족하는 경우 정규화 되었다고 생각하는듯?
+	* 1NF
+		* row의 순서는 영향이 없어야 한다(위아래의 순서가 영향이 없어야 한다)
+		* column의 순서도 영향을 주지 않아야 한다(좌우의 순서가 영향이 없어야 한다)
+		* 하나의 column은 하나의 값만을 가져야 한다(한 컬럼에 여러개의 값이 한꺼번에 들어가도 안되고, `null`이어도 안된다)
+		* 중복된 row가 있으면 안된다(column은 중복이어도 ok)
+		* 숨겨진 요소가 있으면 안된다(실제 데이터가 아닌 다른것을 가리키는 요소(ex: row id)가 들어가면 안된다)
+	* 2NF
+		* 하나의 column이 두 개 이상의 candidate key에 dependent하면 안된다.
+		* 따라서 하나의 candidate key를 가진 1NF table은 2NF를 자동으로 만족(candidate key가 하나뿐이라서)
+	* 3NF
+		* Primary(candidate) key가 아닌 column에 다른 column이 dependent 하면 안된다
+		* 2NF를 만족하지만 3NF를 만족하지 않는 케이스들은 Primary key dependancy가 아예 없는 column이 있는 경우
+
+
 * MySQL 엔진에는 어떤 것들이 있나요?
 * RDBMS에서 테이블의 인덱싱은 무엇인가요? 인덱싱을 하면 어떤 점이 다르며, 어떤 식으로 동작하나요?
+	* 테이블의 여러가지 내용 중 하나의 column에 대해서 순서대로 정렬하고, 해당 데이터가 존재하는 위치를 가리키는 pointer를 가지고 있는 data structure를 만드는 것
+	* 여러개의 attribute를 별개로 order할수도있따!(index 여러갬 ㅏㄴ들기)
+	* 실제 table의 data를 sort하는거 보다 훨씬 간편!
+	* 더 빨리 원하는 데이터를 찾을 수 있땅!
+
 * DB에 사용자의 암호를 평문으로 저장하지 않고도 사용자의 암호를 인증하는 것이 가능한 이유는 무엇일까요?
 
 ## Quest
