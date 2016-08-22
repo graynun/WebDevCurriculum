@@ -19,7 +19,7 @@
 ## Checklist
 * RDBMS에 길이를 알 수 없는 배열을 저장하려면 어떻게 설계해야 할까요?
 	* `VARCHAR(MAX)` 혹은 `TEXT`를 받는 column에 `,`등의 구분자(delimiter)로 구분된 string으로 만들어서 넣는다
-	* 해당 배열의 내용과 연결할 수 있는 primary key(혹은 candidate key)와 배열의 내용을 1:1로 저장하는 table을 별도로 만든다.
+	* 해당 배열의 내용과 연결할 수 있는 key와 배열의 내용을 1:1로 저장하는 table을 별도로 만들고, 배열의 길이 만큼 record를 생성해서 저장
 
 * RDBMS 테이블의 정규화는 무엇인가요?
 	* Relational DBMS에서 데이터의 중복을 줄이고, 데이터의 무결성(data integrity)을 추구하기 위해 column과 table의 관게를 조직화 하는 것
@@ -40,6 +40,13 @@
 		* 2NF를 만족하지만 3NF를 만족하지 않는 케이스들은 Primary key dependancy가 아예 없는 column이 있는 경우
 
 * MySQL 엔진에는 어떤 것들이 있나요?
+	* Database engine = storage engine
+	* `SHOW ENGINES;`를 하면...
+		* InnoDB: row-level locking(CRUD할때 해당 row를 lock하고 시작), Foreign Key support, 'transactional' - 명령의 수행 단위에 대해서 전체가 수행되거나 중간에 interrupt되는 경우 수행 전의 상황으로 되돌려짐!
+		* MyISAM: table-level locking(CRUD할때 table 전체를 lock하고 시작)
+		* MEMORY: 빠르다. 서버 내렸다 올리면 다 날아감. table-level locking
+		* CSV
+
 * RDBMS에서 테이블의 인덱싱은 무엇인가요? 인덱싱을 하면 어떤 점이 다르며, 어떤 식으로 동작하나요?
 	* 테이블의 여러가지 내용 중 특정 column에 대해서 순서대로 정렬하고, 해당 데이터가 존재하는 위치를 가리키는 pointer를 가지고 있는 data structure를 만들어 따로 저장해 두는 것
 	* DB의 I/O는 하드디스크 찾음 => 데이터 저장된 위치 찾기위해 돌림 => 실제로 디스크에서 읽어냄 등의 과정을 통해야 하는데 이는 보통 memory에 올라간 데이터를 읽어오는 것 보다 엄청나게 더 느림. 그래서 '탐색을 최소화 한다' ==> 탐색과정을 짧게 하면서 원하는 데이터를 정확하게 찾게 하기 위해 함
@@ -48,10 +55,6 @@
 	* 서버에는 암호화 한 비밀번호만 저장
 	* 로그인 시도가 있을 때 비밀번호를 저장한 방식과 동일하게 암호화 한 뒤 그 결과를 서버에 저장된 내역과 동일한지만 체크
 	* 비밀번호 hashing은 서버에서 주로 하지만 보안을 위해서 여러 단계를 거쳐 비밀번호를 hashing하기도 하는듯
-		* 서버에서 random string(`s`)만들어서 보내기
-		* 클라에서도 random string(`c`) 만들기 => `s`와 `c` + 실제 password 섞어서 hash
-		* `c`와 hash된 비번 서버로 보내기
-		* 서버는 가지고 있던 `s`와 도착한 `c`, DB에 저장된 password로 hash한뒤 클라이언트에서 온 hash와 비교
 
 
 
