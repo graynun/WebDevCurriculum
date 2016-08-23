@@ -1,3 +1,64 @@
 * {
 	/* TODO: 필요한 CSS를 채워넣어 보세요! */
+	font-size: 1em;
+}
+
+.fileTabContainer{
+	box-sizing: border-box;
+	border: 1px solid blue;
+	width: 75%;
+	height: 50px;
+
+	/*padding-bottom: 20px*/
+}
+
+.fileTabContainer>div {
+	box-sizing: border-box;
+	text-align: center;
+	line-height: 50px;
+	display: inline-block;
+	width: 80px;
+	height: 50px;
+	border: 1px solid grey;
+
+
+}
+
+.fileTabContainer .close {
+	box-sizing: border-box;
+	line-height: 50px;
+	float: right;
+	border-left: 1px solid black;
+}
+
+.textArea{
+	box-sizing: border-box;
+	width: 75%;
+	border : 1px solid blue;
+	padding: 10px;
+}
+
+.fileBody{
+	width: 95%;
+	height: 6em;
+}
+
+.fileListArea{
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	width: 20%;
+	border: 1px solid black;
+}
+
+.logoutArea{
+	box-sizing: border-box;
+	height: 50px;
+	line-height: 50px;
+	border: 1px solid black;
+}
+
+
+.selected{
+	background-color: yellow;
 }
