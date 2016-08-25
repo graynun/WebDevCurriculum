@@ -4,6 +4,7 @@
     "express": "*",
     "body-parser": "*",
     "express-session": "*",
-    "sequelize": "*"
+    "sequelize": "*",
+    "mysql": "*"
   }
 }
