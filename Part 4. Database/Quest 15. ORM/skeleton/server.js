@@ -53,15 +53,6 @@ var Users = sequelize.define('Users', {
 
 Users.sync();
 
-Users.findAll().then(function(userrows){
-	userrows.forEach(function(userrow){
-		console.log(userrow.user_id);
-	})
-	
-}).catch(function(err){
-	console.log(err);
-});
-
 var Notes = sequelize.define('Notes', {
 	note_id: {
 		type: Sequelize.INTEGER(255).UNSIGNED,
@@ -125,7 +116,7 @@ Lastopened.sync();
 
 
 app.use('/', function(req, res, next){
-	console.log("request session user at / is "+ req.session.user);
+	console.log("request session user at / is "+ req.session.user_id);
 	console.log("app.use request sessionID is "+req.sessionID);
 	next();
 });
@@ -170,6 +161,18 @@ app.post('/logout', function(req, res){
 	console.log(req.body.tabs);
 	console.log(req.body.selected);
 	// DBManager.saveLastStatus(req.session.user, req.body.tabs, req.body.selected);
+	
+	// this.userInfo[id]["lastTabs"] = tabs;
+	// this.userInfo[id]["lastSelected"] = selected;
+	// console.log(this.userInfo);
+	// fs.writeFile('./userInfo.json', JSON.stringify(this.userInfo), function(err){
+	// 	if(err) throw err;
+	// 	console.log("updated lastStatus to the json file");
+	// });
+
+
+
+
 	req.session.destroy(function(err){
 		if(err) throw err;
 		res.redirect('/login');
@@ -194,8 +197,29 @@ var server = app.listen(8080, function () {
 app.post('/savefile', function(req, res){
 	console.log("savefile had called");
 
-	fileManager.createFile(req.session.user, req.body);
-	res.end();
+	Notes.findOrCreate({
+		where:{
+			'author': req.session.user,
+			'notename': req.body.title
+		},
+		defaults: {
+			'content' : req.body.content
+		}
+	}).spread(function(instance, created){
+		console.log(created);
+		console.log("Ever get to next promise?");
+		console.log(instance);
+		if(created === false){
+			console.log("pre-existing file!");
+			instance.update({
+				'content': req.body.content
+			}).then(function(){
+				res.end();
+			})
+		}else{
+			res.end();
+		}
+	})
 });
 
 app.get('/reloadFileList', function(req, res){
@@ -213,8 +237,9 @@ app.get('/reloadFileList', function(req, res){
 		notenameArr.forEach(function(filename){
 			obj.push(filename.notename);
 		})
-		res.send(obj);
+		
 		console.log(obj);
+		res.send(obj);
 		res.end();
 	})
 
@@ -223,22 +248,22 @@ app.get('/reloadFileList', function(req, res){
 
 app.get('/readFile', function(req, res){
 	console.log(req.query.fileName);
-	var data = fileManager.readFile(req.session.user, req.query.fileName);
-	res.send(data);
-	res.end();
+
+	Notes.findOne({
+		attributes: ['content'],
+		where: {
+			'notename': req.query.fileName,
+			'author': req.session.user
+		}
+	}).then(function(query){
+		res.send(query.content);
+		res.end();
+	})
 })
 
 app.get('/loadLastStatus', function(req, res){
 	var obj = {};
-	// obj["user"] = this.userInfo[id]['id'];
-	// obj["lastTabs"] = this.userInfo[id]["lastTabs"];
-	// obj["lastSelected"] = this.userInfo[id]["lastSelected"];
-	// return obj;
 
-	// var responseContent = DBManager.readLastStatus(req.session.user);
-	// res.send(responseContent);
-	// res.end();
-	
 	Lastopened.findAll({
 		attributes: ['note_id', 'selected'],
 		where:{
@@ -246,34 +271,66 @@ app.get('/loadLastStatus', function(req, res){
 		}
 	}).then(function(lastopenedrows){
 		obj["user"] = req.session.user_id;
-		// console.log(lastopenedrows);
 
-		var lastTabs = []
+		var lastTabs = [];
+		var lastSelectedNote;
+
 		lastopenedrows.forEach(function(eachrow){
-			Notes.findOne({
-				attributes: ['notename'],
-				where: {
-					'note_id':eachrow.note_id
-				}
-			}).then(function(notenamerow){
-				console.log(notenamerow[0].notename);
-				lastTabs.push(notenamerow[0].notename);
-				if(eachrow.selected === true) obj["lastSelected"] = notenamerow.notename;	
-			});
+			lastTabs.push(eachrow.note_id);
+			if(eachrow.selected === true) lastSelectedNote = eachrow.note_id;
 		})
 
+		return [lastTabs, lastSelectedNote];
 
-		// var lastTabs = [];
-		// lastopenedrows.forEach(function(eachrow){
-		// 	console.log(eachrow);
-		// 	console.log(eachrow.notename);
-		// 	lastTabs.push(eachrow.notename);
-		// 	if(eachrow.selected === true) obj["lastSelected"] = eachrow.notename;
-		// })
-		// obj["lastTabs"] = lastTabs;
+	}).then(function(lastTabInfo){
+		console.log("last tabs are ");
+		console.log(lastTabInfo[0]);
+		console.log(lastTabInfo[1]);
+
+		var notenameGetter = function(noteid, lastSelectedNoteId){
+			console.log("current note id is "+ noteid);
+			console.log("current lastSelected id is "+ lastSelectedNoteId);
+			return Notes.findOne({
+				attributes:['note_id', 'notename'],
+				where: {
+					'note_id': noteid
+				}
+			}).then(function(eachrow){
+				if(noteid === lastSelectedNoteId){
+					return [eachrow.note_id, eachrow.notename, true];
+				}else{
+					return [eachrow.note_id, eachrow.notename, false];
+				}
+			});
+
+		}
+
+		var arr = [];
+		for(var i=0;i<lastTabInfo[0].length;i++){
+			arr.push(notenameGetter(lastTabInfo[0][i], lastTabInfo[1]));
+		}
+
+		return arr;
+
+	}).then(function(ps){
+		console.log("Does Promise.all works?");
+		return Promise.all(ps);
+	}).then(function(lastTabs){
+		console.log("is last tab returned?");
+		console.log(lastTabs);
+		
+		var fileNameArr = [];
+
+		lastTabs.forEach(function(file){
+			fileNameArr.push(file[1]);
+			if(file[2] === true) obj["lastSelected"] = file[1];
+		})
+		obj["lastTabs"] = fileNameArr;
 
 		res.send(obj);
 		res.end();
+	}).catch(function(err){
+		console.log(err);
 	})
 })
 

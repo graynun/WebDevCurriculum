@@ -76,6 +76,11 @@ var Lastopened = sequelize.define('Lastopened', {
 		field: 'author',
 		allowNull: false
 	},
+	order: {
+		type: Sequelize.INTEGER.UNSIGNED,
+		field: 'order',
+		allowNull: false
+	},
 	selected: {
 		type: Sequelize.BOOLEAN,
 		field: 'selected',
