@@ -174,45 +174,56 @@ app.post('/logout', function(req, res){
 	// need better way of mapping events!!
 
 
-	// var tabnameAndSelected = [];
+	var tabnameAndSelected = [];
 
-	// for(var i=0;i<req.body.tabs.length;i++){
-	// 	if(req.body.tabs === req.body.selected) {
-	// 		tabnameAndSelected.push([req.body.tabs, true]);
-	// 	}else{
-	// 		tabnameAndSelected.push([req.body.tabs, false]);
-	// 	}
-	// }
+	for(var i=0;i<req.body.tabs.length;i++){
+		if(req.body.tabs[i] === req.body.selected) {
+			tabnameAndSelected.push([req.body.tabs[i], true]);
+		}else{
+			tabnameAndSelected.push([req.body.tabs[i], false]);
+		}
+	}
 
-	// for(var i=0;i<tabnameAndSelected.length;i++){
-	// 	Notes.findOne({
-	// 		where:{
-	// 			notename: arr[0]
-	// 		}
-	// 	}).then(function(note){
-	// 		return Lastopened.create({
-	// 			note_id: note.id,
-	// 			author: req.session.user,
-	// 			selected: arr[1]
-	// 		})
-	// 	}).then(function(){
-	// 		console.log("saved ")
-	// 	})
-	// }
+	var ps = [];
+
+	for(var i=0;i<tabnameAndSelected.length;i++){
+		console.log(tabnameAndSelected[i]);
+		console.log(tabnameAndSelected[i][0]);
+		console.log(tabnameAndSelected[i][1]);
 
 
-
-	// Lastopened.create({
-
-	// })
+		// promise에 selected 어떻게 넘기지?!....
 
 
+		var p = function(){
+			Notes.findOne({
+				attributes: ['note_id'],
+				where:{
+					notename: tabnameAndSelected[i][0]
+				}
+			}).then(function(note, tabnameAndSelected[i]){
+				console.log(tabnameAndSelected[i]);
+				// console.log(note.note_id);
+				return Lastopened.create({
+					note_id: note.note_id,
+					author: req.session.user,
+					selected: tabnameAndSelected[i][1]
+				})
+			}).then(function(){
+				console.log("saved");
+			});
+		};
+			
+		ps.push(p);
 
-	req.session.destroy(function(err){
-		if(err) throw err;
-		res.redirect('/login');
+	}
+
+	Promise.all(p).then(function(){
+		req.session.destroy(function(err){
+			if(err) throw err;
+			res.redirect('/login');
+		})
 	})
-	
 });
 
 
