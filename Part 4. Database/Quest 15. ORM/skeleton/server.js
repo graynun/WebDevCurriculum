@@ -161,7 +161,7 @@ app.post('/logout', function(req, res){
 	console.log(req.body.tabs);
 	console.log(req.body.selected);
 	// DBManager.saveLastStatus(req.session.user, req.body.tabs, req.body.selected);
-	
+
 	// this.userInfo[id]["lastTabs"] = tabs;
 	// this.userInfo[id]["lastSelected"] = selected;
 	// console.log(this.userInfo);
@@ -170,6 +170,41 @@ app.post('/logout', function(req, res){
 	// 	console.log("updated lastStatus to the json file");
 	// });
 
+
+	// need better way of mapping events!!
+
+
+	// var tabnameAndSelected = [];
+
+	// for(var i=0;i<req.body.tabs.length;i++){
+	// 	if(req.body.tabs === req.body.selected) {
+	// 		tabnameAndSelected.push([req.body.tabs, true]);
+	// 	}else{
+	// 		tabnameAndSelected.push([req.body.tabs, false]);
+	// 	}
+	// }
+
+	// for(var i=0;i<tabnameAndSelected.length;i++){
+	// 	Notes.findOne({
+	// 		where:{
+	// 			notename: arr[0]
+	// 		}
+	// 	}).then(function(note){
+	// 		return Lastopened.create({
+	// 			note_id: note.id,
+	// 			author: req.session.user,
+	// 			selected: arr[1]
+	// 		})
+	// 	}).then(function(){
+	// 		console.log("saved ")
+	// 	})
+	// }
+
+
+
+	// Lastopened.create({
+
+	// })
 
 
 
