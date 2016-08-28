@@ -19,10 +19,9 @@ Notepad.prototype.loadLastStatus = function(){
 
 	XMLHTTPGetRequestMaker(that, "http://localhost:8080/loadLastStatus", function(that, responseText){
 		var lastStatus = JSON.parse(responseText);
-
 		document.querySelector(".fileListArea>h1").innerHTML = lastStatus.user+"'s file list";
 
-		if(lastStatus.lastTabs !== null){
+		if(lastStatus.lastTabs.length !== 0){
 			for(var i=0;i<lastStatus.lastTabs.length;i++){
 				that.fileTab.createTab(that.fileArr[lastStatus.lastTabs[i]]);
 			}
@@ -49,17 +48,22 @@ Notepad.prototype.mapEvents = function(){
 	}
 
 	document.querySelector(".logout").onclick = function(){
-		console.log("Ever called?");
+		console.log("Logout called");
 
-		var currentTabs = [];
+		var statusInfo = {};
+
 		for(var i=0;i<that.fileTab.fileTabArr.length;i++){
-			currentTabs.push(that.fileTab.fileTabArr[i].fileName);
-		}
-		var sendInfo = {};
-		sendInfo["tabs"] = currentTabs.length === 0? null : currentTabs; 
-		sendInfo["selected"] = that.selectedFile === undefined? null : that.selectedFile.fileName;
+			var filename = that.fileTab.fileTabArr[i].fileName,
+				fileno = that.fileTab.fileTabArr[i].notepadItem.fileNo;
 
-		XMLHTTPPostRequestMaker(that, "http://localhost:8080/logout", sendInfo, function(that, responseURL){
+			if(that.fileTab.fileTabArr[i].notepadItem === that.selectedFile){
+				statusInfo[filename] = [fileno, true];
+			}else{
+				statusInfo[filename] = [fileno, false];
+			}
+		}
+
+		XMLHTTPPostRequestMaker(that, "http://localhost:8080/logout", statusInfo, function(that, resText, responseURL){
 			window.location.replace(responseURL);
 		});
 	}
@@ -91,12 +95,12 @@ Notepad.prototype.loadFiles = function(){
 Notepad.prototype.appendList = function(subject, list){
 	var fileNameList = JSON.parse(list);
 	
-	for(var i=0;i<fileNameList.length;i++){
-		if(subject.fileArr[fileNameList[i]] === undefined){
-			var myFile = new NotepadItem(fileNameList[i]);
+	for (var fileName in fileNameList){
+		if(subject.fileArr[fileName] === undefined){
+			var myFile = new NotepadItem(fileName, fileNameList[fileName]);
 			subject.fileArr[myFile.fileName]= myFile;
-		}
-	}	
+		}		
+	}
 
 	subject.fileList.emptyList();
 	subject.fileList.reloadList(subject.fileArr);
@@ -147,22 +151,26 @@ Notepad.prototype.saveFile = function(){
 		};
 	}
 
-	XMLHTTPPostRequestMaker(this, 'http://localhost:8080/savefile', content, this.reloadListAndSelect);
-
+	XMLHTTPPostRequestMaker(this, 'http://localhost:8080/savefile', content, function(that, resText, resUrl){
+		that.reloadListAndSelect(that, JSON.parse(resText).fileNo);
+	});
 }
 
-Notepad.prototype.reloadListAndSelect = function(subject){
+Notepad.prototype.reloadListAndSelect = function(subject, fileNo){
 	console.log("safely saved on fs");
+	this.selectedFile.fileNo = fileNo;
 	subject.loadFiles();
 	var selectHighLighter = new Event('selectedFile');
 	document.dispatchEvent(selectHighLighter);
 }
 
 
-var NotepadItem = function(fileName){
+var NotepadItem = function(fileName, fileNo){
 	this.fileName = fileName,
+	this.fileNo = null,
 	this.tabExist = false,
 	this.fileListExist = false;
+	if(fileNo !== null) this.fileNo = fileNo; 
 }
 
 var FileList = function(){
@@ -404,7 +412,8 @@ var XMLHTTPPostRequestMaker = function(subject, url, content, callback){
 	req.onreadystatechange = function(){
 		if(req.readyState === XMLHttpRequest.DONE){
 			if(req.status === 200){
-				callback(subject, req.responseURL);
+				console.log(req.responseText);
+				callback(subject, req.responseText, req.responseURL);
 			}else{
 				console.log("req status is not 200");
 			}

@@ -4,13 +4,16 @@ var express = require('express'),
 	path = require('path'),
 	bodyParser = require('body-parser'),
 	session = require('express-session'),
-	mysql = require('mysql'),
-	Sequelize = require('sequelize'),
-	dbaccessinfo = require('../sequelizeTest/dbaccess.js'),
-	fs = require('fs'),
 	app = express(),
-	fileManager = new FileManager(),
-	dbManager = new DBManager();
+	db = require('./db.js'),
+	sequelize = db.sequelize,
+	Users = db.Users,
+	Notes = db.Notes,
+	Lastopened = db.Lastopened;
+
+Users.sync();
+Notes.sync();
+Lastopened.sync();
 
 app.use(express.static('client'));
 app.use(bodyParser.json());
@@ -21,97 +24,10 @@ app.use(
 		saveUninitialized: false,
 		cookie: {
 			secure: false,
-			maxAge: 2 * 60 * 1000
+			maxAge: 3 * 60 * 1000
 		}
 	})
 );
-
-var sequelize = new Sequelize(dbaccessinfo.dbname, dbaccessinfo.account, dbaccessinfo.password, {
-	host: 'localhost',
-	dialect: 'mysql'
-});
-
-var Users = sequelize.define('Users', {
-	user_id: {
-		type: Sequelize.STRING,
-		field: 'user_id',
-		allowNull: false,
-	},
-	hashed_password: {
-		type: Sequelize.STRING,
-		field: 'hashed_password',
-		allowNull: false
-	},
-	nickname: {
-		type: Sequelize.STRING,
-	}
-}, {
-	freezeTableName: true,
-	underscored: true,
-	charset: 'utf8'
-});
-
-Users.sync();
-
-var Notes = sequelize.define('Notes', {
-	note_id: {
-		type: Sequelize.INTEGER(255).UNSIGNED,
-		field: 'note_id',
-		allowNull: false,
-		autoIncrement: true,
-		primaryKey: true
-	},
-	author: {
-		type: Sequelize.INTEGER.UNSIGNED,
-		field: 'author',
-		allowNull: false
-	},
-	notename: {
-		type: Sequelize.STRING,
-		allowNull: false
-	},
-	content: {
-		type: Sequelize.TEXT,
-		field: 'content',
-		allowNull: false
-	}
-}, {
-	timestamps: true,
-	paranoid: true,
-	freezeTableName: true,
-	underscored: true,
-	charset: 'utf8'
-})
-
-Notes.sync();
-
-
-var Lastopened = sequelize.define('Lastopened', {
-	note_id: {
-		type: Sequelize.INTEGER.UNSIGNED,
-		field: 'note_id',
-		allowNull: false
-	},
-	author: {
-		type: Sequelize.INTEGER.UNSIGNED,
-		field: 'author',
-		allowNull: false
-	},
-	selected: {
-		type: Sequelize.BOOLEAN,
-		field: 'selected',
-		allowNull: false
-	}
-}, {
-	timestamps: true,
-	paranoid: true,
-	freezeTableName: true,
-	underscored: true,
-	charset: 'utf8'
-})
-
-Lastopened.sync();
-
 
 
 
@@ -126,7 +42,6 @@ app.get('/login', function(req, res){
 	console.log(req.session);
 	res.sendFile(path.join(__dirname, '/client/login.html'));
 })
-
 
 app.post('/loginClicked', function(req, res){
 	console.log("get loginclicked got req.query? in get?");
@@ -158,68 +73,26 @@ app.post('/loginClicked', function(req, res){
 
 app.post('/logout', function(req, res){
 	console.log("Ever called /logout?");
-	console.log(req.body.tabs);
-	console.log(req.body.selected);
-	// DBManager.saveLastStatus(req.session.user, req.body.tabs, req.body.selected);
+	console.log(req.body);
 
-	// this.userInfo[id]["lastTabs"] = tabs;
-	// this.userInfo[id]["lastSelected"] = selected;
-	// console.log(this.userInfo);
-	// fs.writeFile('./userInfo.json', JSON.stringify(this.userInfo), function(err){
-	// 	if(err) throw err;
-	// 	console.log("updated lastStatus to the json file");
-	// });
+	var statusInfo = req.body,
+		ps = [];
 
+	//req.body[filename] = [note_id, selected]
 
-	// need better way of mapping events!!
-
-
-	var tabnameAndSelected = [];
-
-	for(var i=0;i<req.body.tabs.length;i++){
-		if(req.body.tabs[i] === req.body.selected) {
-			tabnameAndSelected.push([req.body.tabs[i], true]);
-		}else{
-			tabnameAndSelected.push([req.body.tabs[i], false]);
-		}
-	}
-
-	var ps = [];
-
-	for(var i=0;i<tabnameAndSelected.length;i++){
-		console.log(tabnameAndSelected[i]);
-		console.log(tabnameAndSelected[i][0]);
-		console.log(tabnameAndSelected[i][1]);
-
-
-		// promise에 selected 어떻게 넘기지?!....
-
-
-		var p = function(){
-			Notes.findOne({
-				attributes: ['note_id'],
-				where:{
-					notename: tabnameAndSelected[i][0]
-				}
-			}).then(function(note, tabnameAndSelected[i]){
-				console.log(tabnameAndSelected[i]);
-				// console.log(note.note_id);
-				return Lastopened.create({
-					note_id: note.note_id,
-					author: req.session.user,
-					selected: tabnameAndSelected[i][1]
-				})
-			}).then(function(){
-				console.log("saved");
-			});
-		};
-			
+	for (var filename in statusInfo){
+		var p = Lastopened.create({
+			note_id: statusInfo[filename][0],
+			author: req.session.user,
+			selected: statusInfo[filename][1]
+		});
 		ps.push(p);
-
 	}
 
-	Promise.all(p).then(function(){
+	Promise.all(ps).then(function(){
+		console.log("Ever calls promise.all?");
 		req.session.destroy(function(err){
+			console.log("session destroyed?");
 			if(err) throw err;
 			res.redirect('/login');
 		})
@@ -252,17 +125,19 @@ app.post('/savefile', function(req, res){
 			'content' : req.body.content
 		}
 	}).spread(function(instance, created){
-		console.log(created);
-		console.log("Ever get to next promise?");
-		console.log(instance);
+		// console.log(created);
+		// console.log("Ever get to next promise?");
+		// console.log(instance);
 		if(created === false){
 			console.log("pre-existing file!");
 			instance.update({
 				'content': req.body.content
 			}).then(function(){
+				res.send({'fileNo':instance.note_id});
 				res.end();
 			})
 		}else{
+			res.send({'fileNo':instance.note_id});
 			res.end();
 		}
 	})
@@ -271,25 +146,22 @@ app.post('/savefile', function(req, res){
 app.get('/reloadFileList', function(req, res){
 	console.log("got reloadFileList req?");
 	console.log(req.session);
-	// var fileArr = fileManager.readFileList(req.session.user);
 
 	Notes.findAll({
-		attributes: ['notename'],
+		attributes: ['note_id','notename'],
 		where:{
 			'author': req.session.user
 		}
 	}).then(function(notenameArr){
-		var obj = [];
+		var obj = {};
 		notenameArr.forEach(function(filename){
-			obj.push(filename.notename);
+			obj[filename.notename] = filename.note_id;
 		})
 		
 		console.log(obj);
 		res.send(obj);
 		res.end();
 	})
-
-
 });
 
 app.get('/readFile', function(req, res){
@@ -329,6 +201,7 @@ app.get('/loadLastStatus', function(req, res){
 		return [lastTabs, lastSelectedNote];
 
 	}).then(function(lastTabInfo){
+		if(lastTabInfo.length === 0) res.end();
 		console.log("last tabs are ");
 		console.log(lastTabInfo[0]);
 		console.log(lastTabInfo[1]);
@@ -374,82 +247,19 @@ app.get('/loadLastStatus', function(req, res){
 		obj["lastTabs"] = fileNameArr;
 
 		res.send(obj);
-		res.end();
+		res.end();		
+	}).then(function(){
+		return Lastopened.destroy({
+			where:{
+				'author': req.session.user
+			}
+		});
+	}).then(function(affectedRows){
+		console.log("Deleted rows");
+		console.log(affectedRows);
 	}).catch(function(err){
 		console.log(err);
 	})
 })
 
 
-function FileManager() {
-	this.dir;
-};
-
-FileManager.prototype.createFile = function(userID, reqBody){
-	this.dir = "./"+userID+"/";
-	fs.writeFile(this.dir+reqBody.title+'.txt', reqBody.content,
-		function(err){
-			if(err) throw err;
-			console.log("file "+reqBody.title+" created!");
-		}
-	);
-}
-
-FileManager.prototype.readFileList = function(userID){
-	this.dir = "./"+userID+"/";
-	var fileNameArr = fs.readdirSync(this.dir);
-	if(fileNameArr[0] === ".DS_Store") fileNameArr.splice(0,1);
-	for(var i=0;i<fileNameArr.length;i++){
-		fileNameArr[i] = fileNameArr[i].split(/.txt$/)[0];
-	}
-	return fileNameArr;
-}
-
-FileManager.prototype.readFile = function(userID, fileName){
-	this.dir = "./"+userID+"/";
-	console.log(this.dir);
-	console.log(this.dir+fileName+".txt");
-	return fs.readFileSync(this.dir+fileName+".txt", 'utf8');
-}
-
-
-function DBManager(){
-	// this.userInfo = require('./userInfo.json');
-	// console.log(this.userInfo);
-}
-
-
-DBManager.prototype.authenticate = function(id, pw){
-
-	// if(this.userInfo[id] === undefined){
-	// 	console.log("there's no such user");
-	// 	return [false, "No such user"];
-	// }else{
-	// 	if(this.userInfo[id]['pw'] === pw){
-	// 		console.log("yay user authenticated!");
-	// 		return [true, this.userInfo[id]["lastTabs"],this.userInfo[id]["lastSelected"]];
-	// 	}else{
-	// 		return [false, "wrong password"];
-	// 	}
-	// }
-}
-
-DBManager.prototype.saveLastStatus = function(id, tabs, selected){
-	console.log(tabs);
-	console.log(selected);
-	this.userInfo[id]["lastTabs"] = tabs;
-	this.userInfo[id]["lastSelected"] = selected;
-	console.log(this.userInfo);
-	fs.writeFile('./userInfo.json', JSON.stringify(this.userInfo), function(err){
-		if(err) throw err;
-		console.log("updated lastStatus to the json file");
-	});
-}
-
-DBManager.prototype.readLastStatus = function(id){
-	var obj = {};
-	obj["user"] = this.userInfo[id]['id'];
-	obj["lastTabs"] = this.userInfo[id]["lastTabs"];
-	obj["lastSelected"] = this.userInfo[id]["lastSelected"];
-	return obj;
-}
