@@ -198,56 +198,14 @@ app.get('/loadLastStatus', function(req, res){
 			if(eachrow.selected === true) lastSelectedNote = eachrow.note_id;
 		})
 
-		return [lastTabs, lastSelectedNote];
+		obj["lastTabs"] = lastTabs;
+		obj["lastSelected"] = lastSelectedNote;
 
-	}).then(function(lastTabInfo){
-		if(lastTabInfo.length === 0) res.end();
-		console.log("last tabs are ");
-		console.log(lastTabInfo[0]);
-		console.log(lastTabInfo[1]);
-
-		var notenameGetter = function(noteid, lastSelectedNoteId){
-			console.log("current note id is "+ noteid);
-			console.log("current lastSelected id is "+ lastSelectedNoteId);
-			return Notes.findOne({
-				attributes:['note_id', 'notename'],
-				where: {
-					'note_id': noteid
-				}
-			}).then(function(eachrow){
-				if(noteid === lastSelectedNoteId){
-					return [eachrow.note_id, eachrow.notename, true];
-				}else{
-					return [eachrow.note_id, eachrow.notename, false];
-				}
-			});
-
-		}
-
-		var arr = [];
-		for(var i=0;i<lastTabInfo[0].length;i++){
-			arr.push(notenameGetter(lastTabInfo[0][i], lastTabInfo[1]));
-		}
-
-		return arr;
-
-	}).then(function(ps){
-		console.log("Does Promise.all works?");
-		return Promise.all(ps);
-	}).then(function(lastTabs){
-		console.log("is last tab returned?");
-		console.log(lastTabs);
-		
-		var fileNameArr = [];
-
-		lastTabs.forEach(function(file){
-			fileNameArr.push(file[1]);
-			if(file[2] === true) obj["lastSelected"] = file[1];
-		})
-		obj["lastTabs"] = fileNameArr;
+		console.log(obj);
 
 		res.send(obj);
 		res.end();		
+
 	}).then(function(){
 		return Lastopened.destroy({
 			where:{

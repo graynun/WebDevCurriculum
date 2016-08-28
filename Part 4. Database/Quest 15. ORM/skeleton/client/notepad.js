@@ -19,20 +19,27 @@ Notepad.prototype.loadLastStatus = function(){
 
 	XMLHTTPGetRequestMaker(that, "http://localhost:8080/loadLastStatus", function(that, responseText){
 		var lastStatus = JSON.parse(responseText);
+
 		document.querySelector(".fileListArea>h1").innerHTML = lastStatus.user+"'s file list";
 
 		if(lastStatus.lastTabs.length !== 0){
 			for(var i=0;i<lastStatus.lastTabs.length;i++){
-				that.fileTab.createTab(that.fileArr[lastStatus.lastTabs[i]]);
+				for(var filename in that.fileArr){
+					if(that.fileArr[filename].fileNo === lastStatus.lastTabs[i]){
+						that.fileTab.createTab(that.fileArr[filename]);
+						if(lastStatus.lastTabs[i] === lastStatus.lastSelected){
+							var selectFile = new CustomEvent('selectFile', {
+								detail: that.fileArr[filename],
+								bubbles: true
+							});
+							that.dom.dispatchEvent(selectFile);						
+						}
+					}
+				}
 			}
-
-			var selectFile = new CustomEvent('selectFile', {
-				detail: that.fileArr[lastStatus.lastSelected],
-				bubbles: true
-			});
-			that.dom.dispatchEvent(selectFile);			
 		}
 	})
+	
 }
 
 Notepad.prototype.mapEvents = function(){
@@ -53,6 +60,7 @@ Notepad.prototype.mapEvents = function(){
 		var statusInfo = {};
 
 		for(var i=0;i<that.fileTab.fileTabArr.length;i++){
+			// currentTabs.push(that.fileTab.fileTabArr[i].fileName);
 			var filename = that.fileTab.fileTabArr[i].fileName,
 				fileno = that.fileTab.fileTabArr[i].notepadItem.fileNo;
 
