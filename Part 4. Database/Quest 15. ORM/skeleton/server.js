@@ -49,9 +49,9 @@ app.post('/loginClicked', function(req, res){
 	console.log(req.body.pw)
 
 	Users.findOne({
-		attributes: ['id', 'user_id', 'hashed_password'],
+		attributes: ['id', 'account_id', 'hashed_password'],
 		where:{
-			'user_id': req.body.id
+			'account_id': req.body.id
 		}
 	}).then(function(userInstance){
 		if(userInstance === null) {
@@ -81,14 +81,18 @@ app.post('/logout', function(req, res){
 	//req.body[filename] = [note_id, selected]
 
 	for (var filename in statusInfo){
+		console.log("note_id is "+statusInfo[filename][0]);
+		console.log("user_id is "+req.session.user);
+		console.log("selected "+statusInfo[filename][1]);
 		var p = Lastopened.create({
 			note_id: statusInfo[filename][0],
-			author: req.session.user,
+			user_id: req.session.user,
 			selected: statusInfo[filename][1]
 		});
 		ps.push(p);
 	}
 
+	//junction table 어떻게 설계하는 것이 좋은가...(I/O가 자주있는 지금 디자인 이대로 괜찮은가...)
 	Promise.all(ps).then(function(){
 		console.log("Ever calls promise.all?");
 		req.session.destroy(function(err){
@@ -118,7 +122,7 @@ app.post('/savefile', function(req, res){
 
 	Notes.findOrCreate({
 		where:{
-			'author': req.session.user,
+			'account_id': req.session.user,
 			'notename': req.body.title
 		},
 		defaults: {
@@ -150,12 +154,16 @@ app.get('/reloadFileList', function(req, res){
 	Notes.findAll({
 		attributes: ['note_id','notename'],
 		where:{
-			'author': req.session.user
+			'user_id': req.session.user
 		}
 	}).then(function(notenameArr){
 		var obj = {};
 		notenameArr.forEach(function(filename){
-			obj[filename.notename] = filename.note_id;
+			// console.log(filename.dataValues);
+			// console.log(filename.notename);
+			//console.log(filename.note_id);	이거 안먹는데 이유를 모르겠음
+			//filename.notename은 되는데 filename.note_id는 안됨...????
+			obj[filename.notename] = filename.dataValues.note_id;
 		})
 		
 		console.log(obj);
@@ -171,7 +179,7 @@ app.get('/readFile', function(req, res){
 		attributes: ['content'],
 		where: {
 			'notename': req.query.fileName,
-			'author': req.session.user
+			'user_id': req.session.user
 		}
 	}).then(function(query){
 		res.send(query.content);
@@ -185,7 +193,7 @@ app.get('/loadLastStatus', function(req, res){
 	Lastopened.findAll({
 		attributes: ['note_id', 'selected'],
 		where:{
-			'author': req.session.user
+			'user_id': req.session.user
 		}
 	}).then(function(lastopenedrows){
 		obj["user"] = req.session.user_id;
@@ -209,7 +217,7 @@ app.get('/loadLastStatus', function(req, res){
 	}).then(function(){
 		return Lastopened.destroy({
 			where:{
-				'author': req.session.user
+				'user_id': req.session.user
 			}
 		});
 	}).then(function(affectedRows){

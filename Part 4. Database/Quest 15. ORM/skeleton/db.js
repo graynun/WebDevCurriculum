@@ -4,13 +4,25 @@ var mysql = require('mysql'),
 
 var sequelize = new Sequelize(dbaccessinfo.dbname, dbaccessinfo.account, dbaccessinfo.password, {
 	host: 'localhost',
-	dialect: 'mysql'
+	dialect: 'mysql',
+	pool: {
+		max: 5,
+		min: 0,
+		idle:10000
+	}
 });
 
 var Users = sequelize.define('Users', {
-	user_id: {
+	id: {
+		type: Sequelize.INTEGER(255).UNSIGNED,
+		field: 'id',
+		allowNull: false,
+		autoIncrement: true,
+		primaryKey: true
+	},
+	account_id: {
 		type: Sequelize.STRING,
-		field: 'user_id',
+		field: 'account_id',
 		allowNull: false,
 	},
 	hashed_password: {
@@ -27,20 +39,18 @@ var Users = sequelize.define('Users', {
 	charset: 'utf8'
 });
 
-
 var Notes = sequelize.define('Notes', {
-	note_id: {
+	id: {
 		type: Sequelize.INTEGER(255).UNSIGNED,
 		field: 'note_id',
 		allowNull: false,
 		autoIncrement: true,
 		primaryKey: true
 	},
-	author: {
-		type: Sequelize.INTEGER.UNSIGNED,
-		field: 'author',
-		allowNull: false
-	},
+	// author: {
+	// 	type: Sequelize.INTEGER.UNSIGNED,
+	// 	allowNull: false
+	// },
 	notename: {
 		type: Sequelize.STRING,
 		allowNull: false
@@ -58,18 +68,23 @@ var Notes = sequelize.define('Notes', {
 	charset: 'utf8'
 })
 
-
 var Lastopened = sequelize.define('Lastopened', {
-	note_id: {
-		type: Sequelize.INTEGER.UNSIGNED,
-		field: 'note_id',
-		allowNull: false
+	id: {
+		type: Sequelize.INTEGER(255).UNSIGNED,
+		allowNull: false,
+		autoIncrement: true,
+		primaryKey: true
 	},
-	author: {
-		type: Sequelize.INTEGER.UNSIGNED,
-		field: 'author',
-		allowNull: false
-	},
+	// note_id: {
+	// 	type: Sequelize.INTEGER.UNSIGNED,
+	// 	field: 'note_id',
+	// 	allowNull: false
+	// },
+	// user_id: {
+	// 	type: Sequelize.INTEGER.UNSIGNED,
+	// 	field: 'user_id',
+	// 	allowNull: false
+	// },
 	selected: {
 		type: Sequelize.BOOLEAN,
 		field: 'selected',
@@ -82,6 +97,13 @@ var Lastopened = sequelize.define('Lastopened', {
 	underscored: true,
 	charset: 'utf8'
 })
+
+
+
+Users.hasMany(Notes, {as: 'author'});
+
+Users.belongsToMany(Notes, {through: 'Lastopened'});
+Notes.belongsToMany(Users, {through: 'Lastopened'});
 
 module.exports = {
 	sequelize: sequelize,
