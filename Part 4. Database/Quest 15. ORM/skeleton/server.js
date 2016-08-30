@@ -4,6 +4,7 @@ var express = require('express'),
 	path = require('path'),
 	bodyParser = require('body-parser'),
 	session = require('express-session'),
+	scrypt = require("scrypt"),
 	app = express(),
 	db = require('./db.js'),
 	sequelize = db.sequelize,
@@ -46,23 +47,37 @@ app.get('/login', function(req, res){
 app.post('/loginClicked', function(req, res){
 	console.log("get loginclicked got req.query? in get?");
 	console.log(req.body.id);
-	console.log(req.body.pw)
+	console.log(req.body.pw);
 
+	var user;
+	
 	Users.findOne({
-		attributes: ['id', 'account_id', 'hashed_password'],
-		where:{
-			'account_id': req.body.id
-		}
+			attributes: ['id', 'account_id', 'hashed_password'],
+			where:{
+				'account_id': req.body.id
+			}
 	}).then(function(userInstance){
 		if(userInstance === null) {
 			res.status(401).send("no such user");
-		}else if(userInstance.hashed_password === req.body.pw){
+			return new Error("no such user");
+		}else{
+			user = userInstance.id;
+		}
+
+		var param = scrypt.paramsSync(0.2);
+		
+		return scrypt.verifyKdf(new Buffer(userInstance.hashed_password, 'hex'), req.body.pw);
+
+	}).then(function(result){
+		console.log(result);
+
+		if(result === true){
 			req.session.save(function(err){
 				req.session.user_id = req.body.id;
-				req.session.user = userInstance.id;
+				req.session.user = user;
 				console.log("signed in user is "+req.session.user);
 				res.redirect('/main');
-			});			
+			});
 		}else{
 			res.status(401).send("wrong password");
 		}
@@ -70,6 +85,7 @@ app.post('/loginClicked', function(req, res){
 		console.log(err);
 	});
 });
+
 
 app.post('/logout', function(req, res){
 	console.log("Ever called /logout?");
@@ -122,7 +138,7 @@ app.post('/savefile', function(req, res){
 
 	Notes.findOrCreate({
 		where:{
-			'account_id': req.session.user,
+			'user_id': req.session.user,
 			'notename': req.body.title
 		},
 		defaults: {
@@ -134,14 +150,15 @@ app.post('/savefile', function(req, res){
 		// console.log(instance);
 		if(created === false){
 			console.log("pre-existing file!");
+			console.log(instance.note_id);
 			instance.update({
 				'content': req.body.content
 			}).then(function(){
-				res.send({'fileNo':instance.note_id});
+				res.send({'fileNo':instance.id});
 				res.end();
 			})
 		}else{
-			res.send({'fileNo':instance.note_id});
+			res.send({'fileNo':instance.id});
 			res.end();
 		}
 	})

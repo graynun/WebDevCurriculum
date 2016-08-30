@@ -166,6 +166,7 @@ Notepad.prototype.saveFile = function(){
 
 Notepad.prototype.reloadListAndSelect = function(subject, fileNo){
 	console.log("safely saved on fs");
+	console.log(fileNo);
 	this.selectedFile.fileNo = fileNo;
 	subject.loadFiles();
 	var selectHighLighter = new Event('selectedFile');

@@ -3,6 +3,7 @@
 var Sequelize = require('sequelize'),
 	mysql = require('mysql'),
 	fs = require('fs'),
+	scrypt = require("scrypt"),
 	dbaccessinfo = require('./dbaccess.js');
 
 var sequelize = new Sequelize(dbaccessinfo.dbname, dbaccessinfo.account, dbaccessinfo.password, {
@@ -125,17 +126,46 @@ Users.sync({force:true}).then(function(){
 	});
 
 }).then(function(files){
+
+	var ps = [];
+
 	for(var i=0;i<files.length;i++){
 		if(files[i] !== '.DS_Store'){
-			Users.create({
-				account_id: files[i],
-				hashed_password: "default"
+			var p = scrypt.params(0.2).then(function(result){
+				console.log("scrypt params result is");
+				console.log(result);
+				return scrypt.kdf("default", result);
+			}).then(function(hashedresult){
+				console.log("hashed result via srcypt.kdf is");
+				console.log(hashedresult);
+				return hashedresult.toString("hex");
+				// return hashedresult;
 			});
+
+			ps.push(p);
 		}
 	}
 
+	return Promise.all(ps);
+
+}).then(function(hashedPasswordArr){
+
+	var ps = [];
+
+	for(var i=1;i<=hashedPasswordArr.length;i++){
+		var p = Users.create({
+			account_id: "user"+i,
+			hashed_password: hashedPasswordArr[i-1]
+		});
+	
+		ps.push(p);
+	}
+
+	return Promise.all(ps);
+
+}).then(function(){
 	// return Notes.sync();
-	return Notes.sync({force:true});
+	return Notes.sync({force:true});	
 
 }).then(function(){
 	// Notes.sync({force:true}).then(function(){
@@ -170,7 +200,8 @@ Users.sync({force:true}).then(function(){
 		});
 	});
 }).catch(function(error){
-		console.log("oops error "+ error.message);
+		console.log("oops error ");
+		console.log(error);
 });
 
 
