@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+	</head>
+	<body>
+		<button>Hello, world!</button>
+		<script type="text/javascript">
+			var host = document.querySelector('button');
+			var root = host.createShadowRoot();
+			root.textContent = 'こんにちは、影の世界！';
+		</script>
+		
+
+
+		<div id="nameTag">Name here</div>
+
+		<div>
+			<span>New name: </span><input class="name" placeholder="write name here"><button class="updateName">Update!</button>
+		</div>
+
+		<script type="text/javascript">
+			document.querySelector(".updateName").addEventListener("click", function(){
+				document.querySelector("#nameTag").innerHTML = document.querySelector(".name").value;
+			})
+		</script>
+
+
+		<template id="nameTagTemplate">
+			<style>
+				.outer{
+					border: 2px solid brown;
+					border-radius: 1em;
+					background-color: red;
+					font-size: 20pt;
+					width: 12em;
+					height: 7em;
+					text-align: center;
+				}
+
+				.boilerplate {
+					color: white;
+					font-family: sans-serif;
+					padding: 0.5em;
+				}
+
+				.name{
+					color: black;
+					background-color: white;
+					font-family: "Marker Felt", cursive;
+					font-size: 45pt;
+					line-height: 1.4em;
+					padding-top: 0.2em;
+				}
+
+			</style>
+
+			<div class="outer">
+				<div class="boilerplate">
+					Hi! My name is
+				</div>
+				<div class="name">
+					<content></content>
+				</div>
+			</div>
+		</template>
+	
+		<script type="text/javascript">
+			var shadow = document.querySelector('#nameTag').createShadowRoot();
+				template = document.querySelector('#nameTagTemplate'),
+				clone = document.importNode(template.content, true);
+			shadow.appendChild(clone);
+		</script>
+
+	</body>
+</html>
