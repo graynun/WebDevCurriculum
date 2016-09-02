@@ -1,0 +1,7 @@
+{
+  "name": "desktop_revised",
+  "short_name": "desktop_revised",
+  "description": "desktop revised with polymer",
+  "start_url": "/",
+  "display": "standalone"
+}

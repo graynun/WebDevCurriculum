@@ -1,0 +1,47 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>desktop revised</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json">
+    <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script type="text/javascript">
+      window.Polymer ={
+        dom: 'shadow'
+      }
+    </script>
+    <link rel="import" href="/src/desktop-revised/desktop-revised.html">
+    <link rel="import" href="/src/desktop-revised/custom-icon.html">
+  </head>
+  <body>
+    <script type="text/javascript">
+      // var desktop = document.createElement('desktop-revised');
+      // document.querySelector('body').appendChild(desktop);
+      var icon = Polymer({
+      is: 'custom-icon',
+      
+      properties:{
+        name: {
+          type: String,
+          value: 'icon'
+        }
+      },
+
+      listeners:{
+        'track': 'moveIcon'
+      },
+
+      moveIcon: function(e){
+        console.log("ever gets here?");
+        this.style.top = (e.detail.y - 50)+"px";
+        this.style.left = (e.detail.x - 50)+"px";
+      }
+      
+    })
+    </script>
+    <custom-icon></custom-icon>
+
+  </body>
+</html>
