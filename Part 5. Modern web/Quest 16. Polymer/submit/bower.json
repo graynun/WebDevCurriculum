@@ -1,6 +1,6 @@
 {
-  "name": "desktop_revised",
-  "description": "desktop revised with polymer",
+  "name": "desktop-revised",
+  "description": "desktop mockup revised with polymer",
   "main": "index.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0"

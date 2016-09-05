@@ -1,6 +1,6 @@
-# \<desktop_revised\>
+# \<desktop-revised\>
 
-desktop revised with polymer
+desktop mockup revised with polymer
 
 ## Install the Polymer-CLI
 

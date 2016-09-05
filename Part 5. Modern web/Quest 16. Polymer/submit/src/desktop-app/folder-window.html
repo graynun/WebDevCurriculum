@@ -1,0 +1,32 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="/src/desktop-app/default-icon.html">
+
+<dom-module id="folder-window">
+  <template>
+    <style>
+      :host {
+        width: 400px;
+        height: 200px;
+        background: grey;
+        color: white;
+        position: absolute;
+        left: 50px;
+        top: 50px;
+      }
+    </style>
+    <div>[[name]]</div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'folder-window',
+      behaviors: [IconBehavior],
+      properties: {
+        name:{
+          type: String,
+          value: 'folder-window'
+        }
+      }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,60 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="/src/desktop-app/default-icon.html">
+
+<dom-module id="folder-icon">
+  <template>
+    <style>
+      :host {
+        width: 100px;
+        height: 100px;
+        background: blue;
+        color: white;
+        position: absolute;
+      }
+    </style>
+    <div>[[name]]</div>
+  </template>
+
+  <script>
+    FolderSpecificBehavior = {
+      properties: {
+        name:{
+          type: String,
+          value: 'folder-icon'
+        },
+        hasWindow: {
+          type: Boolean,
+          value: false
+        }
+      },
+      listeners:{
+        // 왜 doubletap 없죠?
+        'tap': 'countDoubleTap'
+      },
+      countDoubleTap: function(){
+        if(this.tapped === true){
+          this.openFolderWindow();
+          this.tapped = false;
+        }
+
+        this.tapped = true;
+        this.async(function(){
+          this.tapped = false
+        }, 300);
+      },
+
+      openFolderWindow: function(){
+        console.log("double click worked and open window here!");
+        if(this.hasWindow === false) {
+          this.fire('createWindow', {name: this.name});
+          this.hasWindow = true;
+        }
+      }
+    }
+
+    Polymer({
+      is: 'folder-icon',
+      behaviors: [IconBehavior, FolderSpecificBehavior]
+    });
+  </script>
+</dom-module>

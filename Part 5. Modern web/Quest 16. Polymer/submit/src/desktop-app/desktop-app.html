@@ -1,0 +1,72 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="/src/desktop-app/default-icon.html">
+<link rel="import" href="/src/desktop-app/folder-icon.html">
+<link rel="import" href="/src/desktop-app/folder-window.html">
+
+
+<dom-module id="desktop-app">
+  <style>
+      :host {
+        width: 1280px;
+        height: 720px;
+        display: block;
+        border: 1px solid black;
+      }
+  </style>
+
+  <template>
+    <section>
+      <h2>Hello [[name]]!</h2>  
+    </section>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'desktop-app',
+      properties: {
+        name: {
+          type: String,
+          value: 'desktop',
+        },
+        //어차피 childnode에서 해당 custom element tag 수를 세면 되는 구조라면 굳이 이런 어레이 만들 필요가 없을듯?
+        memberIcons: {
+          type: Array,
+          value: []
+        }
+      },
+      ready: function(){
+        var myIcon = document.createElement('default-icon');
+        var top = 50,
+            left = 50;
+        myIcon.style.top = top + "px";
+        myIcon.style.left = left + "px";
+
+        myIcon.setName("icon1");
+        this.memberIcons.push(myIcon);
+        Polymer.dom(this.root).appendChild(myIcon);
+        
+        for(var i=1; i<3;i++){
+          left += 120;
+          var myFolder = document.createElement('folder-icon');
+          
+          myFolder.style.top = top + "px";
+          myFolder.style.left = left + "px";
+          myFolder.offsetY = top,
+          myFolder.offsetX = left;
+
+          myFolder.setName("folder"+i);
+          this.memberIcons.push(myFolder);
+          Polymer.dom(this.root).appendChild(myFolder);
+        }
+      }
+    });
+
+    document.querySelector('desktop-app').addEventListener('createWindow', function(e){
+        var myWindow = document.createElement('folder-window');
+        myWindow.setName(e.detail.name+"'s window");
+        Polymer.dom(this.root).appendChild(myWindow);
+    });
+
+  </script>
+</dom-module>

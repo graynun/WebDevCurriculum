@@ -1,0 +1,78 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="default-icon">
+  <template>
+    <style>
+      :host {
+        width: 100px;
+        height: 100px;
+        background: red;
+        color: white;
+        position: absolute;
+      }
+    </style>
+    <div>[[name]]</div>
+  </template>
+
+  <script>
+    IconBehavior = {
+      listeners: {
+        'down': 'setOffset',
+        'track': 'moveIcon',
+      },
+      properties: {
+        name: {
+          type: String,
+          value: 'icon',
+        },
+        offsetX: {
+          type: Number,
+          value: null
+        },
+        offsetY: {
+          type: Number,
+          value: null
+        }
+      },
+
+      setName: function(name){
+        this.name = name;
+      },
+
+      setOffset: function(e){
+        if(this.offsetY === null){
+          //왜 초기 상태의 this.style.top 안먹는가?
+          this.offsetY = e.detail.y - 50;
+          this.offsetX = e.detail.x - 50;  
+        }else {
+          this.offsetY = e.detail.y - Number(this.style.top.split("px")[0]);
+          this.offsetX = e.detail.x - Number(this.style.left.split("px")[0]);
+        };
+        console.log(this.offsetX, this.offsetY);
+      },
+
+      moveIcon: function(e){
+        switch(e.detail.state){
+          case "track":
+          console.log(this.offsetX, this.offsetY);
+            console.log(Number(this.style.left.split("px")[0]));
+            this.style.top = (e.detail.y - this.offsetY)+"px";
+            this.style.left = (e.detail.x - this.offsetX)+"px";
+            break;
+        }
+      }
+    };
+
+    Polymer({
+      is: 'default-icon',
+      behaviors: [IconBehavior],
+      properties: {
+        name:{
+          type: String,
+          value: 'default-icon'
+        }
+      }
+    });
+
+  </script>
+</dom-module>

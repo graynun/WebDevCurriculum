@@ -13,10 +13,13 @@
 		
 
 
-		<div id="nameTag">Name here</div>
+		<div id="nameTag">
+			<div slot="title">Hi! My name is</div>
+		</div>
 
 		<div>
-			<span>New name: </span><input class="name" placeholder="write name here"><button class="updateName">Update!</button>
+			<span>New name: </span>
+			<input class="name" placeholder="write name here"><button class="updateName">Update!</button>
 		</div>
 
 		<script type="text/javascript">
@@ -28,6 +31,12 @@
 
 		<template id="nameTagTemplate">
 			<style>
+
+			::slotted(div){
+				color: white;
+				font-family: sans-serif;
+				padding: 0.5em;
+			}
 				.outer{
 					border: 2px solid brown;
 					border-radius: 1em;
@@ -38,7 +47,7 @@
 					text-align: center;
 				}
 
-				.boilerplate {
+				#boilerplate {
 					color: white;
 					font-family: sans-serif;
 					padding: 0.5em;
@@ -56,9 +65,7 @@
 			</style>
 
 			<div class="outer">
-				<div class="boilerplate">
-					Hi! My name is
-				</div>
+				<slot id="boilerplate" name="title"></slot>
 				<div class="name">
 					<content></content>
 				</div>

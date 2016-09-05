@@ -2,28 +2,28 @@
 
 <html>
   <head>
-    <title>desktop-revised test</title>
+    <title>desktop-app test</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
     <script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../../../web-component-tester/browser.js"></script>
 
-    <link rel="import" href="../../src/desktop-revised/desktop-revised.html">
+    <link rel="import" href="../../src/desktop-app/desktop-app.html">
   </head>
   <body>
 
     <test-fixture id="basic">
       <template>
-        <desktop-revised></desktop-revised>
+        <desktop-app></desktop-app>
       </template>
     </test-fixture>
 
     <script>
-      suite('desktop-revised', function() {
+      suite('desktop-app', function() {
 
         test('instantiating the element works', function() {
           var element = fixture('basic');
-          assert.equal(element.is, 'desktop-revised');
+          assert.equal(element.is, 'desktop-app');
         });
 
       });
