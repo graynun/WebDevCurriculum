@@ -28,8 +28,9 @@
         }
       },
       listeners:{
-        // 왜 doubletap 없죠?
-        'tap': 'countDoubleTap'
+        // 왜 doubletap 없죠? => 그냥 javascript dblclick으로...
+        'dblclick': 'openFolderWindow',
+        // 'tap': 'countDoubleTap'
       },
       countDoubleTap: function(){
         if(this.tapped === true){

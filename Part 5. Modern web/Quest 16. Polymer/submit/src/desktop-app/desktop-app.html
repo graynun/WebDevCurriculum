@@ -28,12 +28,12 @@
         name: {
           type: String,
           value: 'desktop',
-        },
-        //어차피 childnode에서 해당 custom element tag 수를 세면 되는 구조라면 굳이 이런 어레이 만들 필요가 없을듯?
-        memberIcons: {
-          type: Array,
-          value: []
         }
+        //어차피 childnode에서 해당 custom element tag 수를 세면 되는 구조라면 굳이 이런 어레이 만들 필요가 없을듯?
+        // memberIcons: {
+        //   type: Array,
+        //   value: []
+        // }
       },
       ready: function(){
         var myIcon = document.createElement('default-icon');
@@ -43,7 +43,7 @@
         myIcon.style.left = left + "px";
 
         myIcon.setName("icon1");
-        this.memberIcons.push(myIcon);
+        // this.memberIcons.push(myIcon);
         Polymer.dom(this.root).appendChild(myIcon);
         
         for(var i=1; i<3;i++){
@@ -56,7 +56,7 @@
           myFolder.offsetX = left;
 
           myFolder.setName("folder"+i);
-          this.memberIcons.push(myFolder);
+          // this.memberIcons.push(myFolder);
           Polymer.dom(this.root).appendChild(myFolder);
         }
       }
