@@ -1,0 +1,52 @@
+section.sketchboard {
+	float: left;
+	width: 900px;
+	height: 500px;
+	border: 1px solid black;
+}
+
+section.menu{
+	box-sizing: border-box;
+	display: inline-block;
+	width: 260px;
+	height: 500px;
+	border: 1px solid blue
+}
+
+button{
+    font-size: 1em;
+    font-weight: bolder;
+    background: white;
+    margin-bottom: 10px;
+    height: 3em;
+    width: 5em;
+}
+
+.triangleContainer, .rectangleContainer, .circleContainer {
+	position: absolute;
+
+}
+
+#triangle {
+	fill: #FFFF00;
+}
+
+#triangle:hover {
+	fill: url(#Gradient1);
+}
+
+#rectangle {
+	fill: #00FFFF;
+}
+
+#rectangle:hover{
+	fill: url(#squareGradient);
+}
+
+#circle {
+	fill: #FF00FF;
+}
+
+#circle:hover {
+	fill: url(#radialGradient1);
+}
