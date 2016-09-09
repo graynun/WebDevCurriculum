@@ -15,7 +15,12 @@
 
 ## Checklist
 * WebSocket은 어떤 방식으로 HTTP 프로토콜 위에 실시간 통신을 구현하나요?
+	* 보통의 HTTP 프로토콜로 클라이언트-서버가 통신을 할 때는 req - res 가 하나의 짝으로, request가 서버로 오면 그에 맞는 응답을 response로 보내고 나면 한 번의 통신이 종료됨
+		* 이걸로 '실시간 통신'을 구현하기 위해서 long polling(의도적으로 response를 end하지 않고, 그 사이에 데이터 변동이 생기는 경우 이걸 계속 send하는 방식) 등 다양한 트릭이 사용되어 왔던듯.
+	* WebSocket은 일단 서버와 클라이언트가 handshake를 해서 연결이 생성되면 이후에는 의도적으로 socket을 close하지 않는 이상 계속 유지됨
+	* 유지되는 사이에는 클라이언트가 서버로, 서버가 클라이언트에게로 원하는 요청 / 응답 정보를 자유롭게 보낼 수 있다.
 * socket.io를 통해 node.js 서버에서 여러 개의 채팅방을 관리/구현하려면 어떻게 해야 하나요?
+	* namespace를 이용해서 multiple room을 만들면 될듯?(참조: [rooms and namespaces](http://socket.io/docs/rooms-and-namespaces/))
 
 ## Quest
 * Quest 17에서 만든 스케치보드를 실시간 멀티플레이어 방식으로 업그레이드 해 보겠습니다.

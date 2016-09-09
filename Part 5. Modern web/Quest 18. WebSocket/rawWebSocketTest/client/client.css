@@ -1,0 +1,14 @@
+.chatroom {
+	width: 600px;
+	height: 400px;
+	border: 1px solid grey;
+}
+
+.chatinput {
+	width: 500px;
+}
+
+.sendchat {
+	width: 100px;
+	text-align: center;
+}
