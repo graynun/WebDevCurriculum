@@ -7,6 +7,6 @@
   "dependencies":{
   		"express": "*",
   		"body-parser": "*",
-  		"ws": "*"
+  		"socket.io": "*"
   }
 }

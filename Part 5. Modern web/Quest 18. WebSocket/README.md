@@ -20,7 +20,7 @@
 	* WebSocket은 일단 서버와 클라이언트가 handshake를 해서 연결이 생성되면 이후에는 의도적으로 socket을 close하지 않는 이상 계속 유지됨
 	* 유지되는 사이에는 클라이언트가 서버로, 서버가 클라이언트에게로 원하는 요청 / 응답 정보를 자유롭게 보낼 수 있다.
 * socket.io를 통해 node.js 서버에서 여러 개의 채팅방을 관리/구현하려면 어떻게 해야 하나요?
-	* namespace를 이용해서 multiple room을 만들면 될듯?(참조: [rooms and namespaces](http://socket.io/docs/rooms-and-namespaces/))
+	* socket 안에 room을 여러개 만든다(socket.rooms에서 현재 소켓에 열린 방 개수를 확인할 수 있다)(참조: [rooms and namespaces](http://socket.io/docs/rooms-and-namespaces/))
 
 ## Quest
 * Quest 17에서 만든 스케치보드를 실시간 멀티플레이어 방식으로 업그레이드 해 보겠습니다.

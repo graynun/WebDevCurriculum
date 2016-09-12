@@ -2,67 +2,39 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link rel="stylesheet" type="text/css" href="client.css">
+	<link rel="stylesheet" type="text/css" href="/client/client.css">
+
 	<!-- <script type="text/javascript" src="client.js"></script> -->
 	<title>Web socket test</title>
 </head>
 <body>
-	<button class="connect">open websocket</button>
-	<button class="disconnect">close websocket</button>
-	<section class="chatroom"></section>
-	<input type="text" class="chatinput" placeholder="write something!" />
-	<button class="sendchat">click to send!</button>
-	
-	<script type="text/javascript">
-		let wsUrl = "ws://localhost:8080";
-		let output;
+	<ul id="messages"></ul>
+	<div>
+		<input id="m" autocomplete="off" /><button>Send</button>
+	</div>
+	<script src="/node_modules/socket.io-client/socket.io.js"></script>
+	<script>
+	var socket = io();
 
-		function init(){
-			output = document.querySelector('.chatroom');
-			testWebSocket();
-		}
+	document.querySelector('button').addEventListener('click', (e) => {
+	  	socket.emit('chat message', document.querySelector('#m').value);
+	  	document.querySelector('#m').value = "";
+	});
 
-		function testWebSocket(){
-			websocket = new WebSocket(wsUrl);
-			websocket.onOpen = (e) => {onOpen(e)};
-			websocket.onClose = (e) => {onClose(e)};
-			websocket.onMessage = (e) => {onMessage(e)};
-			websocket.onError = (e) => {onError(e)};
-		}
+	window.addEventListener('keydown', (e) =>{
+	  	var i = document.querySelector('input');
+	  	if(e.key === "Enter" && document.activeElement === i){
+		  	socket.emit('chat message', document.querySelector('#m').value);
+		  	document.querySelector('#m').value = "";	
+	  	}
+	});
 
-		function onOpen(e){
-			writeToScreen("Connected");
-			doSend("websocket has opened! wow!");
-		}
-
-		function onClose(e){
-			writeToScreen("Disconnected");
-		}
-
-		function onMessage(e){
-			writeToScreen('<span style="color: blue;">Response: '+e.data+'span');
-			websocket.close();
-		}
-
-		function onError(e){
-			writeToScreen('<span style="color: red;"> ERROR: </span>'+e.data);
-		}
-
-		function doSend(msg){
-			writeToScreen("SENT: " + msg);
-			websocket.send(msg);
-		}
-
-		function writeToScreen(msg){
-			var pre = document.createElement('p');
-			pre.style.wordWrap = "break-end";
-			pre.innerHTML = msg;
-			output.appendChild(pre);
-		}
-
-		window.addEventListener("load", init, false);
-
-
+	socket.on('chat message', (msg) => {
+	  	console.log(msg);
+	  	var message = document.createElement('li');
+	  	message.innerHTML = msg;
+	  	document.querySelector("#messages").appendChild(message);
+	});
 
 	</script>
 </body>
