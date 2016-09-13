@@ -14,7 +14,9 @@
 			<button class="createTriangle">삼각형</button>
 			<button class="createRectangle">사각형</button>
 			<button class="createCircle">동그라미</button>
+			<button class="leave">나가기</button>
 		</section>
+
 	</section>
 	
 	<!-- Gemoetrical object templates -->
@@ -84,9 +86,26 @@
 		</div>
 	</template>
 
+	<script src="/node_modules/socket.io-client/socket.io.js"></script>
 	<script type="text/javascript">
 		var sketchboard = new Sketchboard();
+		let socket = io();
+
+		socket.on('test', (str) => {
+			console.log("got 'test' event");
+			console.log(str);
+		});
+
+		socket.on('disconnect', ()=>{
+			console.log("does it come to here?");
+			window.location.replace('http://localhost:8080');
+		})
+
+		document.querySelector('.leave').addEventListener('click', (e)=>{
+			socket.emit('leaveroom');
+		});
 	</script>
 
+	<!-- <script type="text/javascript" src="/client/sketchio.js"></script> -->
 </body>
 </html>

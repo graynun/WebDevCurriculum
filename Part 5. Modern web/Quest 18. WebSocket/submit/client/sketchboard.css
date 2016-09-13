@@ -22,6 +22,10 @@ button{
     width: 5em;
 }
 
+.leave{
+	width: 15em;
+}
+
 .triangleContainer, .rectangleContainer, .circleContainer {
 	position: absolute;
 

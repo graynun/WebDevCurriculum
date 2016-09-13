@@ -23,7 +23,7 @@
 	</div>
 
 <script type="text/javascript">
-	// let socket = io();
+	let socket = io();
 
 	// document.querySelector('.createRoom').addEventListener('click', (e)=>{
 	// 	if(document.querySelector('.roomname').value !== ""){
@@ -57,7 +57,22 @@
 		xmlhttpreq.open("GET", "http://localhost:8080/join");
 		xmlhttpreq.setRequestHeader("roomname", "room1");
 		xmlhttpreq.send();
-	})
+	});
+
+	document.querySelector('.r2').addEventListener('click', (e)=>{
+		let xmlhttpreq = new XMLHttpRequest();
+
+		xmlhttpreq.onreadystatechange = ()=>{
+			if(xmlhttpreq.readyState === XMLHttpRequest.DONE && xmlhttpreq.status === 200){
+				console.log(xmlhttpreq.responseURL);
+				window.location.replace(xmlhttpreq.responseURL);
+			}
+		}
+
+		xmlhttpreq.open("GET", "http://localhost:8080/join");
+		xmlhttpreq.setRequestHeader("roomname", "room2");
+		xmlhttpreq.send();
+	});
 
 
 

@@ -20,6 +20,10 @@ app.use(
 );
 
 
+http.listen(8080, ()=>{
+	console.log("server started at 8080");
+});
+
 app.use('/', (req, res, next) => {
 	// console.log("req.session.user "+req.session.user);
 	// console.log("req.sessionID "+req.sessionID);
@@ -28,51 +32,57 @@ app.use('/', (req, res, next) => {
 
 app.get('/', (req, res)=>{
 	res.sendFile(__dirname+'/client/index.html');
+	// res.sendFile(__dirname+'/trial.html');
 })
 
 app.get('/join', (req, res)=>{
 	// console.log(req.headers);
-	console.log(req.headers.roomname);
+	// if(req.headers.roomname !== undefined) req.session.roomname = req.headers.roomname;
+
+	io.on('connection', (socket) => {
+		console.log("socket adapter on connection at /join");
+		if(req.headers.roomname !== undefined) socket.roomname = req.headers.roomname;
+		console.log(socket.adapter);
+	})
+
 	res.redirect('/sketchboard');
 });
 
 app.get('/sketchboard', (req, res)=>{
+	console.log("sketchboard roomname?" + req.headers.roomname);
+	io.on('connection', (socket)=>{
+		console.log("socket adapter on connection at /sketchboard");
+		// console.log(socket.adapter);
+		console.log("room is "+ socket.roomname);
+
+		socket.join(socket.roomname, (err)=>{
+			if(err) throw err;
+			console.log("successfully joined room " + socket.roomname);
+		})
+
+		socket.on('test', (str)=>{
+			console.log(str);
+			socket.to(socket.roomname).emit('test', str);
+		})
+
+		socket.on('leaveroom', ()=>{
+			console.log("Ever called?");
+			// console.log(res);
+			socket.disconnect();
+			socket.on('disconection', ()=>{
+				console.log("successfully closed socket");
+			})
+			// res.redirect('/');	
+			// socket.on('disconnect', ()=>{
+			// 	console.log("ever disconnected?");
+			
+			// });
+		})
+
+
+	})
+
 	res.sendFile(__dirname+'/client/sketchboard.html');
 })
 
-http.listen(8080, ()=>{
-	console.log("server started at 8080");
-});
-
-
-io.use((socket, next)=>{
-	// console.log("socket request header cookies");
-	// console.log(socket.request.headers);
-	// console.log(socket.handshake.url);
-	console.log(socket.rooms);
-	console.log(socket.id);
-	next();
-})
-
-
-io.on('connection', (socket)=>{
-	// console.log("connected?");
-	// console.log("++++++++++++++++++++++++++++adapter+++++++++++++++++++++++++++++");
-	// console.log(socket.adapter);
-	// console.log("++++++++++++++++++++++++++++conn+++++++++++++++++++++++++++++");
-	// console.log(socket.conn.id);
-
-
-	socket.on('createroom', (json)=>{
-		console.log("Ever gets to here?");
-		let roomname = json.roomname;
-		socket.join(roomname, (err)=>{
-			if(err) throw err;
-			console.log(socket.id);
-			console.log(socket.rooms);
-			console.log(socket.client);
-			console.log(socket.conn);
-		})
-	})
-})
 
