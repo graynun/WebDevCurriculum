@@ -3,8 +3,10 @@
 <head>
 	<meta charset="utf-8">
 	<title>Sketchboard!</title>
-	<script type="text/javascript" src="/client/sketchboard.js"></script>
 	<link rel="stylesheet" type="text/css" href="/client/sketchboard.css">
+
+	<script type="text/javascript" src="/node_modules/socket.io-client/socket.io.js"></script>	
+	<script type="text/javascript" src="/client/sketchboard.js"></script>
 </head>
 <body>
 
@@ -86,26 +88,38 @@
 		</div>
 	</template>
 
-	<script src="/node_modules/socket.io-client/socket.io.js"></script>
+
 	<script type="text/javascript">
 		var sketchboard = new Sketchboard();
 		let socket = io();
 
-		socket.on('test', (str) => {
-			console.log("got 'test' event");
-			console.log(str);
-		});
+		socket.emit('requestInitialNo');
 
-		socket.on('disconnect', ()=>{
-			console.log("does it come to here?");
-			window.location.replace('http://localhost:8080');
+		socket.on('loadInitialNo', (triangleInfo, rectangleInfo, circleInfo)=> {
+			sketchboard.setObjectCounter(triangleInfo['type'], triangleInfo['number']);
+			sketchboard.setObjectCounter(rectangleInfo['type'], rectangleInfo['number']);
+			sketchboard.setObjectCounter(circleInfo['type'], circleInfo['number']);
 		})
 
-		document.querySelector('.leave').addEventListener('click', (e)=>{
-			socket.emit('leaveroom');
+		socket.on('createObject', (objectInfo) => {
+			console.log(objectInfo);
+			sketchboard.remoteCreateObject(objectInfo);
 		});
+
+		socket.on('selectObject', (object) => {
+			console.log("selected object is "+ object);
+			sketchboard.selectObject(document.querySelector('.'+object));
+		})
+
+		socket.on('moveObject', (currentInfo) => {
+			sketchboard.moveObject(currentInfo);
+		})
+
+		socket.on('deleteObject', (object) => {
+			console.log("item to delete "+ object);
+			sketchboard.deleteObject(object);
+		})
 	</script>
 
-	<!-- <script type="text/javascript" src="/client/sketchio.js"></script> -->
 </body>
 </html>

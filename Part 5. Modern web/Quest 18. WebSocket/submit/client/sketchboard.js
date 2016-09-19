@@ -2,10 +2,12 @@
 
 console.log("loaded?");
 
-
 class Sketchboard {
 	constructor(){
 		this.selectedObject = undefined;
+		this.triangleNo = 1,
+		this.rectangleNo = 1,
+		this.circleNo = 1;
 
 		console.log("sketchboard created?");
 
@@ -14,46 +16,107 @@ class Sketchboard {
 
 	bindEvent(){
 		document.querySelector('.createTriangle').addEventListener('click', (e) => {
-			this.createTriangle();
+			this.createObject("triangle");
+			let socketInfo = {
+				"type": "triangle",
+				"number": this.triangleNo
+			}
+			socket.emit('createObject', socketInfo);
+			this.objectCounter("triangle");
 		})
 
 		document.querySelector('.createRectangle').addEventListener('click', (e) => {
-			this.createRectangle();
+			this.createObject("rectangle");
+			let socketInfo = {
+				"type": "rectangle",
+				"number": this.rectangleNo
+			}
+			socket.emit('createObject', socketInfo);
+			this.objectCounter("rectangle");
 		})
 
-		document.querySelector('.createCircle'). addEventListener('click', (e) => {
-			this.createCircle();
+		document.querySelector('.createCircle').addEventListener('click', (e) => {
+			this.createObject("circle");
+			let socketInfo = {
+				"type": "circle",
+				"number": this.circleNo
+			}
+			socket.emit('createObject', socketInfo);
+			this.objectCounter("circle");
 		})
+
+		// <button class="leave">나가기</button>
+		document.querySelector('.leave').addEventListener('click', (e) => {
+			console.log("ever gets here?");
+			socket.close();
+			let xmlhttpreq = new XMLHttpRequest();
+
+			xmlhttpreq.onreadystatechange = () => {
+				if(xmlhttpreq.readyState === XMLHttpRequest.DONE && xmlhttpreq.status === 200){
+					window.location.replace(xmlhttpreq.responseURL);
+				}
+			}
+
+			xmlhttpreq.open("GET", "http://localhost:8080/leave");
+			xmlhttpreq.send();
+		});
 
 		var that = this;
 
 		document.addEventListener('keydown', (e) => {
+			console.log(socket);
 			if(that.selectedObject !== undefined){
 				let currentTop = Number(that.selectedObject.style.top.split("px")[0]);
 				let currentLeft = Number(that.selectedObject.style.left.split("px")[0]);
+				let currentInfo;
 				switch(e.key){
 					case 'ArrowDown':
-						console.log(currentTop);
+						console.log(that.selectedObject.classList[1]);
 						currentTop += 10;
 						that.selectedObject.style.top = currentTop + "px";
+						currentInfo = {
+							selectedObject: that.selectedObject.classList[1],
+							currentTop: currentTop,
+							currentLeft: currentLeft
+						};
+						socket.emit('moveObject', currentInfo);
 						break;
 					case 'ArrowUp':
 						console.log(currentTop);
 						if(currentTop > 10) currentTop -= 10;
 						that.selectedObject.style.top = currentTop + "px";
+						currentInfo = {
+							selectedObject: that.selectedObject.classList[1],
+							currentTop: currentTop,
+							currentLeft: currentLeft
+						};
+						socket.emit('moveObject', currentInfo);
 						break;
 					case 'ArrowLeft':
 						console.log(currentLeft);
 						if(currentLeft > 10) currentLeft -= 10;
 						that.selectedObject.style.left = currentLeft + "px";
+						currentInfo = {
+							selectedObject: that.selectedObject.classList[1],
+							currentTop: currentTop,
+							currentLeft: currentLeft
+						};
+						socket.emit('moveObject', currentInfo);
 						break;
 					case 'ArrowRight':
 						console.log(currentLeft);
 						if(currentLeft > 0) currentLeft += 10;
 						that.selectedObject.style.left = currentLeft + "px";
+						currentInfo = {
+							selectedObject: that.selectedObject.classList[1],
+							currentTop: currentTop,
+							currentLeft: currentLeft
+						};
+						socket.emit('moveObject', currentInfo);
 						break;
 					case 'Delete':
 						that.selectedObject.parentNode.removeChild(that.selectedObject);
+						socket.emit('deleteObject', that.selectedObject.classList[1]);
 						that.selectedObject = undefined;
 						break;
 					default:
@@ -63,33 +126,80 @@ class Sketchboard {
 		})
 	}
 
-	createTriangle(){
-		let template = document.querySelector('.triangle');
+	createObject(objectType){
+		console.log(this.triangleNo);
+		let template = document.querySelector('.'+objectType);
 		let content = document.importNode(template.content, true);
-		let triangle = content.childNodes[1];
+		let object = content.childNodes[1];
+		let objectTag, socketInfo;
+		if(objectType === "triangle"){
+			objectTag = objectType + this.triangleNo.toString();
+		}else if(objectType === "rectangle"){
+			objectTag = objectType + this.rectangleNo.toString();
+		}else if(objectType === "circle"){
+			objectTag = objectType + this.circleNo.toString();
+		}else{
+			throw new Error("undefined object type");
+		}
+		object.classList.add(objectTag);
 
-		this.initializeObject(triangle);
-		this.selectObject(triangle);
-		document.querySelector('.sketchboard').appendChild(triangle);
+		this.initializeObject(object);
+		this.selectObject(object);
+		document.querySelector('.sketchboard').appendChild(object);
 	}
 
-	createRectangle(){
-		let template = document.querySelector('.rectangle');
-		let content = document.importNode(template.content, true);
-		let rectangle = content.childNodes[1];
-
-		this.initializeObject(rectangle);
-		this.selectObject(rectangle);
-		document.querySelector('.sketchboard').appendChild(rectangle);
+	remoteCreateObject(objectInfo){
+		let objectType = objectInfo['type'],
+			objectNo = objectInfo['number'];
+		this.setObjectCounter(objectType, objectNo);
+		this.createObject(objectType);
+		this.objectCounter(objectType);
 	}
-	createCircle(){
-		let template = document.querySelector('.circle');
-		let content = document.importNode(template.content, true);
-		let circle = content.childNodes[1];
-		
-		this.initializeObject(circle);
-		this.selectObject(circle);
-		document.querySelector('.sketchboard').appendChild(circle);
+
+	moveObject(objectInfo){
+		if(this.selectedObject === document.querySelector("."+objectInfo['selectedObject'])){
+			this.selectedObject.style.left = objectInfo['currentLeft']+"px";
+			this.selectedObject.style.top = objectInfo['currentTop']+"px";
+		}
+	}
+
+	deleteObject(object){
+		if(object === this.selectedObject.classList[1]){
+			this.selectedObject.parentNode.removeChild(this.selectedObject);
+			this.selectedObject = undefined;
+		}
+	}
+
+	objectCounter(objectType){
+		switch(objectType){
+			case 'triangle':
+				this.triangleNo++;
+				break;
+			case 'rectangle':
+				this.rectangleNo++;
+				break;
+			case 'circle':
+				this.circleNo++;
+				break;
+			default:
+				throw new Error("undefined object type");
+		}
+	}
+
+	setObjectCounter(type, no){
+		switch(type){
+			case 'triangle':
+				this.triangleNo = no;
+				break;
+			case 'rectangle':
+				this.rectangleNo = no;
+				break;
+			case 'circle':
+				this.circleNo = no;
+				break;
+			default:
+				throw new Error("undefined object type");
+		}
 	}
 
 	selectObject(objectDiv){
@@ -123,6 +233,7 @@ class Sketchboard {
 	initializeObject(objectDiv){
 		objectDiv.addEventListener('click', (e)=>{
 			this.selectObject(objectDiv);
+			socket.emit('selectObject', objectDiv.classList[1]);
 		});
 		this.setInitialLocation(objectDiv);
 	}

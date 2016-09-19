@@ -6,7 +6,8 @@
 	<style type="text/css">
 		
 	</style>
-	<script src="/node_modules/socket.io-client/socket.io.js"></script>
+
+	<script type="text/javascript" src="/node_modules/socket.io-client/socket.io.js"></script>	
 </head>
 <body>
 	<!-- <div>
@@ -23,26 +24,7 @@
 	</div>
 
 <script type="text/javascript">
-	let socket = io();
-
-	// document.querySelector('.createRoom').addEventListener('click', (e)=>{
-	// 	if(document.querySelector('.roomname').value !== ""){
-	// 		let roomname = document.querySelector('.roomname').value;
-	// 		console.log(roomname);
-	// 		socket.emit('createroom', {"roomname": roomname});
-	// 	}
-	// });
-
-	// document.querySelector('.r1').addEventListener('click', (e)=>{
-	// 	socket.emit('createroom', {"roomname": "room1"})
-	// })
-
-	// socket.on('createroom', (json)=>{
-	// 	let name = json.roomname;
-	// 	console.log(name)
-	// 	let chatroomsocket = io('/'+name);
-	// 	// chatroomsocket.on()
-	// });
+	// let socket = io();
 
 	document.querySelector('.r1').addEventListener('click', (e)=>{
 		let xmlhttpreq = new XMLHttpRequest();
@@ -65,7 +47,7 @@
 		xmlhttpreq.onreadystatechange = ()=>{
 			if(xmlhttpreq.readyState === XMLHttpRequest.DONE && xmlhttpreq.status === 200){
 				console.log(xmlhttpreq.responseURL);
-				window.location.replace(xmlhttpreq.responseURL);
+				window.location = xmlhttpreq.responseURL;
 			}
 		}
 
