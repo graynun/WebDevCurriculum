@@ -57,7 +57,7 @@ class Sketchboard {
 				}
 			}
 
-			xmlhttpreq.open("GET", "http://localhost:8080/leave");
+			xmlhttpreq.open("GET", "/leave");
 			xmlhttpreq.send();
 		});
 
