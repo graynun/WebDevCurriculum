@@ -90,10 +90,10 @@
 
 
 	<script type="text/javascript">
-		var sketchboard = new Sketchboard();
-		let socket = io();
+		const sketchboard = new Sketchboard();
+		const socket = io();
 
-		socket.emit('requestInitialNo');
+		socket.emit('joinRoom', window.location.search.split(/=/)[1]);
 
 		socket.on('loadInitialNo', (triangleInfo, rectangleInfo, circleInfo)=> {
 			sketchboard.setObjectCounter(triangleInfo['type'], triangleInfo['number']);

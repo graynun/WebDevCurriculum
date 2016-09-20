@@ -13,65 +13,26 @@
 		    height: 3em;
 		    width: 15em;
 		}
-		.createRoom {
-			background: #AAAAFF;
-		}
 	</style>
-
-	<script type="text/javascript" src="/node_modules/socket.io-client/socket.io.js"></script>	
 </head>
 <body>
-	<!-- <div>
-		Create a room
-		<input class="roomname" placeholder="Enter a room name here" />
-		<button class="createRoom">Create a room </button>
-
-	</div> -->
-
 	<div>
 		<h1>join a room</h1>
 		<button class="room 1">room 1</button>
 		<button class="room 2">room 2</button>
-		<button class="createRoom">create room</button>
+		<button class="room 3">room 3</button>
 	</div>
 
 <script type="text/javascript">
-	let buttons = document.querySelectorAll('.room');
+	const buttons = document.querySelectorAll('.room');
 	console.log(buttons);
 
 	for(let i=0;i<buttons.length;i++){
-		console.log(buttons[i].classList);
 		buttons[i].addEventListener('click', (e)=>{
 			let url = "/sketchboard?room=room"+buttons[i].classList[1];
 			window.location.replace(url);
 		});
 	}
-
-	document.querySelector('.createRoom').addEventListener('click', (e)=>{
-		let newbtn = document.createElement('button');
-		let classNo = document.querySelectorAll('.room').length+1;
-		newbtn.classList.add('room');
-		newbtn.classList.add(classNo);
-		newbtn.innerHTML = "room "+ classNo;
-		newbtn.addEventListener('click', (e)=>{
-			let url = "/sketchboard?room=room"+classNo;
-			window.location.replace(url);
-		})
-		document.querySelector('div').insertBefore(newbtn, document.querySelector('.createRoom'));
-	})
-
-	// console.log(buttons);
-
-	// document.querySelector('.r1').addEventListener('click', (e)=>{
-	// 	window.location.replace('/sketchboard?room=room1');
-	// });
-
-	// document.querySelector('.r2').addEventListener('click', (e)=>{
-
-	// });
-
-
-
 </script>
 
 </body>
