@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>OAuth test</title>
+	<script type="text/javascript" src="login.js"></script>
+	<script src="https://apis.google.com/js/platform.js" async defer></script>
+	<meta name="google-signin-client_id" content="660527717768-3od23s46fpgd339laq3rsdpef0bb9bnc.apps.googleusercontent.com">
+	<link rel="stylesheet" type="text/css" href="login.css">
+</head>
+<body>
+	<div>Google signin test</div>
+	<div class="g-signin2" data-onsuccess="onSignIn"></div>
+	<div class="logout"></div>
+
+	<script>
+		function onSignIn(googleUser){
+			console.log("++++++++++++++++++++gapi.auth2+++++++++++++++++++");
+			console.log(gapi);
+			let profile = googleUser.getBasicProfile();
+			console.log(profile);
+			// console.log("ID: "+ profile.getId());
+			console.log("Name: "+ profile.getName());
+			console.log("Email: "+ profile.getEmail());
+
+			let id_token = googleUser.getAuthResponse().id_token;
+			console.log("id_token: "+id_token);
+
+			let ajaxreq = new XMLHttpRequest();
+
+			ajaxreq.open('POST', '/validateToken');
+			ajaxreq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			ajaxreq.onload = ()=>{
+				console.log("signed in as "+ ajaxreq.responseText);
+			}
+			ajaxreq.send('idtoken='+ id_token);
+
+			let logout = document.createElement('button');
+			logout.innerHTML = "Click to logout";
+			logout.addEventListener('click', signOut);
+			document.querySelector('.logout').appendChild(logout);
+		}
+
+		function signOut(){
+			let auth2 = gapi.auth2.getAuthInstance();
+			auth2.signOut().then(()=>{
+				console.log("user signed out");
+			});
+		}
+	</script>
+</body>
+</html>

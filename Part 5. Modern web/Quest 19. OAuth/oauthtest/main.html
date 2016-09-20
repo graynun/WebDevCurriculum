@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>main page</title>
+</head>
+<body>
+	<h1>login success!</h1>
+	<a href="#" onclick="signOut();">Sign out! </a>
+	<script type="text/javascript">
+		function signOut(){
+			let auth2 = gapi.auth2.getAuthInstance();
+			auth2.signOut().then(()=>{
+				console.log('user sign out');
+			})
+		}
+	</script>
+</body>
+</html> 
