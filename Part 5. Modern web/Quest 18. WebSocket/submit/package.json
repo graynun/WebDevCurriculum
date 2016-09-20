@@ -6,8 +6,6 @@
   "private": true,
   "dependencies":{
   		"express": "*",
-  		"body-parser": "*",
-      "express-session": "*",
   		"socket.io": "*"
   }
 }
