@@ -25,14 +25,27 @@
 			let id_token = googleUser.getAuthResponse().id_token;
 			console.log("id_token: "+id_token);
 
+
+
 			let ajaxreq = new XMLHttpRequest();
 
 			ajaxreq.open('POST', '/validateToken');
-			ajaxreq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			ajaxreq.setRequestHeader('Content-Type', 'application/json');
+
 			ajaxreq.onload = ()=>{
-				console.log("signed in as "+ ajaxreq.responseText);
+				if(ajaxreq.status === 200){
+					console.log(ajaxreq.response);
+					window.location.replace(ajaxreq.responseURL);
+				}
 			}
-			ajaxreq.send('idtoken='+ id_token);
+
+			let userInfo = {
+				idtoken: id_token,
+				name: profile.getName(),
+				email: profile.getEmail()
+			}
+			
+			ajaxreq.send(JSON.stringify(userInfo));
 
 			let logout = document.createElement('button');
 			logout.innerHTML = "Click to logout";
