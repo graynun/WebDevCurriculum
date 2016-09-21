@@ -3,62 +3,105 @@
 <head>
 	<title>OAuth test</title>
 	<script type="text/javascript" src="login.js"></script>
-	<script src="https://apis.google.com/js/platform.js" async defer></script>
-	<meta name="google-signin-client_id" content="660527717768-3od23s46fpgd339laq3rsdpef0bb9bnc.apps.googleusercontent.com">
+	<!-- <script src="https://apis.google.com/js/platform.js" async defer></script> -->
+	<!-- <meta name="google-signin-client_id" content="660527717768-3od23s46fpgd339laq3rsdpef0bb9bnc.apps.googleusercontent.com"> -->
 	<link rel="stylesheet" type="text/css" href="login.css">
 </head>
 <body>
 	<div>Google signin test</div>
-	<div class="g-signin2" data-onsuccess="onSignIn"></div>
+	<!-- <div class="g-signin2" data-onsuccess="onSignIn"></div> -->
+	<button class="glogin">sign in with google</button>
 	<div class="logout"></div>
 
 	<script>
-		function onSignIn(googleUser){
-			console.log("++++++++++++++++++++gapi.auth2+++++++++++++++++++");
-			console.log(gapi);
-			let profile = googleUser.getBasicProfile();
-			console.log(profile);
-			// console.log("ID: "+ profile.getId());
-			console.log("Name: "+ profile.getName());
-			console.log("Email: "+ profile.getEmail());
+		window.onload = () => {
+			if(window.location.hash !== ""){
+				let postBody = window.location.hash.slice(1);
+				console.log(postBody);
+				let req = new XMLHttpRequest;
 
-			let id_token = googleUser.getAuthResponse().id_token;
-			console.log("id_token: "+id_token);
-
-
-
-			let ajaxreq = new XMLHttpRequest();
-
-			ajaxreq.open('POST', '/validateToken');
-			ajaxreq.setRequestHeader('Content-Type', 'application/json');
-
-			ajaxreq.onload = ()=>{
-				if(ajaxreq.status === 200){
-					console.log(ajaxreq.response);
-					window.location.replace(ajaxreq.responseURL);
+				req.onload = ()=>{
+					if(req.status === 200){
+						// window.location.replace(req.responseURL);
+					}
 				}
-			}
 
-			let userInfo = {
-				idtoken: id_token,
-				name: profile.getName(),
-				email: profile.getEmail()
+				req.open('POST', '/login');
+
+				console.log(postBody);
+				req.send(postBody);
 			}
+		}
+
+		document.querySelector('.glogin').addEventListener('click', ()=>{
+			let endpoint = "https://accounts.google.com/o/oauth2/v2/auth?"
+				+"response_type=token"
+				+"&client_id=660527717768-3od23s46fpgd339laq3rsdpef0bb9bnc.apps.googleusercontent.com"
+				+"&redirect_uri=http://localhost:8080"
+				+"&scope=email%20profile"
+				+"&state=login"
+				+"&prompt=select_account";
+
+			console.log(endpoint);
+
+			window.location.replace(endpoint);
+
+			// let req = new XMLHttpRequest();
+
+			// req.open('GET', endpoint);
+			// req.send();
+
+			// window.location.replace(endpoint);
+		})
+
+
+		
+		// function onSignIn(googleUser){
+		// 	console.log("++++++++++++++++++++gapi.auth2 in onSignIn+++++++++++++++++++");
+		// 	console.log(gapi);
+		// 	let profile = googleUser.getBasicProfile();
+		// 	console.log(profile);
+		// 	// console.log("ID: "+ profile.getId());
+		// 	console.log("Name: "+ profile.getName());
+		// 	console.log("Email: "+ profile.getEmail());
+
+		// 	let id_token = googleUser.getAuthResponse().id_token;
+		// 	console.log("id_token: "+id_token);
+
+
+
+		// 	let ajaxreq = new XMLHttpRequest();
+
+		// 	ajaxreq.open('POST', '/validateToken');
+		// 	ajaxreq.setRequestHeader('Content-Type', 'application/json');
+
+		// 	ajaxreq.onload = ()=>{
+		// 		if(ajaxreq.status === 200){
+		// 			console.log(ajaxreq.responseURL);
+		// 			// window.location.replace(ajaxreq.responseURL);
+		// 		}
+		// 	}
+
+		// 	let userInfo = {
+		// 		idtoken: id_token,
+		// 		name: profile.getName(),
+		// 		email: profile.getEmail()
+		// 	}
 			
-			ajaxreq.send(JSON.stringify(userInfo));
+		// 	ajaxreq.send(JSON.stringify(userInfo));
 
-			let logout = document.createElement('button');
-			logout.innerHTML = "Click to logout";
-			logout.addEventListener('click', signOut);
-			document.querySelector('.logout').appendChild(logout);
-		}
+		// 	let logout = document.createElement('button');
+		// 	logout.innerHTML = "Click to logout";
+		// 	logout.addEventListener('click', signOut);
+		// 	document.querySelector('.logout').appendChild(logout);
+		// }
 
-		function signOut(){
-			let auth2 = gapi.auth2.getAuthInstance();
-			auth2.signOut().then(()=>{
-				console.log("user signed out");
-			});
-		}
+		// function signOut(){
+		// 	let auth2 = gapi.auth2.getAuthInstance();
+		// 	auth2.signOut().then(()=>{
+		// 		console.log("user signed out");
+		// 	});
+		// }
 	</script>
 </body>
 </html>

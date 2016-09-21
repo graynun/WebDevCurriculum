@@ -2,16 +2,22 @@
 <html>
 <head>
 	<title>main page</title>
+	<script src="https://apis.google.com/js/platform.js" async defer></script>
+	<meta name="google-signin-client_id" content="660527717768-3od23s46fpgd339laq3rsdpef0bb9bnc.apps.googleusercontent.com">
 </head>
 <body>
 	<h1>login success!</h1>
 	<a href="#" onclick="signOut();">Sign out! </a>
 	<script type="text/javascript">
+		console.log("++++++++++++++++++++gapi.auth2+++++++++++++++++++");
+		console.log(gapi);
+		
 		function signOut(){
-			let auth2 = gapi.auth2.getAuthInstance();
-			auth2.signOut().then(()=>{
-				console.log('user sign out');
-			})
+			window.location.replace('/');
+			// let auth2 = gapi.auth2.getAuthInstance();
+			// auth2.signOut().then(()=>{
+			// 	console.log('user sign out');
+			// })
 		}
 	</script>
 </body>
