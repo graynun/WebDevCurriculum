@@ -1,10 +1,13 @@
 "use strict";
 
-var express = require('express'),
+const googleClientID = "660527717768-3od23s46fpgd339laq3rsdpef0bb9bnc.apps.googleusercontent.com";
+
+const express = require('express'),
 	path = require('path'),
 	bodyParser = require('body-parser'),
 	session = require('express-session'),
 	scrypt = require("scrypt"),
+	https = require("https"),
 	app = express(),
 	db = require('./db.js'),
 	sequelize = db.sequelize,
@@ -18,6 +21,7 @@ Lastopened.sync();
 
 app.use(express.static('client'));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}));
 app.use(
 	session({
 		secret: 'change string whenvever I want to',
@@ -32,11 +36,16 @@ app.use(
 
 
 
-app.use('/', function(req, res, next){
-	console.log("request session user at / is "+ req.session.user_id);
-	console.log("app.use request sessionID is "+req.sessionID);
-	next();
-});
+// app.use('/', function(req, res, next){
+// 	console.log("request session user at / is "+ req.session.user_id);
+// 	console.log("app.use request sessionID is "+req.sessionID);
+// 	next();
+// });
+
+app.get('/', (req, res)=>{
+	console.log("ever gets to / router?");
+	res.sendFile(path.join(__dirname, '/client/login.html'));
+})
 
 app.get('/login', function(req, res){
 	console.log("app.get request sessionID at /login is "+req.sessionID);
@@ -87,6 +96,104 @@ app.post('/loginClicked', function(req, res){
 });
 
 
+
+
+
+app.post('/loginWithGoogle', (req, res)=> {
+	console.log("received login request with google oauth");
+	console.log(req.body);
+	console.log(req.body.access_token);
+
+
+//https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=
+
+	let options = {
+		hostname: 'www.googleapis.com',
+		port: 443,
+		method: 'GET',
+		path: '/oauth2/v3/tokeninfo?access_token='+req.body.access_token
+	}
+
+	let tokenreq = https.request(options, (tokenres)=>{
+		// console.log(tokenres);
+		let response;
+
+		tokenres.on('data', (chunk) =>{
+			console.log(chunk.toString());
+			response = JSON.parse(chunk.toString());
+			console.log("is token client audience is the same with our client?");
+			console.log(response.aud);
+			console.log(googleClientID);
+			console.log(response.aud === googleClientID);
+		})
+
+		tokenres.on('end', ()=>{
+			console.log("end of response");
+			console.log(response.aud);
+			console.log(response.sub);
+			console.log(response.email);
+
+			if(response.aud === googleClientID){
+				let pinfooptions = {
+					hostname: 'www.googleapis.com',
+					port: 443,
+					method: 'GET',
+					path: '/oauth2/v2/userinfo?access_token='+req.body.access_token
+				}
+
+				let personalInfoReq = https.request(pinfooptions, (pres)=>{
+					let userinfo;
+
+					pres.on('data', (chunk)=>{
+						userinfo = JSON.parse(chunk.toString());
+					})
+
+					pres.on('end', ()=>{
+						console.log("collected personal info from google");
+						console.log(userinfo);
+
+						Users.findOrCreate({
+							where: {email: response.email},
+							defaults: {nickname: userinfo.name}
+						}).spread((user, created)=>{
+							console.log("created? "+created);
+							console.log(user.get());
+							req.session.save(function(err){
+								req.session.user_id = userinfo.name;
+								req.session.user = user.get().id;
+								console.log("signed in user is "+req.session.user_id);
+								res.redirect('/main');
+							});
+						}).catch((err)=>{
+							if(err) throw err;
+						});
+					})
+				});
+				personalInfoReq.end();
+			}
+		})
+	})
+	tokenreq.end();
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.post('/logout', function(req, res){
 	console.log("Ever called /logout?");
 	console.log(req.body);
@@ -100,10 +207,19 @@ app.post('/logout', function(req, res){
 		console.log("note_id is "+statusInfo[filename][0]);
 		console.log("user_id is "+req.session.user);
 		console.log("selected "+statusInfo[filename][1]);
+
+
+
+// lastopened create가 안된다 
+// (node:15174) UnhandledPromiseRejectionWarning: Unhandled promise rejection (rejection id: 1): SequelizeUniqueConstraintError: Validation error
+
+
 		var p = Lastopened.create({
 			note_id: statusInfo[filename][0],
 			user_id: req.session.user,
 			selected: statusInfo[filename][1]
+		}).then(()=>{
+			console.log("Saved a lastopened row");
 		});
 		ps.push(p);
 	}
@@ -114,15 +230,17 @@ app.post('/logout', function(req, res){
 		req.session.destroy(function(err){
 			console.log("session destroyed?");
 			if(err) throw err;
-			res.redirect('/login');
+			res.redirect('/');
 		})
+	}).catch((err)=> {
+		if(err) throw err;
 	})
 });
 
 
 app.get('/main', function (req, res) {
 	console.log("got /main get");
-	res.sendFile(path.join(__dirname, '/client/index.html'));
+	res.sendFile(path.join(__dirname, '/client/main.html'));
 });
 
 

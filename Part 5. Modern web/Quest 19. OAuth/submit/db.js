@@ -1,6 +1,6 @@
 var mysql = require('mysql'),
 	Sequelize = require('sequelize'),
-	dbaccessinfo = require('../sequelizeTest/dbaccess.js');
+	dbaccessinfo = require('./dbaccess.js');
 
 var sequelize = new Sequelize(dbaccessinfo.dbname, dbaccessinfo.account, dbaccessinfo.password, {
 	host: 'localhost',
@@ -8,7 +8,7 @@ var sequelize = new Sequelize(dbaccessinfo.dbname, dbaccessinfo.account, dbacces
 	pool: {
 		max: 5,
 		min: 0,
-		idle:10000
+		idle: 10000
 	}
 });
 
@@ -23,12 +23,15 @@ var Users = sequelize.define('Users', {
 	account_id: {
 		type: Sequelize.STRING,
 		field: 'account_id',
+	},
+	email: {
+		type: Sequelize.STRING,
+		field: 'email',
 		allowNull: false,
 	},
 	hashed_password: {
 		type: Sequelize.STRING,
-		field: 'hashed_password',
-		allowNull: false
+		field: 'hashed_password'
 	},
 	nickname: {
 		type: Sequelize.STRING,
@@ -100,10 +103,20 @@ var Lastopened = sequelize.define('Lastopened', {
 
 
 
-Users.hasMany(Notes, {as: 'author'});
+Users.hasMany(Notes);
 
-Users.belongsToMany(Notes, {through: 'Lastopened'});
-Notes.belongsToMany(Users, {through: 'Lastopened'});
+Users.belongsToMany(Notes, {
+	through: {
+		model:'Lastopened',
+		unique: false
+	}
+});
+Notes.belongsToMany(Users, {
+	through: {
+		model:'Lastopened',
+		unique: false
+	}
+});
 
 module.exports = {
 	sequelize: sequelize,
