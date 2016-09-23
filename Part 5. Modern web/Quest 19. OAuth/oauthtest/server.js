@@ -19,6 +19,7 @@ app.get('/', (req, res)=> {
 
 app.post('/login', (req, res)=> {
 	console.log("************************************* login post body *****************************");
+	console.log(req.headers);
 	console.log(req.body);
 	res.redirect('/main');
 })

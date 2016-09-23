@@ -382,7 +382,7 @@ NoteArea.prototype.showFileContent = function(selectedFile){
 }
 
 NoteArea.prototype.emptyContentArea = function(){
-	document.querySelector(".fileName").innerHTML = "File name here";
+	document.querySelector(".fileName").innerHTML = "New File";
 	this.textareaDom.value = "";
 }
 

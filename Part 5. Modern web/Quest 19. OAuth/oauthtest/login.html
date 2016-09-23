@@ -18,6 +18,7 @@
 			if(window.location.hash !== ""){
 				let postBody = window.location.hash.slice(1);
 				console.log(postBody);
+
 				let req = new XMLHttpRequest;
 
 				req.onload = ()=>{
@@ -27,8 +28,7 @@
 				}
 
 				req.open('POST', '/login');
-
-				console.log(postBody);
+				req.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
 				req.send(postBody);
 			}
 		}

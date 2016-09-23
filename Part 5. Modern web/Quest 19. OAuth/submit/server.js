@@ -15,16 +15,20 @@ const express = require('express'),
 	Notes = db.Notes,
 	Lastopened = db.Lastopened;
 
-Users.sync();
-Notes.sync();
-Lastopened.sync();
+Users.sync().then((users)=> {
+	return Notes.sync();
+}).then((notes)=>{
+	return Lastopened.sync();
+}).then((lastopened)=>{
+	console.log("************************************SUCCESSFULLY CREATED TABLES*************************");
+});
 
 app.use(express.static('client'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(
 	session({
-		secret: 'change string whenvever I want to',
+		secret: 'Notepad system revised agian with Google Login',
 		resave: false,
 		saveUninitialized: false,
 		cookie: {
@@ -34,16 +38,13 @@ app.use(
 	})
 );
 
-
-
-// app.use('/', function(req, res, next){
-// 	console.log("request session user at / is "+ req.session.user_id);
-// 	console.log("app.use request sessionID is "+req.sessionID);
-// 	next();
-// });
+app.use('/', function(req, res, next){
+	console.log("current user_id is "+ req.session.user_id);
+	console.log("app.use request sessionID is "+req.sessionID);
+	next();
+});
 
 app.get('/', (req, res)=>{
-	console.log("ever gets to / router?");
 	res.sendFile(path.join(__dirname, '/client/login.html'));
 })
 
@@ -59,23 +60,31 @@ app.post('/loginClicked', function(req, res){
 	console.log(req.body.pw);
 
 	var user;
-	
-	Users.findOne({
-			attributes: ['id', 'account_id', 'hashed_password'],
-			where:{
-				'account_id': req.body.id
-			}
-	}).then(function(userInstance){
-		if(userInstance === null) {
-			res.status(401).send("no such user");
-			return new Error("no such user");
-		}else{
-			user = userInstance.id;
-		}
 
-		var param = scrypt.paramsSync(0.2);
-		
-		return scrypt.verifyKdf(new Buffer(userInstance.hashed_password, 'hex'), req.body.pw);
+	Users.findOrCreate({
+		where: {
+			'account_id': req.body.id 
+		}
+	}).spread((user, created)=>{
+		console.log("created? "+created);
+		if(created === true){
+			return scrypt.params(0.2).then((param)=>{
+				return scrypt.kdf(req.body.pw, param);
+			}).then((hashedresult)=>{
+				user.set('hashed_password', hashedresult.toString('hex'));
+				return true;
+			});
+			// let newpassword = scrypt.kdfSync(req.body.pw, param);
+			// console.log(newpassword);
+			// console.log(newpassword.toString('hex'));
+			// user.set('hashed_password', newpassword);
+			// return true;
+		}else{
+			let userpassword = users.get('hashed_password');
+			console.log(userpassword);
+			return scrypt.verifyKdf(new Buffer(user.get().hashed_password, 'hex'), req.body.pw);
+		}
+		console.log("userinfo " + user.get());
 
 	}).then(function(result){
 		console.log(result);
@@ -93,17 +102,51 @@ app.post('/loginClicked', function(req, res){
 	}).catch(function(err){
 		console.log(err);
 	});
+
+
+
+
+	
+	// Users.findOne({
+	// 		attributes: ['id', 'account_id', 'hashed_password'],
+	// 		where:{
+	// 			'account_id': req.body.id
+	// 		}
+	// }).then(function(userInstance){
+	// 	if(userInstance === null) {
+	// 		res.status(401).send("no such user");
+	// 		return new Error("no such user");
+	// 	}else{
+	// 		user = userInstance.id;
+	// 	}
+
+
+		
+	// 	return scrypt.verifyKdf(new Buffer(userInstance.hashed_password, 'hex'), req.body.pw);
+
+	// }).then(function(result){
+	// 	console.log(result);
+
+	// 	if(result === true){
+	// 		req.session.save(function(err){
+	// 			req.session.user_id = req.body.id;
+	// 			req.session.user = user;
+	// 			console.log("signed in user is "+req.session.user);
+	// 			res.redirect('/main');
+	// 		});
+	// 	}else{
+	// 		res.status(401).send("wrong password");
+	// 	}
+	// }).catch(function(err){
+	// 	console.log(err);
+	// });
 });
-
-
-
 
 
 app.post('/loginWithGoogle', (req, res)=> {
 	console.log("received login request with google oauth");
 	console.log(req.body);
 	console.log(req.body.access_token);
-
 
 //https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=
 
@@ -115,23 +158,18 @@ app.post('/loginWithGoogle', (req, res)=> {
 	}
 
 	let tokenreq = https.request(options, (tokenres)=>{
-		// console.log(tokenres);
 		let response;
 
 		tokenres.on('data', (chunk) =>{
 			console.log(chunk.toString());
 			response = JSON.parse(chunk.toString());
-			console.log("is token client audience is the same with our client?");
-			console.log(response.aud);
-			console.log(googleClientID);
-			console.log(response.aud === googleClientID);
 		})
 
 		tokenres.on('end', ()=>{
-			console.log("end of response");
-			console.log(response.aud);
-			console.log(response.sub);
+			console.log("end of token validation response with user email");
 			console.log(response.email);
+
+			//https://www.googleapis.com/oauth2/v2/userinfo?access_token=
 
 			if(response.aud === googleClientID){
 				let pinfooptions = {
@@ -157,7 +195,7 @@ app.post('/loginWithGoogle', (req, res)=> {
 							defaults: {nickname: userinfo.name}
 						}).spread((user, created)=>{
 							console.log("created? "+created);
-							console.log(user.get());
+							console.log("userinfo " + user.get());
 							req.session.save(function(err){
 								req.session.user_id = userinfo.name;
 								req.session.user = user.get().id;
@@ -167,31 +205,17 @@ app.post('/loginWithGoogle', (req, res)=> {
 						}).catch((err)=>{
 							if(err) throw err;
 						});
+
 					})
 				});
 				personalInfoReq.end();
 			}
 		})
+
 	})
+
 	tokenreq.end();
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 app.post('/logout', function(req, res){
@@ -208,12 +232,6 @@ app.post('/logout', function(req, res){
 		console.log("user_id is "+req.session.user);
 		console.log("selected "+statusInfo[filename][1]);
 
-
-
-// lastopened create가 안된다 
-// (node:15174) UnhandledPromiseRejectionWarning: Unhandled promise rejection (rejection id: 1): SequelizeUniqueConstraintError: Validation error
-
-
 		var p = Lastopened.create({
 			note_id: statusInfo[filename][0],
 			user_id: req.session.user,
@@ -224,11 +242,10 @@ app.post('/logout', function(req, res){
 		ps.push(p);
 	}
 
-	//junction table 어떻게 설계하는 것이 좋은가...(I/O가 자주있는 지금 디자인 이대로 괜찮은가...)
 	Promise.all(ps).then(function(){
-		console.log("Ever calls promise.all?");
+		console.log("Successfully saved lastopened info.");
 		req.session.destroy(function(err){
-			console.log("session destroyed?");
+			console.log("session destroyed");
 			if(err) throw err;
 			res.redirect('/');
 		})
@@ -263,9 +280,6 @@ app.post('/savefile', function(req, res){
 			'content' : req.body.content
 		}
 	}).spread(function(instance, created){
-		// console.log(created);
-		// console.log("Ever get to next promise?");
-		// console.log(instance);
 		if(created === false){
 			console.log("pre-existing file!");
 			console.log(instance.note_id);
@@ -292,17 +306,13 @@ app.get('/reloadFileList', function(req, res){
 			'user_id': req.session.user
 		}
 	}).then(function(notenameArr){
-		var obj = {};
+		var userNoteInfo = {};
 		notenameArr.forEach(function(filename){
-			// console.log(filename.dataValues);
-			// console.log(filename.notename);
-			//console.log(filename.note_id);	이거 안먹는데 이유를 모르겠음
-			//filename.notename은 되는데 filename.note_id는 안됨...????
-			obj[filename.notename] = filename.dataValues.note_id;
+			userNoteInfo[filename.notename] = filename.dataValues.note_id;
 		})
 		
-		console.log(obj);
-		res.send(obj);
+		console.log(userNoteInfo);
+		res.send(userNoteInfo);
 		res.end();
 	})
 });

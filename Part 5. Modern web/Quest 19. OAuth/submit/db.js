@@ -23,15 +23,17 @@ var Users = sequelize.define('Users', {
 	account_id: {
 		type: Sequelize.STRING,
 		field: 'account_id',
+		default: null
 	},
 	email: {
 		type: Sequelize.STRING,
 		field: 'email',
-		allowNull: false,
+		default: null
 	},
 	hashed_password: {
 		type: Sequelize.STRING,
-		field: 'hashed_password'
+		field: 'hashed_password',
+		default: null
 	},
 	nickname: {
 		type: Sequelize.STRING,
@@ -100,6 +102,7 @@ var Lastopened = sequelize.define('Lastopened', {
 	underscored: true,
 	charset: 'utf8'
 })
+
 
 
 
