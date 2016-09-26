@@ -59,40 +59,38 @@ app.post('/loginClicked', function(req, res){
 	console.log(req.body.id);
 	console.log(req.body.pw);
 
-	var user;
+	let u_id, pw;
 
 	Users.findOrCreate({
 		where: {
 			'account_id': req.body.id 
 		}
 	}).spread((user, created)=>{
-		console.log("created? "+created);
+		let createdUser = user.dataValues;
+		u_id = createdUser.id;
 		if(created === true){
-			return scrypt.params(0.2).then((param)=>{
-				return scrypt.kdf(req.body.pw, param);
-			}).then((hashedresult)=>{
-				user.set('hashed_password', hashedresult.toString('hex'));
-				return true;
+			console.log("user visiting for a first time");
+			let param = scrypt.paramsSync(0.2);
+			return scrypt.kdf(req.body.pw, param).then((hashedresult)=>{
+				pw = hashedresult.toString('hex');
+				return user.update({'hashed_password': pw}, {fields: ['hashed_password']}).then(()=>{
+					return true;
+				});
 			});
-			// let newpassword = scrypt.kdfSync(req.body.pw, param);
-			// console.log(newpassword);
-			// console.log(newpassword.toString('hex'));
-			// user.set('hashed_password', newpassword);
-			// return true;
-		}else{
-			let userpassword = users.get('hashed_password');
-			console.log(userpassword);
-			return scrypt.verifyKdf(new Buffer(user.get().hashed_password, 'hex'), req.body.pw);
+		}else if(created === false){
+			console.log("pre-existing user");
+			pw = createdUser.hashed_password;
+			return scrypt.verifyKdf(new Buffer(pw, 'hex'), req.body.pw);
 		}
-		console.log("userinfo " + user.get());
 
 	}).then(function(result){
 		console.log(result);
 
 		if(result === true){
+			console.log(u_id);
 			req.session.save(function(err){
 				req.session.user_id = req.body.id;
-				req.session.user = user;
+				req.session.user = u_id;
 				console.log("signed in user is "+req.session.user);
 				res.redirect('/main');
 			});
@@ -103,43 +101,6 @@ app.post('/loginClicked', function(req, res){
 		console.log(err);
 	});
 
-
-
-
-	
-	// Users.findOne({
-	// 		attributes: ['id', 'account_id', 'hashed_password'],
-	// 		where:{
-	// 			'account_id': req.body.id
-	// 		}
-	// }).then(function(userInstance){
-	// 	if(userInstance === null) {
-	// 		res.status(401).send("no such user");
-	// 		return new Error("no such user");
-	// 	}else{
-	// 		user = userInstance.id;
-	// 	}
-
-
-		
-	// 	return scrypt.verifyKdf(new Buffer(userInstance.hashed_password, 'hex'), req.body.pw);
-
-	// }).then(function(result){
-	// 	console.log(result);
-
-	// 	if(result === true){
-	// 		req.session.save(function(err){
-	// 			req.session.user_id = req.body.id;
-	// 			req.session.user = user;
-	// 			console.log("signed in user is "+req.session.user);
-	// 			res.redirect('/main');
-	// 		});
-	// 	}else{
-	// 		res.status(401).send("wrong password");
-	// 	}
-	// }).catch(function(err){
-	// 	console.log(err);
-	// });
 });
 
 
@@ -195,7 +156,6 @@ app.post('/loginWithGoogle', (req, res)=> {
 							defaults: {nickname: userinfo.name}
 						}).spread((user, created)=>{
 							console.log("created? "+created);
-							console.log("userinfo " + user.get());
 							req.session.save(function(err){
 								req.session.user_id = userinfo.name;
 								req.session.user = user.get().id;
