@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "dependencies": {
+    "express": "*",
+    "body-parser": "*",
+    "socket.io": "*",
+    "express-session": "*",
+    "sequelize": "*",
+    "mysql": "*",
+    "scrypt": "*"
+  }
+}
