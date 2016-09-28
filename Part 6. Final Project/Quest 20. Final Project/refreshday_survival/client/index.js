@@ -116,8 +116,8 @@ class ChatManager {
 	appendMessage(message){
 		let p = document.createElement('p');
 		p.innerHTML = message;
-		document.querySelector('.chatWindow').appendChild(p);
-		document.querySelector('.chatWindow').scrollTop = document.querySelector('.chatWindow').scrollHeight;
+		this.dom.querySelector('.chatWindow').appendChild(p);
+		this.dom.querySelector('.chatWindow').scrollTop = this.dom.querySelector('.chatWindow').scrollHeight;
 	}
 
 }
