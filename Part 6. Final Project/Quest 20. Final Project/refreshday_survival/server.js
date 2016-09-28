@@ -7,9 +7,12 @@ const path = require('path'),
 	bodyParser = require('body-parser'),
 	db = require('./db.js'),
 	sequelize = db.sequelize,
-	ActivityInfo = db.ActivityInfo;
+	Activity_info = db.Activity_info,
+	Activity_join_log = db.Activity_join_log;
 
-ActivityInfo.sync();
+Activity_info.sync().then(()=>{
+	return Activity_join_log.sync();
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -46,13 +49,32 @@ io.on('connection', (socket)=>{
 	// console.log(socket.adapter);
 	console.log("aaargh");
 
+	socket.on('requestActivityInfo', ()=>{
+		console.log("eer gets requestActivityInfo?");
+		Activity_info.findAll({
+			attributes: ['id', 'title', 'description'],
+			where: {
+				available_date:{
+					gt: new Date(2016, 8, 1),
+					lt: new Date(2016, 9, 1)
+				}
+			}
+		}).then((queryResult)=>{
+			let activityInfoArr = [];
+			for(let i=0;i<queryResult.length;i++){
+				activityInfoArr.push(queryResult[i].dataValues);
+			}
+			console.log(activityInfoArr);
+			socket.emit('receiveActivityInfo', activityInfoArr);
+		})
+	})
 
 
 	socket.on('requestToJoinChat', (username)=>{
 		console.log(username);
 		socket.username = username;
-		ActivityInfo.findAll().then((queryResult)=>{
-			let currentActivityInfo = queryResult;
+		Activity_join_log.findAll().then((queryResult)=>{
+			let currentActivity_join_log = queryResult;
 			for(let i=0;i<queryResult.length;i++){
 				socket.emit('joinActivity', "a"+queryResult[i].dataValues.activity_no, queryResult[i].dataValues.username);
 				if(queryResult[i].dataValues.username === socket.username){
@@ -74,9 +96,11 @@ io.on('connection', (socket)=>{
 		if(socket.activityJoined === undefined){
 			socket.activityJoined = activityNo;	
 			console.log(activityNo.slice(1));
-			ActivityInfo.create({
+			Activity_join_log.create({
 				username: socket.username,
-				activity_no: Number(activityNo.slice(1))
+				activity_id: Number(activityNo.slice(1))
+			}).then((log)=>{
+				console.log(log);
 			});
 			io.emit('joinActivity', activityNo, socket.username);
 		}else{
@@ -87,10 +111,10 @@ io.on('connection', (socket)=>{
 	socket.on('leaveActivity', ()=>{
 		console.log(socket.activityJoined);
 		console.log(socket.username);
-		ActivityInfo.destroy({
+		Activity_join_log.destroy({
 			where:{
 				username: socket.username,
-				activity_no: socket.activityJoined.slice(1)
+				activity_id: socket.activityJoined.slice(1)
 			}
 		});
 		io.emit('leaveActivity', socket.activityJoined, socket.username);

@@ -15,7 +15,39 @@ const sequelize = new Sequelize(dbaccessinfo.name, dbaccessinfo.account, dbacces
 	}
 });
 
-const ActivityInfo = sequelize.define('ActivityInfo', {
+
+const Activity_info = sequelize.define('Activity_info', {
+	id: {
+		type: Sequelize.INTEGER.UNSIGNED,
+		field: 'id',
+		allowNull: false,
+		autoIncrement: true,
+		primaryKey: true
+	},
+	title: {
+		type: Sequelize.STRING,
+		field: 'title',
+		allowNull: false
+	},
+	description :{
+		type: Sequelize.TEXT,
+		field: 'description',
+		allowNull: true
+	},
+	available_date: {
+		type: Sequelize.DATEONLY,
+		field: 'avaliable_date',
+		allowNull: true
+	}
+}, {
+	freezeTableName: true,
+	underscored: true,
+	charset: 'utf8',
+	timestamps: true,
+	paranoid: true
+})
+
+const Activity_join_log = sequelize.define('Activity_join_log', {
 	id: {
 		type: Sequelize.INTEGER.UNSIGNED,
 		field: 'id',
@@ -27,12 +59,13 @@ const ActivityInfo = sequelize.define('ActivityInfo', {
 		type: Sequelize.STRING,
 		field: 'username',
 		allowNull: false
-	},
-	activity_no: {
-		type: Sequelize.INTEGER.UNSIGNED,
-		field: 'activity_no',
-		allowNull: false
 	}
+	// ,
+	// activity_no: {
+	// 	type: Sequelize.INTEGER.UNSIGNED,
+	// 	field: 'activity_no',
+	// 	allowNull: false
+	// }
 }, {
 	freezeTableName: true,
 	underscored: true,
@@ -42,7 +75,16 @@ const ActivityInfo = sequelize.define('ActivityInfo', {
 });
 
 
+Activity_info.hasMany(Activity_join_log, {
+	foreignKey: {
+		name: 'activity_id'
+	}
+});
+
+
+
 module.exports = {
 	sequelize: sequelize,
-	ActivityInfo: ActivityInfo
+	Activity_info: Activity_info,
+	Activity_join_log: Activity_join_log
 }

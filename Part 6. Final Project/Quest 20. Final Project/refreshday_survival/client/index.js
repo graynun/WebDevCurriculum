@@ -10,17 +10,18 @@ class RuleBook {
 	}
 
 	initialize() {
-		this.appendActivityDom();
+		// this.appendActivityDom();
 
 		let username = decodeURIComponent(window.location.search.split("=")[1]);
 		this.socket.username = username;
+		this.socket.emit('requestActivityInfo');
 		this.socket.emit('requestToJoinChat', username);
 	}
 
 	bindEvents() {
-		document.querySelector('.addActivity').addEventListener('click', ()=>{
-			this.appendActivityDom();
-		});
+		// document.querySelector('.addActivity').addEventListener('click', ()=>{
+		// 	this.appendActivityDom();
+		// });
 
 		document.addEventListener('keypress', (e)=>{
 			if(e.key === "Enter"){
@@ -34,6 +35,14 @@ class RuleBook {
 	}
 
 	bindSocketEvents() {
+		var that = this;
+
+		this.socket.on('receiveActivityInfo', (activityInfo)=>{
+			for(let i=0;i<activityInfo.length;i++){
+				that.appendActivityDom(activityInfo[i].id, activityInfo[i].title);
+			}
+		})
+
 		this.socket.on('joinChat', (username)=>{
 			let msg = "<strong>"+username+"</strong> 님이 입장하셨습니다.";
 			this.chatManager.appendMessage(msg);
@@ -75,17 +84,19 @@ class RuleBook {
 		})
 	}
 
-	appendActivityDom() {
-		this.activityNo += 1;
-		let aNo = "a"+this.activityNo;
+	appendActivityDom(id, title) {
+		console.log(id, title);
+		let aNo = "a"+id;
 
 		let template = document.querySelector('.activityTemplate');
 		let content = document.importNode(template.content, true);
 		content.querySelector('.activity').classList.add(aNo);
-		
+		content.querySelector('.activityTitle').innerText = title;
+
 		content.querySelector('.applyActivity').addEventListener('click', ()=>{
 			this.socket.emit("applyActivity", aNo);
 		});
+
 		document.querySelector('.activityContainer').insertBefore(
 			content, document.querySelector('.addActivity')
 		);
