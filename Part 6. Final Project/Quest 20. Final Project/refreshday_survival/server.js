@@ -74,7 +74,7 @@ io.on('connection', (socket)=>{
 		})
 	})
 
-
+ 
 	socket.on('requestToJoinChat', (username)=>{
 		console.log(username);
 		socket.username = username;
@@ -87,19 +87,38 @@ io.on('connection', (socket)=>{
 				}
 			}		
 		})
-		io.emit('joinChat', username);	
+		io.emit('joinChat', username);
 	});
 
-	socket.on('fetchChatLog', ()=>{
-		Chat_log.findAll({
-			where: {
-				chat_day: today,
+	socket.on('fetchChatLog', (lastChatId)=>{
+		console.log(lastChatId);
+		let whereOptions = {
+			chat_day: today
+		};
+		
+		if(lastChatId !== -1){
+			whereOptions.id = {$lt: lastChatId};
+		}
 
-			},
-			order: [['created_at', 'DESC']]
+		console.log(whereOptions);
+
+		Chat_log.findAll({
+			where: whereOptions,
+			// order: [['created_at', 'DESC']], => 이거 이렇게 하면 나중에 후회하게 될까?
+			order: [['id', 'DESC']],
 			limit: 100
-		})
-	})
+		}).then((chatlogQuery)=>{
+			let lastId = Infinity;
+
+			for(let key in chatlogQuery){
+				console.log("chat history id "+chatlogQuery[key].dataValues.id);
+				if(chatlogQuery[key].dataValues.id < lastId) lastId = chatlogQuery[key].dataValues.id;
+				socket.emit('receiveOldMessage', chatlogQuery[key].dataValues.chat_message);
+			}
+			socket.emit('lastChatId', lastId);
+
+		});
+	});
 
 	socket.on('sendMessage', (message)=>{
 		console.log("from username "+ socket.username);

@@ -52,6 +52,12 @@ div.activity {
 	text-align: left;
 }
 
+.loadMore {
+	background-color: blue;
+	color: white;
+	text-align: center;
+}
+
 .chatInput {
 	box-sizing: border-box;
 	height: 30px;

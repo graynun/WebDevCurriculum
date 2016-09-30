@@ -13,9 +13,11 @@ class RuleBook {
 		let username = decodeURIComponent(window.location.search.split("=")[1]);
 		this.socket.username = username;
 
+		this.appendLoadMore();
+
 		this.socket.emit('requestActivityInfo');
 		this.socket.emit('requestToJoinChat', username);
-		this.socket.emit('fetchChatLog');
+		// this.socket.emit('fetchChatLog');
 	}
 
 	bindEvents() {
@@ -49,6 +51,33 @@ class RuleBook {
 			this.chatManager.appendMessage(message);
 		})
 
+		this.socket.on('receiveOldMessage', (message)=>{
+			console.log(message);
+			this.chatManager.appendOldMessage(message);
+		})
+
+		this.socket.on('lastChatId', (lastId)=>{
+			let loadMore;
+
+			if(lastId !== -1){
+				this.chatManager.lastChatId = lastId;
+
+				loadMore = document.createElement('p');
+				loadMore.classList.add('loadMore');
+				loadMore.innerText = "채팅내역 더보기";
+				loadMore.addEventListener('click', ()=>{
+					loadMore.parentNode.removeChild(loadMore);
+					this.socket.emit('fetchChatLog', this.chatManager.lastChatId);
+				})
+			}else{
+				loadMore = document.createElement('p');
+				loadMore.innerText = "읽지 않은 채팅 내역이 없습니다";
+			}
+
+			document.querySelector('.chatWindow').insertBefore(loadMore, document.querySelector('.chatWindow>p'));
+			console.log(this.chatManager.lastChatId);
+		})
+
 		this.socket.on('joinActivity', (activityNo, username)=>{
 			console.log(activityNo, username);
 
@@ -78,6 +107,8 @@ class RuleBook {
 				if(ul[i].innerText === username+"X" ||ul[i].innerText === username) ul[i].parentNode.removeChild(ul[i]);
 			}
 		})
+
+
 	}
 
 	appendActivityDom(id, title) {
@@ -96,13 +127,31 @@ class RuleBook {
 		document.querySelector('.activityContainer').insertBefore(
 			content, document.querySelector('.addActivity')
 		);
-
 	}
+
+
+	appendLoadMore(){
+		console.log("Ever called initialize?");
+
+		let loadMore = document.createElement('p');
+		loadMore.classList.add('loadMore');
+		loadMore.innerText = "채팅내역 더보기";
+		loadMore.addEventListener('click', ()=>{
+			loadMore.parentNode.removeChild(loadMore);
+			this.socket.emit('fetchChatLog', this.chatManager.lastChatId);
+		})
+
+		document.querySelector('.chatWindow').insertBefore(loadMore, document.querySelector('.chatWindow>p'));
+	}
+
+
 }
 
 class ChatManager {
 	constructor(){
-		this.dom = document.querySelector('.chatRoom');
+		this.dom = document.querySelector('.chatRoom'),
+		this.lastChatId = -1;
+
 		this.bindEvents();
 	}
 
@@ -127,6 +176,11 @@ class ChatManager {
 		this.dom.querySelector('.chatWindow').scrollTop = this.dom.querySelector('.chatWindow').scrollHeight;
 	}
 
+	appendOldMessage(message){
+		let p = document.createElement('p');
+		p.innerHTML = message;
+		this.dom.querySelector('.chatWindow').insertBefore(p, document.querySelector('.chatWindow>p'));
+	}
 }
 
 
