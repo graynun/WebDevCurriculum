@@ -8,8 +8,11 @@ const path = require('path'),
 	db = require('./db.js'),
 	sequelize = db.sequelize,
 	Activity_info = db.Activity_info,
-	Activity_join_log = db.Activity_join_log;
+	Activity_join_log = db.Activity_join_log,
+	Chat_log = db.Chat_log;
 
+
+Chat_log.sync();
 Activity_info.sync().then(()=>{
 	return Activity_join_log.sync();
 });
@@ -49,6 +52,8 @@ io.on('connection', (socket)=>{
 	// console.log(socket.adapter);
 	console.log("aaargh");
 
+	const today = new Date().toDateString().replace(/\s/g, '');
+
 	socket.on('requestActivityInfo', ()=>{
 		console.log("eer gets requestActivityInfo?");
 		Activity_info.findAll({
@@ -85,8 +90,30 @@ io.on('connection', (socket)=>{
 		io.emit('joinChat', username);	
 	});
 
+	socket.on('fetchChatLog', ()=>{
+		Chat_log.findAll({
+			where: {
+				chat_day: today,
+
+			},
+			order: [['created_at', 'DESC']]
+			limit: 100
+		})
+	})
+
 	socket.on('sendMessage', (message)=>{
-		console.log(message);
+		console.log("from username "+ socket.username);
+		console.log("on day "+today);
+		console.log("message is \n"+message);
+
+		Chat_log.create({
+			chat_day: today,
+			username: socket.username,
+			chat_message: message
+		}).then((chatlog)=>{
+			console.log(chatlog);
+		});
+
 		io.emit('receiveMessage', message);
 	});
 

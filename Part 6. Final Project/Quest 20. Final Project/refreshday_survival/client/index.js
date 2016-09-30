@@ -10,19 +10,15 @@ class RuleBook {
 	}
 
 	initialize() {
-		// this.appendActivityDom();
-
 		let username = decodeURIComponent(window.location.search.split("=")[1]);
 		this.socket.username = username;
+
 		this.socket.emit('requestActivityInfo');
 		this.socket.emit('requestToJoinChat', username);
+		this.socket.emit('fetchChatLog');
 	}
 
 	bindEvents() {
-		// document.querySelector('.addActivity').addEventListener('click', ()=>{
-		// 	this.appendActivityDom();
-		// });
-
 		document.addEventListener('keypress', (e)=>{
 			if(e.key === "Enter"){
 				let message = document.querySelector('.chatContent').value;

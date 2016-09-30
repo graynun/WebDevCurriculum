@@ -74,6 +74,36 @@ const Activity_join_log = sequelize.define('Activity_join_log', {
 	paranoid: true
 });
 
+const Chat_log = sequelize.define('Chat_log', {
+	id: {
+		type: Sequelize.INTEGER.UNSIGNED,
+		field: 'id',
+		allowNull: false,
+		autoIncrement: true,
+		primaryKey: true
+	},
+	chat_day: {
+		type: Sequelize.STRING,
+		field: 'chat_day',
+		allowNull: false
+	},
+	username: {
+		type: Sequelize.STRING,
+		field: 'username',
+		allowNull: false
+	},
+	chat_message: {
+		type: Sequelize.TEXT,
+		field: 'chat_message',
+		allowNull: false
+	}
+}, {
+	freezeTableName: true,
+	underscored: true,
+	charset: 'utf8',
+	timestamps: true,
+	paranoid: true
+});
 
 Activity_info.hasMany(Activity_join_log, {
 	foreignKey: {
@@ -82,9 +112,9 @@ Activity_info.hasMany(Activity_join_log, {
 });
 
 
-
 module.exports = {
 	sequelize: sequelize,
 	Activity_info: Activity_info,
-	Activity_join_log: Activity_join_log
+	Activity_join_log: Activity_join_log,
+	Chat_log: Chat_log
 }
