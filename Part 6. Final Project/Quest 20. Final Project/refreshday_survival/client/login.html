@@ -3,15 +3,61 @@
 <head>
 	<meta charset="utf-8">
 	<title>리프레시데이 서바이벌 로그인</title>
+	<!-- client id  660527717768-7jaidrhsib4v48tq4vs8dt6an89e5ks5.apps.googleusercontent.com -->
 </head>
 <body>
 	<section>
 		리프레시데이 서바이벌(선착순) 로그인
 		<input class="id" placeholder="ID">
 		<button class="login">signin</button>
+		<!-- <button class="googleLogin"> Sign in with Google </button> -->
 	</section>
 
 	<script type="text/javascript">
+
+		if(window.location.hash !== ""){
+			let loadingSection = document.createElement('section');
+			loadingSection.innerText = "로딩중";
+			document.querySelector('section').appendChild(loadingSection);
+
+			console.log(window.location.hash);
+
+			let postBody = window.location.hash.slice(1);
+			console.log(postBody);
+
+			let req = new XMLHttpRequest;
+
+			req.onload = ()=>{
+				if(req.status === 200){
+					window.location.replace(req.responseURL);
+				}
+			}
+
+			req.open('POST', '/login');
+			req.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+			req.send(postBody);
+
+		}else{
+			let googleLoginBtn = document.createElement('button');
+			googleLoginBtn.classList.add("googleLogin");
+			googleLoginBtn.innerText = "Sign in with Google";
+
+			googleLoginBtn.addEventListener('click', ()=>{
+				let url = "https://accounts.google.com/o/oauth2/v2/auth?" +
+					"response_type=token&" +
+					"client_id=660527717768-7jaidrhsib4v48tq4vs8dt6an89e5ks5.apps.googleusercontent.com&" +
+					"redirect_uri=http://localhost:8080/&" +
+					"scope=email%20profile";
+
+				window.location.replace(url);
+			});
+
+			document.querySelector('section').appendChild(googleLoginBtn);
+		}
+
+
+
+
 		document.querySelector('.login').addEventListener('click', ()=>{
 			let postBody = "username="+document.querySelector('.id').value;
 

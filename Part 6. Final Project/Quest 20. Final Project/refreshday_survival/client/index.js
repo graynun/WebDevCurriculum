@@ -17,7 +17,6 @@ class RuleBook {
 
 		this.socket.emit('requestActivityInfo');
 		this.socket.emit('requestToJoinChat', username);
-		// this.socket.emit('fetchChatLog');
 	}
 
 	bindEvents() {
@@ -37,44 +36,35 @@ class RuleBook {
 
 		this.socket.on('receiveActivityInfo', (activityInfo)=>{
 			for(let i=0;i<activityInfo.length;i++){
-				that.appendActivityDom(activityInfo[i].id, activityInfo[i].title);
+				that.appendActivityDom(activityInfo[i].id, activityInfo[i].title, activityInfo[i].description);
 			}
 		})
 
 		this.socket.on('joinChat', (username)=>{
+			console.log("Ever called joinchat?");
 			let msg = "<strong>"+username+"</strong> 님이 입장하셨습니다.";
-			this.chatManager.appendMessage(msg);
+			this.chatManager.appendMessage('system', msg);
 		})
 
-		this.socket.on('receiveMessage', (message)=>{
-			console.log(message);
-			this.chatManager.appendMessage(message);
+		this.socket.on('receiveMessage', (author, message)=>{
+			console.log(author, message);
+			this.chatManager.appendMessage(author, message);
 		})
 
-		this.socket.on('receiveOldMessage', (message)=>{
+		this.socket.on('receiveOldMessage', (author, message)=>{
 			console.log(message);
-			this.chatManager.appendOldMessage(message);
+			this.chatManager.appendOldMessage(author, message);
 		})
 
 		this.socket.on('lastChatId', (lastId)=>{
-			let loadMore;
-
 			if(lastId !== -1){
 				this.chatManager.lastChatId = lastId;
-
-				loadMore = document.createElement('p');
-				loadMore.classList.add('loadMore');
-				loadMore.innerText = "채팅내역 더보기";
-				loadMore.addEventListener('click', ()=>{
-					loadMore.parentNode.removeChild(loadMore);
-					this.socket.emit('fetchChatLog', this.chatManager.lastChatId);
-				})
+				this.appendLoadMore();
 			}else{
-				loadMore = document.createElement('p');
+				let loadMore = document.createElement('p');
 				loadMore.innerText = "읽지 않은 채팅 내역이 없습니다";
+				document.querySelector('.chatWindow').insertBefore(loadMore, document.querySelector('.chatWindow>p'));
 			}
-
-			document.querySelector('.chatWindow').insertBefore(loadMore, document.querySelector('.chatWindow>p'));
 			console.log(this.chatManager.lastChatId);
 		})
 
@@ -85,9 +75,9 @@ class RuleBook {
 			li.innerHTML = username;
 			if(username === this.socket.username){
 				li.classList.add('owner');
-				let remove = document.createElement('span');
+				let remove = document.createElement('div');
 				remove.classList.add('leaveActivity');
-				remove.innerHTML = 'X';
+				remove.innerHTML = '✕';
 				remove.addEventListener('click', ()=>{
 					this.socket.emit('leaveActivity');
 				});
@@ -104,21 +94,20 @@ class RuleBook {
 			console.log(activityNo, username);
 			let ul = document.querySelector('.'+activityNo+' .applicantList').childNodes;
 			for(let i=0;i<ul.length;i++){
-				if(ul[i].innerText === username+"X" ||ul[i].innerText === username) ul[i].parentNode.removeChild(ul[i]);
+				if(ul[i].innerText === username+"✕" ||ul[i].innerText === username) ul[i].parentNode.removeChild(ul[i]);
 			}
 		})
-
-
 	}
 
-	appendActivityDom(id, title) {
-		console.log(id, title);
+	appendActivityDom(id, title, description) {
+		console.log(id, title, description);
 		let aNo = "a"+id;
 
 		let template = document.querySelector('.activityTemplate');
 		let content = document.importNode(template.content, true);
 		content.querySelector('.activity').classList.add(aNo);
 		content.querySelector('.activityTitle').innerText = title;
+		if(description !== null)content.querySelector('.activityDescription').innerText = description;
 
 		content.querySelector('.applyActivity').addEventListener('click', ()=>{
 			this.socket.emit("applyActivity", aNo);
@@ -161,24 +150,44 @@ class ChatManager {
 		this.dom.querySelector('.minimizeChat').addEventListener('click', ()=>{
 			if(that.dom.querySelector('.minimizeChat').classList.contains('close')){
 				that.dom.style.bottom = "0";
-
+				that.dom.querySelector('.minimizeChat').innerHTML = "__";
 			}else{
 				that.dom.style.bottom = "-400px";
+				that.dom.querySelector('.minimizeChat').innerHTML = '&plus;';
 			}
 			that.dom.querySelector('.minimizeChat').classList.toggle('close');
 		})
 	}
 
-	appendMessage(message){
+	appendMessage(author, message){
+		console.log(author, message);
 		let p = document.createElement('p');
-		p.innerHTML = message;
+		if(author !== 'system'){
+			let a = document.createElement('span');
+			a.innerHTML = author;
+			a.classList.add("author");
+			p.appendChild(a);
+		}
+			let m = document.createElement('span');
+			m.innerHTML = message;
+			p.appendChild(m);
+			console.log(p);
 		this.dom.querySelector('.chatWindow').appendChild(p);
 		this.dom.querySelector('.chatWindow').scrollTop = this.dom.querySelector('.chatWindow').scrollHeight;
 	}
 
-	appendOldMessage(message){
+	appendOldMessage(author, message){
 		let p = document.createElement('p');
-		p.innerHTML = message;
+
+		let a = document.createElement('span');
+		a.innerHTML = author;
+		a.classList.add("author");
+		p.appendChild(a);
+
+		let m = document.createElement('span');
+		m.innerHTML = message;
+		p.appendChild(m);
+
 		this.dom.querySelector('.chatWindow').insertBefore(p, document.querySelector('.chatWindow>p'));
 	}
 }

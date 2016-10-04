@@ -1,5 +1,8 @@
+@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
+
 body{
 	min-width: 600px;
+	font-family: 'Noto Sans KR', sans-serif;
 }
 section{
 	border: 1px solid black;
@@ -7,18 +10,55 @@ section{
 	text-align: center;
 	margin: auto;
 }
+
 .activityContainer{
 	box-sizing: border-box;
 	width: 100%;
-	display: inline-flex;
+	display: flex;
 	justify-content: center;
+	/*align-items: flex-start;*/
+	align-items: stretch;
 }
+
 div.activity {
 	border: 1px solid blue;
 	min-width: 200px;
 	max-width: 300px;
 	width: 15%;
-	margin: auto 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.activityTitle {
+	font-weight: bolder;
+}
+
+.activityDescription {
+	text-align: left;
+	word-break: keep-all;
+	height: 150px;
+	padding: 10px;
+	box-sizing: border-box;
+	border: 1px solid green;
+}
+
+.applyActivity {
+	width: 200px;
+	height: 40px;
+	font-size: 1.1em;
+}
+
+ul.applicantList {
+	list-style: none;
+	padding: 0;
+}
+
+ul.applicantList>li>div {
+	display: inline-block;
+	color: white;
+	background-color: black;
+	margin-left: 5px;
+	width: 24px;
 }
 
 .chatRoom{
@@ -45,6 +85,14 @@ div.activity {
 	vertical-align: center;
 }
 
+.minimizeChat {
+	font-weight: bolder;
+}
+
+.minimizeChat.close {
+	font-size: 30px;
+}
+
 .chatWindow{
 	box-sizing: border-box;
 	height: 370px;
@@ -52,7 +100,23 @@ div.activity {
 	text-align: left;
 }
 
+.chatWindow>p {
+	display: flex;
+	flex-direction: column;
+	margin: 5px 10px;
+}
+
+.chatWindow>p:nth-child(even){
+	background-color: #eaeaea;
+}
+
+span.author {
+	font-size: 12px;
+	font-weight: bolder;
+}
+
 .loadMore {
+	display: inline-block;
 	background-color: blue;
 	color: white;
 	text-align: center;

@@ -2,6 +2,7 @@ const path = require('path'),
 	express =require('express'),
 	app = express(),
 	http = require('http').Server(app),
+	https = require('https'),
 	io = require('socket.io')(http),
 	session = require('express-session');
 	bodyParser = require('body-parser'),
@@ -11,6 +12,8 @@ const path = require('path'),
 	Activity_join_log = db.Activity_join_log,
 	Chat_log = db.Chat_log;
 
+const googleClientID = "660527717768-7jaidrhsib4v48tq4vs8dt6an89e5ks5.apps.googleusercontent.com";
+//이런 정보는 어떻게 저장하는 것이 가장 좋을까?
 
 Chat_log.sync();
 Activity_info.sync().then(()=>{
@@ -37,8 +40,32 @@ app.get('/', (req, res)=>{
 });
 
 app.post('/login', (req, res)=>{
-	console.log(req.body.username);
-	res.redirect('/main?username='+req.body.username);
+	console.log(req.body.access_token);
+
+	let outermostRes = res;
+	let validateURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token="+req.body.access_token;
+	https.get(validateURL, (res)=>{
+		let receivedData;
+		res.on('data', (chunk)=>{
+			receivedData = JSON.parse(chunk.toString());
+		});
+		res.on('end', ()=>{
+			console.log(receivedData);
+			if(receivedData.aud === googleClientID){
+				let userinfoURL = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="+req.body.access_token;
+				https.get(userinfoURL, (res)=>{
+					let receivedUserInfo;
+					res.on('data', (res)=>{
+						receivedUserInfo = JSON.parse(res.toString());
+					})
+					res.on('end', ()=>{
+						console.log(receivedUserInfo);
+						outermostRes.redirect('/main?username='+receivedUserInfo.name);
+					})
+				})
+			}
+		})
+	})
 });
 
 app.get('/main', (req, res)=>{
@@ -49,10 +76,9 @@ app.get('/main', (req, res)=>{
 
 
 io.on('connection', (socket)=>{
-	// console.log(socket.adapter);
-	console.log("aaargh");
-
 	const today = new Date().toDateString().replace(/\s/g, '');
+	const joinTime = new Date();
+	// 이런식으로 pseudo-전역변수 써도 되는걸까?
 
 	socket.on('requestActivityInfo', ()=>{
 		console.log("eer gets requestActivityInfo?");
@@ -78,22 +104,29 @@ io.on('connection', (socket)=>{
 	socket.on('requestToJoinChat', (username)=>{
 		console.log(username);
 		socket.username = username;
+		//socket.username식으로 session 활용하는거랑 유사하게 마음대로 실어서 사용해도 좋은지?
+		// 이거 클라이언트에도 같은방식으로 하는데 과연 괜찮은 것인가?
+
 		Activity_join_log.findAll().then((queryResult)=>{
 			let currentActivity_join_log = queryResult;
 			for(let i=0;i<queryResult.length;i++){
-				socket.emit('joinActivity', "a"+queryResult[i].dataValues.activity_no, queryResult[i].dataValues.username);
+				socket.emit('joinActivity', "a"+queryResult[i].dataValues.activity_id, queryResult[i].dataValues.username);
 				if(queryResult[i].dataValues.username === socket.username){
-					socket.activityJoined = "a"+queryResult[i].dataValues.activity_no;
+					socket.activityJoined = "a"+queryResult[i].dataValues.activity_id;
 				}
 			}		
-		})
+		});
+
 		io.emit('joinChat', username);
 	});
 
 	socket.on('fetchChatLog', (lastChatId)=>{
 		console.log(lastChatId);
 		let whereOptions = {
-			chat_day: today
+			chat_day: today,
+			created_at: {
+				lt: joinTime
+			}
 		};
 		
 		if(lastChatId !== -1){
@@ -113,10 +146,11 @@ io.on('connection', (socket)=>{
 			for(let key in chatlogQuery){
 				console.log("chat history id "+chatlogQuery[key].dataValues.id);
 				if(chatlogQuery[key].dataValues.id < lastId) lastId = chatlogQuery[key].dataValues.id;
-				socket.emit('receiveOldMessage', chatlogQuery[key].dataValues.chat_message);
+				socket.emit('receiveOldMessage', chatlogQuery[key].dataValues.username, chatlogQuery[key].dataValues.chat_message);
 			}
+			console.log(Object.keys(chatlogQuery).length);
+			if(Object.keys(chatlogQuery).length < 100) lastId = -1;
 			socket.emit('lastChatId', lastId);
-
 		});
 	});
 
@@ -129,11 +163,9 @@ io.on('connection', (socket)=>{
 			chat_day: today,
 			username: socket.username,
 			chat_message: message
-		}).then((chatlog)=>{
-			console.log(chatlog);
 		});
 
-		io.emit('receiveMessage', message);
+		io.emit('receiveMessage', socket.username, message);
 	});
 
 	socket.on('applyActivity', (activityNo)=>{
