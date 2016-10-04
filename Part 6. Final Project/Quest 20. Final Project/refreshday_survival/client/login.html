@@ -4,12 +4,31 @@
 	<meta charset="utf-8">
 	<title>리프레시데이 서바이벌 로그인</title>
 	<!-- client id  660527717768-7jaidrhsib4v48tq4vs8dt6an89e5ks5.apps.googleusercontent.com -->
+	<style type="text/css">
+		@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
+		body{
+			min-width: 600px;
+			height: 768px;
+			font-family: 'Noto Sans KR', sans-serif;
+			display: flex;
+			justify-content: center;
+			align-items: center;	
+		}
+
+		section {
+			text-align: center;
+		}
+
+		button {
+			width: 200px;
+			height: 40px;
+			font-size: 1.2em
+		}
+	</style>
 </head>
 <body>
 	<section>
-		리프레시데이 서바이벌(선착순) 로그인
-		<input class="id" placeholder="ID">
-		<button class="login">signin</button>
+		<h2>리프레시데이 서바이벌(선착순) 로그인</h2>
 		<!-- <button class="googleLogin"> Sign in with Google </button> -->
 	</section>
 
@@ -54,26 +73,6 @@
 
 			document.querySelector('section').appendChild(googleLoginBtn);
 		}
-
-
-
-
-		document.querySelector('.login').addEventListener('click', ()=>{
-			let postBody = "username="+document.querySelector('.id').value;
-
-			let req = new XMLHttpRequest();
-
-			req.onreadystatechange = ()=>{
-				if(req.readyState === XMLHttpRequest.DONE && req.status === 200){
-					window.location.replace(req.responseURL);
-				}
-			}
-			
-			req.open('POST', '/login');
-			req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-			req.send(postBody);
-
-		})
 	</script>
 </body>
 </html>
