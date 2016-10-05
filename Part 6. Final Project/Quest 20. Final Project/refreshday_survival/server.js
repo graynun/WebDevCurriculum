@@ -4,16 +4,18 @@ const path = require('path'),
 	http = require('http').Server(app),
 	https = require('https'),
 	io = require('socket.io')(http),
-	session = require('express-session');
 	bodyParser = require('body-parser'),
+	cookieParser = require('cookie-parser'),
+	jwt = require('jsonwebtoken'),
 	db = require('./db.js'),
 	sequelize = db.sequelize,
 	Activity_info = db.Activity_info,
 	Activity_join_log = db.Activity_join_log,
 	Chat_log = db.Chat_log;
 
-const googleClientID = "660527717768-7jaidrhsib4v48tq4vs8dt6an89e5ks5.apps.googleusercontent.com";
-//이런 정보는 어떻게 저장하는 것이 가장 좋을까?
+const googleClientID = "660527717768-7jaidrhsib4v48tq4vs8dt6an89e5ks5.apps.googleusercontent.com",
+	jwtkey = "random jibber jabber :P";
+//이런 정보는 어떻게 저장하는 것이 가장 좋을까? ==> config에 양이 많으면 따로 빼서 저장을...
 
 Chat_log.sync();
 Activity_info.sync().then(()=>{
@@ -22,13 +24,9 @@ Activity_info.sync().then(()=>{
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(cookieParser());
 app.use(express.static('client'));
-app.use(session({
-	secret: 'randomjibberjabber?!',
-	resave: false,
-	saveUninitialized: true,
-	maxAge: 3 * 60 * 1000
-}));
+
 
 
 http.listen(8080, ()=>{
@@ -36,6 +34,7 @@ http.listen(8080, ()=>{
 });
 
 app.get('/', (req, res)=>{
+	console.log(req.cookies);
 	res.sendFile(path.join(__dirname, "/client/login.html"));
 });
 
@@ -60,7 +59,16 @@ app.post('/login', (req, res)=>{
 					})
 					res.on('end', ()=>{
 						console.log(receivedUserInfo);
-						outermostRes.redirect('/main?username='+receivedUserInfo.name);
+						let userinfo = {
+							username: receivedUserInfo.name,
+							email: receivedUserInfo.email
+						};
+
+						jwt.sign(userinfo, jwtkey, {}, (err, token)=>{
+							if(err) throw err;
+							outermostRes.cookie("jwt", token);
+							outermostRes.redirect('/main?username='+receivedUserInfo.name);
+						})
 					})
 				})
 			}
@@ -69,7 +77,16 @@ app.post('/login', (req, res)=>{
 });
 
 app.get('/main', (req, res)=>{
-	res.sendFile(path.join(__dirname, '/client/main.html'));
+	jwt.verify(req.cookies.jwt, jwtkey, {}, (err, userinfo)=>{
+		if(userinfo === undefined){
+			throw new Error("no authenticaated user");
+		}else{
+			console.log("****************************jwt verified info **********************************");
+			console.log(userinfo.username);
+			console.log(userinfo.email);
+			res.sendFile(path.join(__dirname, '/client/main.html'));	
+		} 
+	});
 });
 
 
@@ -79,6 +96,7 @@ io.on('connection', (socket)=>{
 	const today = new Date().toDateString().replace(/\s/g, '');
 	const joinTime = new Date();
 	// 이런식으로 pseudo-전역변수 써도 되는걸까?
+	console.log(socket.handshake.headers);
 
 	socket.on('requestActivityInfo', ()=>{
 		console.log("eer gets requestActivityInfo?");
@@ -106,6 +124,7 @@ io.on('connection', (socket)=>{
 		socket.username = username;
 		//socket.username식으로 session 활용하는거랑 유사하게 마음대로 실어서 사용해도 좋은지?
 		// 이거 클라이언트에도 같은방식으로 하는데 과연 괜찮은 것인가?
+		// 역시 별로 좋은 방법은 아닌듯? 여러 유저가 거의 시간차 없이 들어오는 경우 소켓에 저장된 정보가 바뀔 수 있다
 
 		Activity_join_log.findAll().then((queryResult)=>{
 			let currentActivity_join_log = queryResult;
@@ -137,7 +156,7 @@ io.on('connection', (socket)=>{
 
 		Chat_log.findAll({
 			where: whereOptions,
-			// order: [['created_at', 'DESC']], => 이거 이렇게 하면 나중에 후회하게 될까?
+			// order: [['created_at', 'DESC']], => 이거 이렇게 하면 나중에 후회하게 될까? 데이터 순서는 별 차이 없을거라는듯?
 			order: [['id', 'DESC']],
 			limit: 100
 		}).then((chatlogQuery)=>{
@@ -155,6 +174,7 @@ io.on('connection', (socket)=>{
 	});
 
 	socket.on('sendMessage', (message)=>{
+		console.log(socket.handshake.headers);
 		console.log("from username "+ socket.username);
 		console.log("on day "+today);
 		console.log("message is \n"+message);
@@ -166,6 +186,7 @@ io.on('connection', (socket)=>{
 		});
 
 		io.emit('receiveMessage', socket.username, message);
+		//client에 chat_log.id를 같이 넘겨주면 서버에 들어온 시간을 저장할 필요가 없음...
 	});
 
 	socket.on('applyActivity', (activityNo)=>{

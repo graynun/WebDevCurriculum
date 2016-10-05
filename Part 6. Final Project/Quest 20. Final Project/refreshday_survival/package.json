@@ -1,12 +1,12 @@
 {
   "private": true,
   "dependencies": {
-    "express": "*",
     "body-parser": "*",
-    "socket.io": "*",
-    "express-session": "*",
-    "sequelize": "*",
+    "cookie-parser": "^1.4.3",
+    "express": "*",
+    "jsonwebtoken": "^7.1.9",
     "mysql": "*",
-    "scrypt": "*"
+    "sequelize": "*",
+    "socket.io": "*"
   }
 }
