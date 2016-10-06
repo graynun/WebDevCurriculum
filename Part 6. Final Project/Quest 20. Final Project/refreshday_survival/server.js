@@ -13,6 +13,9 @@ const path = require('path'),
 	Activity_join_log = db.Activity_join_log,
 	Chat_log = db.Chat_log;
 
+let activityInfo = {};
+// 이거 좀 더 우아하게 할 수 없나?
+
 const googleClientID = "660527717768-7jaidrhsib4v48tq4vs8dt6an89e5ks5.apps.googleusercontent.com",
 	jwtkey = "random jibber jabber :P";
 //이런 정보는 어떻게 저장하는 것이 가장 좋을까? ==> config에 양이 많으면 따로 빼서 저장을...
@@ -67,7 +70,7 @@ app.post('/login', (req, res)=>{
 						jwt.sign(userinfo, jwtkey, {}, (err, token)=>{
 							if(err) throw err;
 							outermostRes.cookie("jwt", token);
-							outermostRes.redirect('/main?username='+receivedUserInfo.name);
+							outermostRes.redirect('/main');
 						})
 					})
 				})
@@ -76,10 +79,16 @@ app.post('/login', (req, res)=>{
 	})
 });
 
+app.get('/logout', (req, res)=>{
+	res.clearCookie('jwt');
+	res.redirect('/');
+})
+
 app.get('/main', (req, res)=>{
 	jwt.verify(req.cookies.jwt, jwtkey, {}, (err, userinfo)=>{
 		if(userinfo === undefined){
-			throw new Error("no authenticaated user");
+			console.log(new Error("no authenticaated user"));
+			res.redirect('/');
 		}else{
 			console.log("****************************jwt verified info **********************************");
 			console.log(userinfo.username);
@@ -93,15 +102,10 @@ app.get('/main', (req, res)=>{
 
 
 io.on('connection', (socket)=>{
-	const today = new Date().toDateString().replace(/\s/g, '');
-	const joinTime = new Date();
-	// 이런식으로 pseudo-전역변수 써도 되는걸까?
-	console.log(socket.handshake.headers);
-
-	socket.on('requestActivityInfo', ()=>{
-		console.log("eer gets requestActivityInfo?");
+	socket.on('fetchActivityInfo', ()=>{
+		console.log("eer gets fetchActivityInfo?");
 		Activity_info.findAll({
-			attributes: ['id', 'title', 'description'],
+			attributes: ['id', 'title', 'description', 'quota'],
 			where: {
 				available_date:{
 					gt: new Date(2016, 8, 1),
@@ -109,45 +113,50 @@ io.on('connection', (socket)=>{
 				}
 			}
 		}).then((queryResult)=>{
-			let activityInfoArr = [];
 			for(let i=0;i<queryResult.length;i++){
-				activityInfoArr.push(queryResult[i].dataValues);
+				queryResult[i].dataValues.currentQuota = 0;
+				activityInfo[queryResult[i].dataValues.id] = queryResult[i].dataValues;
 			}
-			console.log(activityInfoArr);
-			socket.emit('receiveActivityInfo', activityInfoArr);
+			console.log(activityInfo);
+			socket.emit('receiveActivityInfo', activityInfo);
 		})
 	})
 
  
-	socket.on('requestToJoinChat', (username)=>{
-		console.log(username);
-		socket.username = username;
-		//socket.username식으로 session 활용하는거랑 유사하게 마음대로 실어서 사용해도 좋은지?
-		// 이거 클라이언트에도 같은방식으로 하는데 과연 괜찮은 것인가?
-		// 역시 별로 좋은 방법은 아닌듯? 여러 유저가 거의 시간차 없이 들어오는 경우 소켓에 저장된 정보가 바뀔 수 있다
+	socket.on('requestToJoinChat', ()=>{
+		console.log("****************requestTOJoin socket header cookie*********************");
+		let currentjwt = socket.handshake.headers.cookie.split(/jwt=/g)[1];
+		console.log(currentjwt);
 
-		Activity_join_log.findAll().then((queryResult)=>{
-			let currentActivity_join_log = queryResult;
-			for(let i=0;i<queryResult.length;i++){
-				socket.emit('joinActivity', "a"+queryResult[i].dataValues.activity_id, queryResult[i].dataValues.username);
-				if(queryResult[i].dataValues.username === socket.username){
-					socket.activityJoined = "a"+queryResult[i].dataValues.activity_id;
-				}
-			}		
-		});
+		jwt.verify(currentjwt, jwtkey, {}, (err, userinfo)=>{
+			if(err) throw err;
+			if(userinfo === undefined){
+				throw new Error("no authenticaated user");
+			}else{
+				io.emit('joinChat', userinfo.username);	
 
-		io.emit('joinChat', username);
+				Activity_join_log.findAll().then((queryResult)=>{
+					let currentActivity_join_log = queryResult;
+					for(let i=0;i<queryResult.length;i++){
+						socket.emit('joinActivity', queryResult[i].dataValues.activity_id, queryResult[i].dataValues.username);
+					}		
+				});
+			}
+		})
 	});
 
-	socket.on('fetchChatLog', (lastChatId)=>{
-		console.log(lastChatId);
+	socket.on('fetchChatLog', (lastChatId, jointime)=>{
+		let joinDate = new Date(jointime);
+		let yesterday = new Date(jointime);
+		yesterday.setDate(yesterday.getDate() - 1);
+
 		let whereOptions = {
-			chat_day: today,
 			created_at: {
-				lt: joinTime
+				$lt: joinDate,
+				$gt: yesterday
 			}
 		};
-		
+
 		if(lastChatId !== -1){
 			whereOptions.id = {$lt: lastChatId};
 		}
@@ -173,52 +182,64 @@ io.on('connection', (socket)=>{
 		});
 	});
 
-	socket.on('sendMessage', (message)=>{
+	socket.on('sendMessage', (username, message)=>{
 		console.log(socket.handshake.headers);
-		console.log("from username "+ socket.username);
-		console.log("on day "+today);
-		console.log("message is \n"+message);
 
-		Chat_log.create({
-			chat_day: today,
-			username: socket.username,
-			chat_message: message
-		});
+		jwt.verify(currentjwt, jwtkey, {}, (err, userinfo)=>{
+			if(err) throw err;
+			if(userinfo === undefined){
+				throw new Error("no authenticaated user");
+			}else{
+				console.log("from username "+ userinfo.username);
+				console.log("message is \n"+message);
 
-		io.emit('receiveMessage', socket.username, message);
-		//client에 chat_log.id를 같이 넘겨주면 서버에 들어온 시간을 저장할 필요가 없음...
-	});
-
-	socket.on('applyActivity', (activityNo)=>{
-		console.log(activityNo);
-		console.log(socket.username);
-		if(socket.activityJoined === undefined){
-			socket.activityJoined = activityNo;	
-			console.log(activityNo.slice(1));
-			Activity_join_log.create({
-				username: socket.username,
-				activity_id: Number(activityNo.slice(1))
-			}).then((log)=>{
-				console.log(log);
-			});
-			io.emit('joinActivity', activityNo, socket.username);
-		}else{
-			socket.emit('cannotJoinActivity');
-		}
-	});
-
-	socket.on('leaveActivity', ()=>{
-		console.log(socket.activityJoined);
-		console.log(socket.username);
-		Activity_join_log.destroy({
-			where:{
-				username: socket.username,
-				activity_id: socket.activityJoined.slice(1)
+				Chat_log.create({
+					username: userinfo.username,
+					chat_message: message
+				});
+				io.emit('receiveMessage', userinfo.username, message);
 			}
 		});
-		io.emit('leaveActivity', socket.activityJoined, socket.username);
-		socket.activityJoined = undefined;
-		console.log(socket.activityJoined);
+	});
+
+	socket.on('applyActivity', (activityNo, username)=>{
+		console.log(activityNo);
+		let activity_no = Number(activityNo);
+
+		if(activityInfo[activity_no].currentQuota >= activityInfo[activity_no].quota){
+			socket.emit('activityFull');
+		}else{
+			activityInfo[activity_no].currentQuota++;
+			Activity_join_log.create({
+				username: username,
+				activity_id: activity_no
+			}).then((log)=>{
+				console.log(log);
+				io.emit('joinActivity', activity_no, username);
+			});
+		}
+
+
+		// else{
+		// 	socket.emit('cannotJoinActivity');
+		// }
+		// 현재 들어가있는 액티비티 유무 판정을 클라에게 미룬 것이 잘한 짓인가?
+	});
+
+	socket.on('leaveActivity', (username, activityJoined)=>{
+		Activity_join_log.destroy({
+			where:{
+				username: username,
+				activity_id: activityJoined
+			}
+		});
+		io.emit('leaveActivity', username, activityJoined);
+	});
+
+	socket.on('disconnectSocket', ()=>{
+		console.log("Socket disconnect called");
+		socket.disconnect();
+		console.log(socket);
 	})
 });
 

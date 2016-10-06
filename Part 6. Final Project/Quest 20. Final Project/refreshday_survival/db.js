@@ -38,6 +38,12 @@ const Activity_info = sequelize.define('Activity_info', {
 		type: Sequelize.DATEONLY,
 		field: 'avaliable_date',
 		allowNull: true
+	},
+	quota: {
+		type: Sequelize.INTEGER.UNSIGNED,
+		field: 'quota',
+		allowNull: true,
+		defaultValue: null
 	}
 }, {
 	freezeTableName: true,
@@ -81,11 +87,6 @@ const Chat_log = sequelize.define('Chat_log', {
 		allowNull: false,
 		autoIncrement: true,
 		primaryKey: true
-	},
-	chat_day: {
-		type: Sequelize.STRING,
-		field: 'chat_day',
-		allowNull: false
 	},
 	username: {
 		type: Sequelize.STRING,
