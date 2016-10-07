@@ -102,6 +102,10 @@ app.get('/main', (req, res)=>{
 
 
 io.on('connection', (socket)=>{
+let currentjwt = socket.handshake.headers.cookie.split(/jwt=/g)[1];
+
+
+
 	socket.on('fetchActivityInfo', ()=>{
 		console.log("eer gets fetchActivityInfo?");
 		Activity_info.findAll({
@@ -125,7 +129,7 @@ io.on('connection', (socket)=>{
  
 	socket.on('requestToJoinChat', ()=>{
 		console.log("****************requestTOJoin socket header cookie*********************");
-		let currentjwt = socket.handshake.headers.cookie.split(/jwt=/g)[1];
+		// let currentjwt = socket.handshake.headers.cookie.split(/jwt=/g)[1];
 		console.log(currentjwt);
 
 		jwt.verify(currentjwt, jwtkey, {}, (err, userinfo)=>{
@@ -136,8 +140,9 @@ io.on('connection', (socket)=>{
 				io.emit('joinChat', userinfo.username);	
 
 				Activity_join_log.findAll().then((queryResult)=>{
-					let currentActivity_join_log = queryResult;
+					
 					for(let i=0;i<queryResult.length;i++){
+						activityInfo[queryResult[i].dataValues.activity_id].currentQuota++;
 						socket.emit('joinActivity', queryResult[i].dataValues.activity_id, queryResult[i].dataValues.username);
 					}		
 				});
@@ -205,6 +210,8 @@ io.on('connection', (socket)=>{
 	socket.on('applyActivity', (activityNo, username)=>{
 		console.log(activityNo);
 		let activity_no = Number(activityNo);
+		console.log(activityInfo[activity_no].currentQuota);
+		console.log(activityInfo[activity_no].currentQuota);
 
 		if(activityInfo[activity_no].currentQuota >= activityInfo[activity_no].quota){
 			socket.emit('activityFull');
@@ -242,4 +249,13 @@ io.on('connection', (socket)=>{
 		console.log(socket);
 	})
 });
+
+
+
+// for testing
+
+module.exports = http;
+
+
+
 

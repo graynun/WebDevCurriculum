@@ -1,8 +1,8 @@
 class RuleBook {
 	constructor(jointime, socket, chatManager) {
 		this.jointime = jointime,
-		this.username = "",
-		this.activityJoined = "";
+		this.username = undefined,
+		this.activityJoined = undefined;
 
 		this.socket = socket,
 		this.chatManager = chatManager;
@@ -25,7 +25,7 @@ class RuleBook {
 				let message = document.querySelector('.chatContent').value;
 				if(message !== ""){
 					document.querySelector('.chatContent').value = "";
-					this.socket.emit('sendMessage', message);				
+					this.socket.emit('sendMessage', this.username, message);				
 				}
 			}
 		})
