@@ -8,6 +8,7 @@ const Sequelize = require('sequelize'),
 const sequelize = new Sequelize(dbaccessinfo.name, dbaccessinfo.account, dbaccessinfo.password, {
 	host: 'localhost',
 	dialect: 'mysql',
+	// logging: false,
 	pool: {
 		max: 5,
 		min: 0,
