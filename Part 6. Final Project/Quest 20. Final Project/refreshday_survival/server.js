@@ -58,7 +58,8 @@ app.post('/login', (req, res)=>{
 					res.on('end', ()=>{
 						let userinfo = {
 							username: receivedUserInfo.name,
-							email: receivedUserInfo.email
+							email: receivedUserInfo.email,
+							language: receivedUserInfo.locale
 						};
 
 						jwt.sign(userinfo, jwtkey, {}, (err, token)=>{
@@ -88,7 +89,44 @@ app.get('/main', (req, res)=>{
 			console.log('****************************jwt verified info **********************************');
 			console.log(userinfo.username);
 			console.log(userinfo.email);
-			res.sendFile(path.join(__dirname, '/client/main.html'));	
+
+			if (userinfo.language === 'ko'){
+				res.redirect('/main_kr');
+			} else {
+				res.redirect('/main_en');
+			}
+		} 
+	});
+});
+
+app.get('/main_en', (req, res)=>{
+	jwt.verify(req.cookies.jwt, jwtkey, {}, (err, userinfo)=>{
+		if (userinfo === undefined) {
+			res.clearCookie('jwt');
+			res.redirect('/');
+			console.log('not authenticated user');
+		} else {
+			console.log('****************************jwt verified info **********************************');
+			console.log(userinfo.username);
+			console.log(userinfo.email);
+
+			res.sendFile(path.join(__dirname, '/client/main_en.html'));
+		} 
+	});
+});
+
+app.get('/main_kr', (req, res)=>{
+	jwt.verify(req.cookies.jwt, jwtkey, {}, (err, userinfo)=>{
+		if (userinfo === undefined) {
+			res.clearCookie('jwt');
+			res.redirect('/');
+			console.log('not authenticated user');
+		} else {
+			console.log('****************************jwt verified info **********************************');
+			console.log(userinfo.username);
+			console.log(userinfo.email);
+
+			res.sendFile(path.join(__dirname, '/client/main_kr.html'));
 		} 
 	});
 });
@@ -97,17 +135,31 @@ app.get('/main', (req, res)=>{
 
 
 io.on('connection', (socket)=>{
-	// let currentjwt = socket.handshake.headers.cookie.split(/jwt=/g)[1];
+	let currentjwt = socket.handshake.headers.cookie.split(/jwt=/g)[1] || socket.handshake.query.jwt;
+
+
+	console.log(socket.handshake.headers);
 
 	//for testing
-	console.log('NO COOKIE HERE?!');
-	console.log(socket.handshake.query);
+	// console.log('NO COOKIE HERE?!');
+	// console.log(socket.handshake.query);
 	
-	let currentjwt = socket.handshake.query.jwt;
+	// let currentjwt = socket.handshake.query.jwt;
 
 	socket.on('fetchActivityInfo', ()=>{
+		let whereQuery = ['id', 'quota'];
+		
+		if (socket.handshake.headers.referer.indexOf('kr') !== -1){
+			whereQuery.push(['title_kr', 'title']);
+			whereQuery.push(['description_kr', 'description']);
+		} else {
+			whereQuery.push(['title_en', 'title']);
+			whereQuery.push(['description_en', 'description']);
+		}
+
+
 		Activity_info.findAll({
-			attributes: ['id', 'title', 'description', 'quota'],
+			attributes: whereQuery,
 			where: {
 				available_date:{
 					gt: new Date(2016, 8, 1),
@@ -129,6 +181,7 @@ io.on('connection', (socket)=>{
 				socket.emit('joinActivity', queryResult[i].dataValues.activity_id, queryResult[i].dataValues.username);
 			}		
 		});
+
 	});
 
 
@@ -155,6 +208,7 @@ io.on('connection', (socket)=>{
 	});
 
 	socket.on('leaveActivity', (username, activityJoined)=>{
+		activityInfo[Number(activityJoined)].currentQuota--;
 		Activity_join_log.destroy({
 			where:{
 				username: username,

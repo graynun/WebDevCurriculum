@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Refreshday Survival</title>
+	<link rel="stylesheet" type="text/css" href="index.css">
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" src="index.js"></script>
+</head>
+<body>
+	<template class="activityTemplate">
+		<div class="activity">
+			<p class="activityTitle">액티비티</p>
+			<p class="activityDescription"> 액티비티 설명</p>
+			<div class="activityApplicantList">
+				<p class="activityQuota"> 액티비티 정원 </p>
+				<button class="applyActivity">신청</button>
+			</div>
+			<div class="applicantListContainer">
+				<ol class='applicantList'>
+				</ol>
+			</div>
+		</div>
+	</template>
+	<section>
+		<header>
+		<span class="logo"></span><h1>리프레시 데이 선착순 신청표</h1>
+		<span class="changeLanguage">English</span>
+		<p class="username"></p> <button class="signout"> 로그아웃 </button>	
+		</header>
+
+		<section class="activityContainer">
+			<!-- Place for activityDOM -->
+		</section>
+	</section>
+
+	<section class='chatRoom'>
+		<div class='chatHeader'>
+			<span class='chatroomTitle'>챗방</span>
+			<span class='minimizeChat'></span>
+		</div>
+		<div class='chatWindow'></div>
+		<div class='chatInput'>
+			<input class="chatContent">
+		</div>
+		
+	</section>
+
+</body>
+</html> 

@@ -3,6 +3,7 @@ class RuleBook {
 		this.jointime = jointime,
 		this.username = undefined,
 		this.activityJoined = undefined;
+		(window.location.href.indexOf('kr') !== -1)? this.language = 'kr' : this.language = 'en';
 
 		this.socket = socket,
 		this.chatManager = chatManager;
@@ -14,10 +15,32 @@ class RuleBook {
 
 	initialize() {
 		this.appendLoadMore();
-
-		this.socket.emit('fetchActivityInfo');
+		
 		this.socket.emit('requestToJoinChat');
+		this.socket.emit('fetchActivityInfo');
 	}
+
+	// setUserLanguage() {
+	// 	// console.log(this.socket);
+	// 	// let currentjwt = this.socket.handshake.headers.cookie.split(/jwt=/g)[1] || this.socket.handshake.query.jwt;
+
+	// 	// jwt.verify(currentjwt, 'random jibber jabber :P', {}, (err, userinfo)=>{
+	// 	// 	if (userinfo.language === 'ko'){
+	// 	// 		this.language = 'kr';
+	// 	// 	} else {
+	// 	// 		this.language = 'en';
+	// 	// 		this.changeHTMLFromKRToEN();
+	// 	// 	}
+	// 	// });
+	// }
+
+	// changeHTMLFromKRToEN() {
+	// 	document.querySelector('.activityTitle').innerText = 'Activity';
+	// 	document.querySelector('.activityDescription').innerText = 'Activity description';
+	// 	document.querySelector('.applyActivity').innerText = 'Sign up';
+	// 	document.querySelector('h1').innerText = 'Refreshday Activity Sign up';
+	// 	document.querySelector('.signout').innerText = 'Sign out';
+	// }
 
 	bindEvents() {
 		document.addEventListener('keypress', (e)=>{
@@ -42,7 +65,15 @@ class RuleBook {
 
 			logoutreq.open('GET', '/logout');
 			logoutreq.send();
-		})
+		});
+
+		document.querySelector('.changeLanguage').addEventListener('click', ()=>{
+			if (document.querySelector('.changeLanguage').innerText === 'English') {
+				window.location.replace('/main_en');
+			} else {
+				window.location.replace('/main_kr');
+			}
+		});
 	}
 
 	bindSocketEvents() {
@@ -58,7 +89,8 @@ class RuleBook {
 			console.log("Ever called joinchat?");
 			this.username = username;
 			document.querySelector('.username').innerText = username;
-			let msg = "<strong>"+username+"</strong> 님이 입장하셨습니다.";
+			let msg;
+			(this.language === 'kr')? msg = "<strong>"+username+"</strong> 님이 입장하셨습니다." : msg = "<strong>"+username+"</strong> entered." 
 			this.chatManager.appendMessage('system', msg);
 		})
 
@@ -78,7 +110,7 @@ class RuleBook {
 				this.appendLoadMore();
 			}else{
 				let loadMore = document.createElement('p');
-				loadMore.innerText = "읽지 않은 채팅 내역이 없습니다";
+				(this.language === 'kr')? loadMore.innerText = "읽지 않은 채팅 내역이 없습니다" : loadMore.innerText = "You've reached at the very beginning of chatlog."
 				document.querySelector('.chatWindow').insertBefore(loadMore, document.querySelector('.chatWindow>p'));
 			}
 			console.log(this.chatManager.lastChatId);
@@ -105,7 +137,7 @@ class RuleBook {
 		})
 
 		this.socket.on('activityFull', ()=>{
-			alert("정원이 초과되었습니다.");
+			(this.language === 'kr')? alert("정원이 초과되었습니다.") : alert('The activity is already full');
 		})
 
 
@@ -115,8 +147,8 @@ class RuleBook {
 				this.activityJoined = undefined;
 
 				let ul = document.querySelector('.a'+activityNo+' .applicantList').childNodes;
-				for(let i=0;i<ul.length;i++){
-					if(ul[i].innerText === username+"✕" ||ul[i].innerText === username) ul[i].parentNode.removeChild(ul[i]);
+				for (let i=0;i<ul.length;i++){
+					if (ul[i].innerText !== undefined && ul[i].innerText.indexOf(username) !== -1) ul[i].parentNode.removeChild(ul[i]);
 				}
 			}else{
 				throw new Error("inappropriate joined activity info");
@@ -131,7 +163,7 @@ class RuleBook {
 		let content = document.importNode(template.content, true);
 		content.querySelector('.activity').classList.add(aNo);
 		content.querySelector('.activityTitle').innerText = title;
-		content.querySelector('.activityQuota').innerText = "정원: "+quota;
+		(this.language === 'kr')? content.querySelector('.activityQuota').innerText = "/"+quota+" 명" : content.querySelector('.activityQuota').innerText = "/"+quota+" person";
 		if(description !== null) content.querySelector('.activityDescription').innerText = description;
 
 		content.querySelector('.applyActivity').addEventListener('click', ()=>{
@@ -139,7 +171,7 @@ class RuleBook {
 			if(this.activityJoined === undefined){
 				this.socket.emit("applyActivity", id, this.username);
 			}else{
-				alert("이미 액티비티에 들어가 있습니다.");
+				(this.language === 'kr')? alert("이미 액티비티에 들어가 있습니다.") : alert("Already joined an activity.");
 			}
 			
 		});
@@ -155,7 +187,7 @@ class RuleBook {
 
 		let loadMore = document.createElement('p');
 		loadMore.classList.add('loadMore');
-		loadMore.innerText = "채팅내역 더보기";
+		(this.language === 'kr')? loadMore.innerText = "채팅내역 더보기" : loadMore.innerText = "Load more"
 		loadMore.addEventListener('click', ()=>{
 			loadMore.parentNode.removeChild(loadMore);
 			this.socket.emit('fetchChatLog', this.chatManager.lastChatId, Date.parse(this.jointime));
@@ -179,10 +211,8 @@ class ChatManager {
 		this.dom.querySelector('.minimizeChat').addEventListener('click', ()=>{
 			if(that.dom.querySelector('.minimizeChat').classList.contains('close')){
 				that.dom.style.bottom = "0";
-				that.dom.querySelector('.minimizeChat').innerHTML = "__";
 			}else{
-				that.dom.style.bottom = "-400px";
-				that.dom.querySelector('.minimizeChat').innerHTML = '&plus;';
+				that.dom.style.bottom = "-358px";
 			}
 			that.dom.querySelector('.minimizeChat').classList.toggle('close');
 		})
@@ -191,14 +221,17 @@ class ChatManager {
 	appendMessage(author, message){
 		console.log(author, message);
 		let p = document.createElement('p');
+		let m = document.createElement('span');
+		m.innerHTML = message;
+		
 		if(author !== 'system'){
 			let a = document.createElement('span');
 			a.innerHTML = author;
 			a.classList.add("author");
 			p.appendChild(a);
+		} else {
+			m.classList.add("system");
 		}
-			let m = document.createElement('span');
-			m.innerHTML = message;
 			p.appendChild(m);
 			console.log(p);
 		this.dom.querySelector('.chatWindow').appendChild(p);

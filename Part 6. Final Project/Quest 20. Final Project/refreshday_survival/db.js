@@ -25,14 +25,24 @@ const Activity_info = sequelize.define('Activity_info', {
 		autoIncrement: true,
 		primaryKey: true
 	},
-	title: {
+	title_en: {
 		type: Sequelize.STRING,
-		field: 'title',
+		field: 'title_en',
 		allowNull: false
 	},
-	description :{
+	title_kr: {
+		type: Sequelize.STRING,
+		field: 'title_kr',
+		allowNull: false
+	},
+	description_en :{
 		type: Sequelize.TEXT,
-		field: 'description',
+		field: 'description_en',
+		allowNull: true
+	},
+	description_kr :{
+		type: Sequelize.TEXT,
+		field: 'description_kr',
 		allowNull: true
 	},
 	available_date: {

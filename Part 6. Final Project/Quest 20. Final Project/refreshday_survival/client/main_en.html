@@ -10,12 +10,13 @@
 <body>
 	<template class="activityTemplate">
 		<div class="activity">
-			<p class="activityTitle">액티비티</p>
-			<p class="activityDescription"> 액티비티 설명</p>
-			<p class="activityQuota"> 액티비티 정원 </p>
-			<button class="applyActivity"> 액티비티 신청하기 </button>
+			<p class="activityTitle">Activity</p>
+			<p class="activityDescription"> Activity Description</p>
+			<div class="activityApplicantList">
+				<p class="activityQuota"> Quota </p>
+				<button class="applyActivity">Sign up</button>
+			</div>
 			<div class="applicantListContainer">
-				신청자목록
 				<ol class='applicantList'>
 				</ol>
 			</div>
@@ -23,25 +24,25 @@
 	</template>
 	<section>
 		<header>
-		<p class="username"></p> <button class="signout"> 로그아웃 </button>	
+		<span class="logo"></span><h1>Refreshday Activity sign up </h1>
+		<span class="changeLanguage">한글</span>
+		<p class="username"></p> <button class="signout"> Signout </button>	
 		</header>
-		<h1>리프레시 데이 선착순 신청표</h1>
+
 		<section class="activityContainer">
 			<!-- Place for activityDOM -->
-
-			<!-- <button class="addActivity"> 액티비티 추가하기 </button> -->
 		</section>
 	</section>
 
 	<section class='chatRoom'>
-		<section class='chatHeader'>
-			챗방
-			<div class='minimizeChat'>__</div>
-		</section>
-		<section class='chatWindow'></section>
-		<section class='chatInput'>
+		<div class='chatHeader'>
+			<span class='chatroomTitle'>Chat room</span>
+			<span class='minimizeChat'></span>
+		</div>
+		<div class='chatWindow'></div>
+		<div class='chatInput'>
 			<input class="chatContent">
-		</section>
+		</div>
 		
 	</section>
 
