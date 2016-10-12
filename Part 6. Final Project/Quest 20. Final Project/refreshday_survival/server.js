@@ -8,6 +8,7 @@ const path = require('path'),
 	cookieParser = require('cookie-parser'),
 	jwt = require('jsonwebtoken'),
 	db = require('./db.js'),
+	// db = require('./test/test_db.js'),
 	Activity_info = db.Activity_info,
 	Activity_join_log = db.Activity_join_log,
 	Chat_log = db.Chat_log;
@@ -88,6 +89,7 @@ app.get('/main', (req, res)=>{
 			res.redirect('/');
 			console.log('not authenticated user');
 		} else {
+			console.log(req.headers);
 			console.log('****************************jwt verified info **********************************');
 			console.log(userinfo.username);
 			console.log(userinfo.email);
@@ -129,21 +131,15 @@ app.get('/main_kr', (req, res)=>{
 
 
 io.on('connection', (socket)=>{
-	let currentjwt = socket.handshake.headers.cookie.split(/jwt=/g)[1] || socket.handshake.query.jwt;
-
-
-	console.log(currentjwt);
-
-	//for testing
-	// console.log('NO COOKIE HERE?!');
-	// console.log(socket.handshake.query);
-	
-	// let currentjwt = socket.handshake.query.jwt;
+	//socket.handshake.query is only for test cases
+	let currentjwt = socket.handshake.query.jwt || socket.handshake.headers.cookie.split(/jwt=/g)[1];
 
 	socket.on('fetchActivityInfo', ()=>{
 		let whereQuery = ['id', 'quota'];
-		
-		if (socket.handshake.headers.referer.indexOf('kr') !== -1){
+		//socket.handshake.query is only for test cases
+		let currentReferer = socket.handshake.query.language || socket.handshake.headers.referer;
+
+		if (currentReferer.indexOf('kr') !== -1){
 			whereQuery.push(['title_kr', 'title']);
 			whereQuery.push(['description_kr', 'description']);
 		} else {
@@ -151,14 +147,14 @@ io.on('connection', (socket)=>{
 			whereQuery.push(['description_en', 'description']);
 		}
 
-		console.log(whereQuery);
+		let today = new Date();
 
 		Activity_info.findAll({
 			attributes: whereQuery,
 			where: {
 				available_date:{
-					gt: new Date(2016, 8, 1),
-					lt: new Date(2016, 9, 1)
+					gt: new Date(today.getYear()+1900, today.getMonth()),
+					lt: new Date(today.getYear()+1900, today.getMonth()+1)
 				}
 			}
 		}).then((queryResult)=>{
@@ -166,7 +162,6 @@ io.on('connection', (socket)=>{
 				queryResult[i].dataValues.currentQuota = 0;
 				activityInfo[Number(queryResult[i].dataValues.id)] = queryResult[i].dataValues;
 			}
-
 			socket.emit('receiveActivityInfo', activityInfo);
 			return Activity_join_log.findAll();
 			

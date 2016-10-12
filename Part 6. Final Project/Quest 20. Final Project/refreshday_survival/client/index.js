@@ -58,6 +58,7 @@ class RuleBook {
 		var that = this;
 
 		this.socket.on('receiveActivityInfo', (activityInfo)=>{
+			console.log(activityInfo);
 			for(var key in activityInfo){
 				that.appendActivityDom(activityInfo[key].id, activityInfo[key].title, activityInfo[key].description, activityInfo[key].quota);
 			}
@@ -112,6 +113,8 @@ class RuleBook {
 				li.appendChild(remove);
 			}
 			document.querySelector('.a'+activityNo+' .applicantList').appendChild(li);
+
+			document.querySelector('.a'+activityNo+' .currentQuota').innerText = document.querySelector('.a'+activityNo+' .applicantList').childNodes.length - 1;
 		})
 
 		this.socket.on('activityFull', ()=>{
@@ -125,6 +128,7 @@ class RuleBook {
 				this.activityJoined = undefined;
 
 				let ul = document.querySelector('.a'+activityNo+' .applicantList').childNodes;
+				document.querySelector('.a'+activityNo+' .currentQuota').innerText = ul - 2 || 0;
 				for (let i=0;i<ul.length;i++){
 					if (ul[i].innerText !== undefined && ul[i].innerText.indexOf(username) !== -1) ul[i].parentNode.removeChild(ul[i]);
 				}
@@ -135,13 +139,13 @@ class RuleBook {
 	}
 
 	appendActivityDom(id, title, description, quota) {
-		console.log(id, title, description);
+		console.log(id, title, description, quota);
 		let aNo = 'a'+id;
 		let template = document.querySelector('.activityTemplate');
 		let content = document.importNode(template.content, true);
 		content.querySelector('.activity').classList.add(aNo);
 		content.querySelector('.activityTitle').innerText = title;
-		(this.language === 'kr')? content.querySelector('.activityQuota').innerText = "/"+quota+" 명" : content.querySelector('.activityQuota').innerText = "/"+quota+" person";
+		(this.language === 'kr')? content.querySelector('span.quota').innerText = " / "+quota+" 명" : content.querySelector('span.quota').innerText = " / "+quota+" person";
 		if(description !== null) content.querySelector('.activityDescription').innerText = description;
 
 		content.querySelector('.applyActivity').addEventListener('click', ()=>{

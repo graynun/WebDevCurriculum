@@ -3,6 +3,10 @@ const db = require('./db.js'),
 	Activity_info = db.Activity_info,
 	Activity_join_log = db.Activity_join_log;
 
+
+let today = new Date();
+
+
 Activity_info.sync().then(()=>{
 	return Activity_join_log.sync();
 }).then(()=>{
@@ -11,8 +15,8 @@ Activity_info.sync().then(()=>{
 		title_en: "Foot or back massage",
 		description_kr: "발마사지와 등마사지 중에 하나 선택\n1시, 2시 타임 나누어 진행 (8명/7명)", 
 		description_en: "Choose one(either foot or back)\nSeparated into two groups\n(8 ppl at 1pm / 7 ppl at 2pm)", 
-		available_date: new Date(2016, 8, 15),
-		quota: 1,
+		available_date: new Date(today.getYear()+1900, today.getMonth(), 15),
+		quota: 0,
 	});
 }).then(()=>{
 	return Activity_info.create({
@@ -20,7 +24,7 @@ Activity_info.sync().then(()=>{
 		title_en: "Fishing",
 		description_kr: "잡은 물고기는 가져갈 수 없으며, 운이 좋으면 상품으로 교환할 수도 있음.\n컵라면/커피 무한제공", 
 		description_en: "Can't take fishes you catch. \nFishes can be traded with gifts(if lucky)\nUnlimited cup noodle / coffee provided", 
-		available_date: new Date(2016, 8, 15),
+		available_date: new Date(today.getYear()+1900, today.getMonth(), 15),
 		quota: 10
 	});	
 }).then(()=>{
@@ -29,14 +33,14 @@ Activity_info.sync().then(()=>{
 		title_en: "Baking(cake)",
 		description_kr: "기본은 같고 데코레이션은 준비된 것 중에 자유롭게 선택할 수 있음",
 		description_en: "Can choose the decoration design",
-		available_date: new Date(2016, 8, 15),
+		available_date: new Date(today.getYear()+1900, today.getMonth(), 15),
 		quota: 2
 	});	
 }).then(()=>{
 	return Activity_info.create({
 		title_kr: "볼링",
 		title_en: "Bowling",
-		available_date: new Date(2016, 8, 15),
+		available_date: new Date(today.getYear()+1900, today.getMonth(), 15),
 		quota: 20
 	});		
 }).then(()=>{
@@ -45,7 +49,7 @@ Activity_info.sync().then(()=>{
 		title_en: "Escape room",
 		description_kr: "특별한 테마의 방안에 갇힌 참가자들이 숨겨진 단서들을 활용하여 주어진 시간동안 방을 탈출하는 게임입니다.",
 		description_en: "Escape from a room using hidden clues.",
-		available_date: new Date(2016, 8, 15),
+		available_date: new Date(today.getYear()+1900, today.getMonth(), 15),
 		quota: 1
 	});	
 }).then(()=>{

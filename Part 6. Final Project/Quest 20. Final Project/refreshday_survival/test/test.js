@@ -5,7 +5,8 @@ var chai = require('chai'),
 	jwt = require('jsonwebtoken'),
 	should = chai.should();
 
-var db = require('../db.js'),
+var db = require('./test_db.js'),
+	insertData = require('./test_db_data.js')
 	sequelize = db.sequelize,
 	Activity_info = db.Activity_info,
 	Activity_join_log = db.Activity_join_log,
@@ -16,89 +17,89 @@ var accesstokenQuery = "access_token=ya29.Ci95A8fdoiJ-cKMRpGOEMm6rqQ_jD6jR8rsqEU
 	jwtkey = "random jibber jabber :P";
 
 
-describe('I - router test', function(){
-	before(function(){
-		server.listen(8080);
-	});
+// describe('I - router test', function(){
+// 	before(function(){
+// 		server.listen(8080);
+// 	});
 
-	after(function(){
-		server.close();
-	});
+// 	after(function(){
+// 		server.close();
+// 	});
 
-	it("should show login.html when got / ", function(done){
-		request({
-			url: "http://localhost:8080",
-			method: "GET"
-		}, function(err, res, body){
-			res.statusCode.should.be.equal(200);
-			done();
-		});
+// 	it("should show login.html when got / ", function(done){
+// 		request({
+// 			url: "http://localhost:8080",
+// 			method: "GET"
+// 		}, function(err, res, body){
+// 			res.statusCode.should.be.equal(200);
+// 			done();
+// 		});
 
-	});
+// 	});
 
-	it("should generate jwt token containing user info and store jwt on cookie when provided with google access token", function(done){
-		request({
-			url: "http://localhost:8080/login",
-			method: "POST",
-			form: accesstokenQuery,
-			followRedirect: false
-		}, function(err, res, body){
-			res.statusCode.should.be.equal(302);
-			res.headers['location'].should.include('/main');
-			res.headers['set-cookie'][0].should.contain('jwt=');
-			done();
-		});
-	});
+// 	it("should generate jwt token containing user info and store jwt on cookie when provided with google access token", function(done){
+// 		request({
+// 			url: "http://localhost:8080/login",
+// 			method: "POST",
+// 			form: accesstokenQuery,
+// 			followRedirect: false
+// 		}, function(err, res, body){
+// 			res.statusCode.should.be.equal(302);
+// 			res.headers['location'].should.include('/main');
+// 			res.headers['set-cookie'][0].should.contain('jwt=');
+// 			done();
+// 		});
+// 	});
 
-	describe("validating jwt", function(){
-		var jwtCookie;
+// 	describe("validating jwt", function(){
+// 		var jwtCookie;
 
-		before(function(done){
-			request({
-				url: "http://localhost:8080/login",
-				method: "POST",
-				form: accesstokenQuery,
-				followRedirect: false
-			}, function(err, res, body){
-			// res.headers['set-cookie'] sample
-			// [ 'jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IllvdW5nSW0gQW15IEpvIiwiZW1haWwiOiJ5aWpvQGtub3dyZS5jb20iLCJpYXQiOjE0NzYwNjg3ODl9.l-Tdq7skhCSIryEDvcromiYBb3WMBMuOLIH-Urtg_2o; Path=/' ]
-				jwtCookie = res.headers['set-cookie'][0].split(';')[0];
-				done();
-			});	
-		});
+// 		before(function(done){
+// 			request({
+// 				url: "http://localhost:8080/login",
+// 				method: "POST",
+// 				form: accesstokenQuery,
+// 				followRedirect: false
+// 			}, function(err, res, body){
+// 			// res.headers['set-cookie'] sample
+// 			// [ 'jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IllvdW5nSW0gQW15IEpvIiwiZW1haWwiOiJ5aWpvQGtub3dyZS5jb20iLCJpYXQiOjE0NzYwNjg3ODl9.l-Tdq7skhCSIryEDvcromiYBb3WMBMuOLIH-Urtg_2o; Path=/' ]
+// 				jwtCookie = res.headers['set-cookie'][0].split(';')[0];
+// 				done();
+// 			});	
+// 		});
 
-		it("should verify jwt and show user main if jwt is verified", function(done){
-			var j = request.jar();
-			j.setCookie(jwtCookie, "http://localhost:8080/main");
-			request({
-				url: "http://localhost:8080/main",
-				method: 'GET',
-				followRedirect: false,
-				jar: j
-			}, function(err, res, body){
-				res.statusCode.should.be.equal(302);
-				res.headers['location'].should.include('/main');
-				done();
-			});
-		});
+// 		it("should verify jwt and show user main if jwt is verified", function(done){
+// 			var j = request.jar();
+// 			j.setCookie(jwtCookie, "http://localhost:8080/main");
+// 			request({
+// 				url: "http://localhost:8080/main",
+// 				method: 'GET',
+// 				followRedirect: false,
+// 				jar: j
+// 			}, function(err, res, body){
+// 				res.statusCode.should.be.equal(302);
+// 				res.headers['location'].should.include('/main');
+// 				done();
+// 			});
+// 		});
 
-		it("should verify jwt and redirect user to / if jwt is failed to be verified", function(done){
-			var j = request.jar();
-			var cookie = "jwt=randomjibberjabber";
-			j.setCookie(cookie, "http://localhost:8080/main");
-			request({
-				url: "http://localhost:8080/main",
-				method: 'GET',
-				followRedirect: false,
-				jar: j
-			}, function(err, res, body){
-				res.statusCode.should.be.equal(302);
-				res.headers['location'].should.include('/');
-				done();
-			});
-		});
-	});
-});
+// 		it("should verify jwt and redirect user to / if jwt is failed to be verified", function(done){
+// 			var j = request.jar();
+// 			var cookie = "jwt=randomjibberjabber";
+// 			j.setCookie(cookie, "http://localhost:8080/main");
+// 			request({
+// 				url: "http://localhost:8080/main",
+// 				method: 'GET',
+// 				followRedirect: false,
+// 				jar: j
+// 			}, function(err, res, body){
+// 				res.statusCode.should.be.equal(302);
+// 				res.headers['location'].should.include('/');
+// 				done();
+// 			});
+// 		});
+// 	});
+// });
 
 
 describe('II - socket test', function(){
@@ -108,95 +109,221 @@ describe('II - socket test', function(){
 		var userInfo = {
 			username: 'Jane Doe',
 			email: 'test@knowre.com',
-			language: 'kr'
+			language: 'en'
 		}
 		
 		jwt.sign(userInfo, jwtkey, {}, function(err, token){
 			if (err) throw err;
-			jwtCookie = 'jwt='+token+"; language=kr";
+			jwtCookie = 'jwt='+token+"&language=en";
+		});
 
-			jar = request.jar();
-			jar.setCookie(jwtCookie, 'http://localhost:8080/main');
-			done();
+		Activity_info.sync().then(()=>{
+			return Activity_info.truncate();
+		}).then(()=>{
+			return Activity_join_log.sync();
+		}).then(()=>{
+			return Activity_join_log.truncate();
+		}).then(()=>{
+			return insertData;
+		}).then(()=>{
+			done();	
 		});
 	});
 
-	beforeEach(function(done){
-		client1 = io('http://localhost:8080', {
-			query: jwtCookie
-		});
-		done();
-	});
-
-	afterEach(function(done){
-		client1.disconnect();
-		done();
-	})
-
-	it("should emit receiveActivityInfo with json when got fetchActivityInfo", function(done){
-		client1.on('connect', function(){
-			client1.emit('fetchActivityInfo');
-		});
-
-		client1.on('receiveActivityInfo', function(activityInfo){
-			console.log('ever gets to here?');
-			for (var key in activityInfo){
-				Number(key).should.be.a('number');
-				activityInfo[key].should.have.all.keys('id', 'title', 'description', 'quota', 'currentQuota');
-				activityInfo[key].id.should.be.a('number');
-				activityInfo[key].title.should.be.a('string');
-				// activityInfo[key].description.should.satisfy(function(desc){
-				// 	return desc == null || typeof desc == "string"
-				// });
-				// null이 올 수 있는 경우에는 테스트케이스를 짜지 않는것이 나은건가??
-				// activityInfo[key].quota.should.satisfy(function(quo){
-				// 	return quo == null || typeof quo == "number"
-				// });
-				activityInfo[key].currentQuota.should.be.a('number');
-			}
-			done();
-		});
-	});
-
-	describe('distinguish if activity can be joined', function(){
-
-		afterEach(function(done){
-			var currentTime = new Date();
-			var thirtyMinuteEarlier = new Date(currentTime.getTime() - 5*60*1000);
-			
-			Activity_join_log.destroy({
-				where:{
-					created_at: {
-						$gt: thirtyMinuteEarlier
-					}
-				},
-				force: true
+	after(function(done){
+			Activity_info.truncate({cascade: true}).then(()=>{
+				return Activity_join_log.truncate();
+			}).then(()=>{
+				return Chat_log.truncate();
+			}).then(()=>{
+				done();
 			})
 		});
 
-		it("should emit activityFull when the quota is full", function(done){
-			// 원래는 join 할 수 없는 케이스를 before에서 설정해주고 끝나면 그거 drop 하는걸 넣어줘야 하나?
-			client1.on('connect', function(){
-				client1.emit('applyActivity', 1, 'tester');
+
+	describe("fetchActivityInfo test", function(){
+		beforeEach(function(done){
+			client1 = io('http://localhost:8080', {
+				query: jwtCookie
 			});
+			done();
+		});
+
+		afterEach(function(done){
+			client1.disconnect();
+			done();
+		});
+
+		it("should emit receiveActivityInfo with json when got fetchActivityInfo", function(done){
+			client1.on('connect', function(){
+				client1.emit('fetchActivityInfo');
+			});
+
+			client1.on('receiveActivityInfo', function(activityInfo){
+				for (var key in activityInfo){
+					Number(key).should.be.a('number');
+					activityInfo[key].should.have.all.keys('id', 'title', 'description', 'quota', 'currentQuota');
+					activityInfo[key].id.should.be.a('number');
+					activityInfo[key].title.should.be.a('string');
+					activityInfo[key].currentQuota.should.be.a('number');
+				}
+				done();
+			});
+		});
+
+		it("should emit joinActivity with id and username when got fetchActivityInfo", function(done){
+			client1.on('connect', function(){
+				client1.emit('fetchActivityInfo');
+			});
+
+			let count = 0;
+
+			client1.on('joinActivity', function(id, username){
+				count++;
+				id.should.be.a('number');
+				username.should.be.a('string');
+			});
+
+			let today = new Date();
+			Activity_join_log.findAll({
+				where: {
+					created_at: {
+						gt: new Date(today.getYear()+1900, today.getMonth()),
+						lt: new Date(today.getYear()+1900, today.getMonth()+1)
+					}
+				}
+			}).then((queryResult)=>{
+				if(count === queryResult.length) done();
+			});
+		});		
+
+	})
+
+
+	describe('distinguish if activity can be joined', function(){
+		beforeEach(function(done){
+			client1 = io('http://localhost:8080', {
+				query: jwtCookie
+			});
+			client1.emit('fetchActivityInfo');
+			done();
+		});
+
+		afterEach(function(done){
+			client1.disconnect();
+			done();
+		});
+
+		it("should emit activityFull event when attempint to sign up for an full event", function(done){
+			client1.on('connect', function(){
+				Activity_info.findAll({
+					attributes: ['id'],
+					where:{
+						quota: 0
+					}
+				}).then((queryResult)=>{
+					client1.emit('applyActivity', queryResult[0].dataValues.id, "mustFail");
+				});
+			})
 
 			client1.on('activityFull', function(){
 				done();
+			})
+		})
+
+		it("should be able to join an event when it's not full", function(done){
+			let applyingActivity;
+
+			client1.on('connect', function(){
+				Activity_info.findAll({
+					attributes: ['id'],
+					where:{
+						quota: {
+							$not: 0
+						}
+					}
+				}).then((queryResult)=>{
+					applyingActivity = queryResult[0].dataValues.id;
+					client1.emit('applyActivity', queryResult[0].dataValues.id, "mustPass");
+				});
+			});
+		
+			client1.on('joinActivity', function(activityNo, username){
+				activityNo.should.be.equal(activityNo);
+				username.should.be.equal("mustPass");
+				done();
 			});
 		});
+	});
 
-		it("should emit joinActivity with activityno and username when activity is able to be joined", function(done){
+	describe('if server can erase related info when a user leaves an activity', function(){
+		let applyingActivity;
+
+		beforeEach(function(done){
+			client1 = io('http://localhost:8080', {
+				query: jwtCookie
+			});
+			client1.emit('fetchActivityInfo');
+
+			Activity_info.findAll({
+				attributes: ['id'],
+				where:{
+					quota: {
+						$not: 0
+					}
+				}
+			}).then((queryResult)=>{
+				applyingActivity = queryResult[0].dataValues.id;
+				client1.emit('applyActivity', queryResult[0].dataValues.id, "test name for leaveActivity");
+			});
+			done();
+		});
+
+		afterEach(function(done){
+			client1.disconnect();
+			done();
+		})
+
+		it("should be able to leave activity when leaveActivity has fired", function(done){
 			client1.on('connect', function(){
-				client1.emit('applyActivity', 2, 'tester');
+				client1.emit('leaveActivity', "test name for leaveActivity", applyingActivity);
 			});
 
-			client1.on('joinActivity', function(activityno, username){
-				Number(activityno).should.be.a('number');
-				username.should.be.a('string');
+			client1.on('leaveActivity', function(username, activityJoined){
+				username.should.be.equal("test name for leaveActivity");
+				activityJoined.should.be.equal(applyingActivity);
 				done();
 			})
+		})
+	});
+
+
+	describe('user should be able to join chat', function(){
+		beforeEach(function(done){
+			client1 = io('http://localhost:8080', {
+				query: jwtCookie
+			});
+			client1.emit('fetchActivityInfo');
+			done();
 		});
+
+		afterEach(function(done){
+			client1.disconnect();
+			done();
+		});
+
+		it('should emit joinchat event when detecting requestToJoinChat', function(done){
+			client1.on('connect', function(){
+				client1.emit('requestToJoinChat');
+			});
+
+			client1.on('joinChat', function(username){
+				username.should.be.equal('Jane Doe');
+				done();
+			});
+		})
 	})
+
 
 
 });

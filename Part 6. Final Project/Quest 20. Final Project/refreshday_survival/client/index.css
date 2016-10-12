@@ -116,7 +116,10 @@ div.activity {
 	margin-right: auto;
 	font-size: 15px;
 	color: #212121;
+}
 
+.currentQuota {
+	color: #39d579;
 }
 
 .applyActivity {
