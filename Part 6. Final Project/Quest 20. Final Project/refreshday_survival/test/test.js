@@ -1,6 +1,5 @@
 var chai = require('chai'),
 	request = require('request'),
-	// chaiHttp = require('chai-http'),
 	server = require('../server').http,
 	io = require('socket.io-client'),
 	jwt = require('jsonwebtoken'),
@@ -13,106 +12,108 @@ var db = require('../db.js'),
 	Chat_log = db.Chat_log;
 
 
-var accesstokenQuery = "access_token=ya29.Ci94AxOSQYkUstaaEdE-WG-FEeOWd3ZvTmJ721dm-u1LrDxmjUd9C8i3gPbEuzOFvQ",
+var accesstokenQuery = "access_token=ya29.Ci95A8fdoiJ-cKMRpGOEMm6rqQ_jD6jR8rsqEUaQ29EI2bVMPjLeRj6JhKdq5xNPuQ",
 	jwtkey = "random jibber jabber :P";
 
 
-// describe('router testing', function(){
-// 	before(function(){
-// 		server.listen(8080);
-// 	});
+describe('I - router test', function(){
+	before(function(){
+		server.listen(8080);
+	});
 
-// 	after(function(){
-// 		server.close();
-// 	});
+	after(function(){
+		server.close();
+	});
 
-// 	it("should show login.html when got / ", function(done){
-// 		request({
-// 			url: "http://localhost:8080",
-// 			method: "GET"
-// 		}, function(err, res, body){
-// 			res.statusCode.should.be.equal(200);
-// 			done();
-// 		});
+	it("should show login.html when got / ", function(done){
+		request({
+			url: "http://localhost:8080",
+			method: "GET"
+		}, function(err, res, body){
+			res.statusCode.should.be.equal(200);
+			done();
+		});
 
-// 	});
+	});
 
-// 	it("should generate jwt token containing user info and store jwt on cookie when provided with google access token", function(done){
-// 		request({
-// 			url: "http://localhost:8080/login",
-// 			method: "POST",
-// 			form: accesstokenQuery,
-// 			followRedirect: false
-// 		}, function(err, res, body){
-// 			res.statusCode.should.be.equal(302);
-// 			res.headers['location'].should.include('/main');
-// 			res.headers['set-cookie'][0].should.contain('jwt=');
-// 			done();
-// 		});
-// 	});
+	it("should generate jwt token containing user info and store jwt on cookie when provided with google access token", function(done){
+		request({
+			url: "http://localhost:8080/login",
+			method: "POST",
+			form: accesstokenQuery,
+			followRedirect: false
+		}, function(err, res, body){
+			res.statusCode.should.be.equal(302);
+			res.headers['location'].should.include('/main');
+			res.headers['set-cookie'][0].should.contain('jwt=');
+			done();
+		});
+	});
 
-// 	describe("validating jwt", function(){
-// 		var jwtCookie;
+	describe("validating jwt", function(){
+		var jwtCookie;
 
-// 		before(function(done){
-// 			request({
-// 				url: "http://localhost:8080/login",
-// 				method: "POST",
-// 				form: accesstokenQuery,
-// 				followRedirect: false
-// 			}, function(err, res, body){
-// 			// res.headers['set-cookie'] sample
-// 			// [ 'jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IllvdW5nSW0gQW15IEpvIiwiZW1haWwiOiJ5aWpvQGtub3dyZS5jb20iLCJpYXQiOjE0NzYwNjg3ODl9.l-Tdq7skhCSIryEDvcromiYBb3WMBMuOLIH-Urtg_2o; Path=/' ]
-// 				jwtCookie = res.headers['set-cookie'][0].split(';')[0];
-// 				done();
-// 			});	
-// 		});
+		before(function(done){
+			request({
+				url: "http://localhost:8080/login",
+				method: "POST",
+				form: accesstokenQuery,
+				followRedirect: false
+			}, function(err, res, body){
+			// res.headers['set-cookie'] sample
+			// [ 'jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IllvdW5nSW0gQW15IEpvIiwiZW1haWwiOiJ5aWpvQGtub3dyZS5jb20iLCJpYXQiOjE0NzYwNjg3ODl9.l-Tdq7skhCSIryEDvcromiYBb3WMBMuOLIH-Urtg_2o; Path=/' ]
+				jwtCookie = res.headers['set-cookie'][0].split(';')[0];
+				done();
+			});	
+		});
 
-// 		it("should verify jwt and show user main if jwt is verified", function(done){
-// 			var j = request.jar();
-// 			j.setCookie(jwtCookie, "http://localhost:8080/main");
-// 			request({
-// 				url: "http://localhost:8080/main",
-// 				method: 'GET',
-// 				followRedirect: false,
-// 				jar: j
-// 			}, function(err, res, body){
-// 				res.statusCode.should.be.equal(200);
-// 				done();
-// 			});
-// 		});
+		it("should verify jwt and show user main if jwt is verified", function(done){
+			var j = request.jar();
+			j.setCookie(jwtCookie, "http://localhost:8080/main");
+			request({
+				url: "http://localhost:8080/main",
+				method: 'GET',
+				followRedirect: false,
+				jar: j
+			}, function(err, res, body){
+				res.statusCode.should.be.equal(302);
+				res.headers['location'].should.include('/main');
+				done();
+			});
+		});
 
-// 		it("should verify jwt and redirect user to / if jwt is failed to be verified", function(done){
-// 			var j = request.jar();
-// 			var cookie = "jwt=randomjibberjabber";
-// 			j.setCookie(cookie, "http://localhost:8080/main");
-// 			request({
-// 				url: "http://localhost:8080/main",
-// 				method: 'GET',
-// 				followRedirect: false,
-// 				jar: j
-// 			}, function(err, res, body){
-// 				res.statusCode.should.be.equal(302);
-// 				res.headers['location'].should.include('/');
-// 				done();
-// 			});
-// 		});
-// 	});
-// });
+		it("should verify jwt and redirect user to / if jwt is failed to be verified", function(done){
+			var j = request.jar();
+			var cookie = "jwt=randomjibberjabber";
+			j.setCookie(cookie, "http://localhost:8080/main");
+			request({
+				url: "http://localhost:8080/main",
+				method: 'GET',
+				followRedirect: false,
+				jar: j
+			}, function(err, res, body){
+				res.statusCode.should.be.equal(302);
+				res.headers['location'].should.include('/');
+				done();
+			});
+		});
+	});
+});
 
 
-describe('socket testing', function(){
+describe('II - socket test', function(){
 	var jwtCookie, jar, client1;
 
 	before(function(done){
 		var userInfo = {
 			username: 'Jane Doe',
-			email: 'test@knowre.com'
+			email: 'test@knowre.com',
+			language: 'kr'
 		}
 		
 		jwt.sign(userInfo, jwtkey, {}, function(err, token){
 			if (err) throw err;
-			jwtCookie = 'jwt='+token;
+			jwtCookie = 'jwt='+token+"; language=kr";
 
 			jar = request.jar();
 			jar.setCookie(jwtCookie, 'http://localhost:8080/main');
@@ -138,6 +139,7 @@ describe('socket testing', function(){
 		});
 
 		client1.on('receiveActivityInfo', function(activityInfo){
+			console.log('ever gets to here?');
 			for (var key in activityInfo){
 				Number(key).should.be.a('number');
 				activityInfo[key].should.have.all.keys('id', 'title', 'description', 'quota', 'currentQuota');

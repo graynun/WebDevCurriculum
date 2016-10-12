@@ -20,28 +20,6 @@ class RuleBook {
 		this.socket.emit('fetchActivityInfo');
 	}
 
-	// setUserLanguage() {
-	// 	// console.log(this.socket);
-	// 	// let currentjwt = this.socket.handshake.headers.cookie.split(/jwt=/g)[1] || this.socket.handshake.query.jwt;
-
-	// 	// jwt.verify(currentjwt, 'random jibber jabber :P', {}, (err, userinfo)=>{
-	// 	// 	if (userinfo.language === 'ko'){
-	// 	// 		this.language = 'kr';
-	// 	// 	} else {
-	// 	// 		this.language = 'en';
-	// 	// 		this.changeHTMLFromKRToEN();
-	// 	// 	}
-	// 	// });
-	// }
-
-	// changeHTMLFromKRToEN() {
-	// 	document.querySelector('.activityTitle').innerText = 'Activity';
-	// 	document.querySelector('.activityDescription').innerText = 'Activity description';
-	// 	document.querySelector('.applyActivity').innerText = 'Sign up';
-	// 	document.querySelector('h1').innerText = 'Refreshday Activity Sign up';
-	// 	document.querySelector('.signout').innerText = 'Sign out';
-	// }
-
 	bindEvents() {
 		document.addEventListener('keypress', (e)=>{
 			if(e.key === "Enter"){

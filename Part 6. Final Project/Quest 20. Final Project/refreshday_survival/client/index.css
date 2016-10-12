@@ -42,11 +42,15 @@ section h1 {
 	margin: auto 0 auto 12px;
 	font-size: 13px;
 	color: #424242;
+	vertical-align: center;
 }
 
-.username {
+.username, .changeLanguage {
 	line-height: 30px;
-	vertical-align: center;
+}
+
+.changeLanguage {
+	font-weight: bolder;
 }
 
 .signout {

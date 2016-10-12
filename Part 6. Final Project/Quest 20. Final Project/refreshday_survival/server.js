@@ -40,6 +40,8 @@ app.get('/', (req, res)=>{
 });
 
 app.post('/login', (req, res)=>{
+	console.log("************ access token *****************");
+	console.log(req.body.access_token);
 	let outermostRes = res;
 	let validateURL = 'https://www.googleapis.com/oauth2/v3/tokeninfo?access_token='+req.body.access_token;
 	https.get(validateURL, (res)=>{
@@ -106,10 +108,6 @@ app.get('/main_en', (req, res)=>{
 			res.redirect('/');
 			console.log('not authenticated user');
 		} else {
-			console.log('****************************jwt verified info **********************************');
-			console.log(userinfo.username);
-			console.log(userinfo.email);
-
 			res.sendFile(path.join(__dirname, '/client/main_en.html'));
 		} 
 	});
@@ -122,10 +120,6 @@ app.get('/main_kr', (req, res)=>{
 			res.redirect('/');
 			console.log('not authenticated user');
 		} else {
-			console.log('****************************jwt verified info **********************************');
-			console.log(userinfo.username);
-			console.log(userinfo.email);
-
 			res.sendFile(path.join(__dirname, '/client/main_kr.html'));
 		} 
 	});
@@ -138,7 +132,7 @@ io.on('connection', (socket)=>{
 	let currentjwt = socket.handshake.headers.cookie.split(/jwt=/g)[1] || socket.handshake.query.jwt;
 
 
-	console.log(socket.handshake.headers);
+	console.log(currentjwt);
 
 	//for testing
 	// console.log('NO COOKIE HERE?!');
@@ -157,6 +151,7 @@ io.on('connection', (socket)=>{
 			whereQuery.push(['description_en', 'description']);
 		}
 
+		console.log(whereQuery);
 
 		Activity_info.findAll({
 			attributes: whereQuery,
