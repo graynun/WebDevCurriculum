@@ -3,7 +3,7 @@ class RuleBook {
 		this.jointime = jointime,
 		this.username = undefined,
 		this.activityJoined = undefined;
-		(window.location.href.indexOf('kr') !== -1)? this.language = 'kr' : this.language = 'en';
+		this.language = undefined;
 
 		this.socket = socket,
 		this.chatManager = chatManager;
@@ -16,8 +16,10 @@ class RuleBook {
 	initialize() {
 		this.appendLoadMore();
 		
+		this.socket.emit('getLanguageInfo');
 		this.socket.emit('requestToJoinChat');
-		this.socket.emit('fetchActivityInfo');
+		this.socket.emit('fetchActivityInfo', this.language);
+		
 	}
 
 	bindEvents() {
@@ -47,15 +49,22 @@ class RuleBook {
 
 		document.querySelector('.changeLanguage').addEventListener('click', ()=>{
 			if (document.querySelector('.changeLanguage').innerText === 'English') {
-				window.location.replace('/main_en');
+				this.setLanguage('en');
+				this.socket.emit('fetchActivityInfo', 'en');
 			} else {
-				window.location.replace('/main_kr');
+				this.setLanguage('kr');
+				this.socket.emit('fetchActivityInfo', 'kr');
 			}
 		});
 	}
 
 	bindSocketEvents() {
 		var that = this;
+
+		this.socket.on('receiveLanguageInfo', (language)=>{
+			this.language = language;
+			this.setLanguage();
+		});
 
 		this.socket.on('receiveActivityInfo', (activityInfo)=>{
 			console.log(activityInfo);
@@ -163,7 +172,6 @@ class RuleBook {
 		);
 	}
 
-
 	appendLoadMore(){
 		console.log("Ever called initialize?");
 
@@ -176,6 +184,32 @@ class RuleBook {
 		})
 
 		document.querySelector('.chatWindow').insertBefore(loadMore, document.querySelector('.chatWindow>p'));
+	}
+
+	setLanguage(language){
+		 if (language === "ko"){
+		 	this.language === "ko";
+
+			document.querySelector('.pageTitle').innerText = "리프레시 데이 선착순 신청표";
+			document.querySelector('.changeLanguage').innerText = "English";
+			document.querySelector('.signout').innerText = "로그아웃";	
+		} else if (language === "en") {
+			this.language === "en";
+
+			document.querySelector('.pageTitle').innerText = "Refreshday Activity sign up";
+			document.querySelector('.changeLanguage').innerText = "한글";
+			document.querySelector('.signout').innerText = "Signout";	
+		} else {
+			if (this.language === "ko"){
+				document.querySelector('.pageTitle').innerText = "리프레시 데이 선착순 신청표";
+				document.querySelector('.changeLanguage').innerText = "English";
+				document.querySelector('.signout').innerText = "로그아웃";	
+			} else {
+				document.querySelector('.pageTitle').innerText = "Refreshday Activity sign up";
+				document.querySelector('.changeLanguage').innerText = "한글";
+				document.querySelector('.signout').innerText = "Signout";	
+			}
+		}
 	}
 }
 

@@ -65,6 +65,8 @@ app.post('/login', (req, res)=>{
 							language: receivedUserInfo.locale
 						};
 
+						outermostRes.set('language', receivedUserInfo.locale);
+
 						jwt.sign(userinfo, jwtkey, {}, (err, token)=>{
 							if (err) throw err;
 							outermostRes.cookie('jwt', token);
@@ -89,15 +91,20 @@ app.get('/main', (req, res)=>{
 			res.redirect('/');
 			console.log('not authenticated user');
 		} else {
-			console.log(req.headers);
 			console.log('****************************jwt verified info **********************************');
 			console.log(userinfo.username);
 			console.log(userinfo.email);
 
-			if (userinfo.language === 'ko'){
-				res.redirect('/main_kr');
+			if (userinfo.email.indexOf("knowre.com") !== -1) {
+				res.sendFile(path.join(__dirname, '/client/main_en.html'));
+
+				// if (userinfo.language === 'ko') {
+				// 	res.redirect('/main_kr');
+				// } else {
+				// 	res.redirect('/main_en');
+				// }	
 			} else {
-				res.redirect('/main_en');
+				res.redirect('/');
 			}
 		} 
 	});
@@ -134,20 +141,44 @@ io.on('connection', (socket)=>{
 	//socket.handshake.query is only for test cases
 	let currentjwt = socket.handshake.query.jwt || socket.handshake.headers.cookie.split(/jwt=/g)[1];
 
-	socket.on('fetchActivityInfo', ()=>{
-		let whereQuery = ['id', 'quota'];
+	socket.on('getLanguageInfo', ()=>{
+		jwt.verify(currentjwt, jwtkey, {}, (err, userinfo)=>{
+			if (userinfo === undefined) {
+				console.log('not authenticated user');
+			} else {
+				socket.emit('receiveLanguageInfo', userinfo.language);
+			} 
+		});
+	});
+
+
+	socket.on('fetchActivityInfo', (language)=>{
+		let koreanQuery = ['id', 'quota', ['title_kr', 'title'], ['description_kr', 'description']];
+		let englishQuery = ['id', 'quota', ['title_en', 'title'], ['description_en', 'description']];
 		//socket.handshake.query is only for test cases
 		let currentReferer = socket.handshake.query.language || socket.handshake.headers.referer;
+		let whereQuery;
 
-		if (currentReferer.indexOf('kr') !== -1){
-			whereQuery.push(['title_kr', 'title']);
-			whereQuery.push(['description_kr', 'description']);
+		console.log(language);
+
+		if (language === 'ko'){
+			whereQuery = koreanQuery;
+		} else if (language === 'en'){
+			whereQuery = englishQuery;
 		} else {
-			whereQuery.push(['title_en', 'title']);
-			whereQuery.push(['description_en', 'description']);
+			jwt.verify(currentjwt, jwtkey, {}, (err, userinfo)=>{
+				console.log(userinfo);
+				if (userinfo.language === 'ko') {
+					whereQuery = koreanQuery;	
+				} else {
+					whereQuery = englishQuery;
+				} 
+			});
 		}
 
 		let today = new Date();
+
+		console.log(whereQuery);
 
 		Activity_info.findAll({
 			attributes: whereQuery,
@@ -158,6 +189,7 @@ io.on('connection', (socket)=>{
 				}
 			}
 		}).then((queryResult)=>{
+			console.log(queryResult);
 			for (let i=0; i<queryResult.length; i++) {
 				queryResult[i].dataValues.currentQuota = 0;
 				activityInfo[Number(queryResult[i].dataValues.id)] = queryResult[i].dataValues;
@@ -166,6 +198,7 @@ io.on('connection', (socket)=>{
 			return Activity_join_log.findAll();
 			
 		}).then((queryResult)=>{
+			console.log(queryResult);
 			for (let i=0; i<queryResult.length; i++) {
 				activityInfo[queryResult[i].dataValues.activity_id].currentQuota++;
 				socket.emit('joinActivity', queryResult[i].dataValues.activity_id, queryResult[i].dataValues.username);
